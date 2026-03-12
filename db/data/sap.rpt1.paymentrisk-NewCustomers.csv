@@ -1,0 +1,9 @@
+ID,customer_id,customer_name,region,industry,invoice_amount,payment_terms,days_overdue_avg,num_late_payments,credit_limit,outstanding_balance
+1,C2001,NovaTech Solutions,EMEA,Technology,165000.00,NET30,35,7,220000.00,165000.00
+2,C2002,BlueSky Logistics,APJ,Logistics,92000.00,NET60,6,1,180000.00,92000.00
+3,C2003,IronClad Manufacturing,Americas,Manufacturing,275000.00,NET30,58,12,380000.00,275000.00
+4,C2004,GreenLeaf Pharma,EMEA,Pharmaceuticals,138000.00,NET30,4,1,250000.00,138000.00
+5,C2005,FastFood Retail GmbH,EMEA,Retail,55000.00,NET30,0,0,120000.00,55000.00
+6,C2006,DeepDrill Energy,Americas,Energy,310000.00,NET90,65,11,420000.00,310000.00
+7,C2007,PixelMedia Ltd,APJ,Media,82000.00,NET60,19,4,160000.00,82000.00
+8,C2008,Stadtbau AG,EMEA,Construction,195000.00,NET30,42,8,300000.00,195000.00

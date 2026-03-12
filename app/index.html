@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SAP-RPT-1 | Payment Risk Predictor</title>
+  <style>
+    :root {
+      --sap-blue    : #0070f2;
+      --sap-dark    : #1d2d3e;
+      --sap-light   : #f5f6f7;
+      --high        : #bb0000;
+      --medium      : #e76500;
+      --low         : #188918;
+      --card-shadow : 0 2px 8px rgba(0,0,0,0.12);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "72", "72full", Arial, Helvetica, sans-serif;
+      background: var(--sap-light);
+      color: var(--sap-dark);
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--sap-blue);
+      color: white;
+      padding: 0 2rem;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    header h1 { font-size: 1.1rem; font-weight: 600; }
+    header .badge {
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.4);
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+    }
+
+    /* ── Main Layout ── */
+    main { padding: 1.5rem 2rem; max-width: 1200px; margin: 0 auto; }
+
+    /* ── Section Title ── */
+    .section-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #6e7d8c;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 0.75rem;
+    }
+
+    /* ── KPI Cards ── */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .kpi-card {
+      background: white;
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      box-shadow: var(--card-shadow);
+      border-top: 4px solid var(--sap-blue);
+    }
+    .kpi-card.high   { border-top-color: var(--high); }
+    .kpi-card.medium { border-top-color: var(--medium); }
+    .kpi-card.low    { border-top-color: var(--low); }
+    .kpi-label { font-size: 0.8rem; color: #6e7d8c; margin-bottom: 0.4rem; }
+    .kpi-value { font-size: 2rem; font-weight: 700; }
+    .kpi-card.high   .kpi-value { color: var(--high); }
+    .kpi-card.medium .kpi-value { color: var(--medium); }
+    .kpi-card.low    .kpi-value { color: var(--low); }
+
+    /* ── Token Input Panel ── */
+    .token-panel {
+      background: white;
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      box-shadow: var(--card-shadow);
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .token-panel label { font-weight: 600; font-size: 0.9rem; white-space: nowrap; }
+    .token-panel input {
+      flex: 1;
+      min-width: 260px;
+      border: 1px solid #bcc3ca;
+      border-radius: 6px;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.9rem;
+      outline: none;
+    }
+    .token-panel input:focus { border-color: var(--sap-blue); box-shadow: 0 0 0 2px rgba(0,112,242,0.15); }
+    .token-hint { font-size: 0.78rem; color: #6e7d8c; }
+    .token-hint a { color: var(--sap-blue); }
+
+    /* ── Predict Button ── */
+    .btn-predict {
+      background: var(--sap-blue);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 0.55rem 1.4rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+    .btn-predict:hover   { background: #0057c2; }
+    .btn-predict:disabled { background: #aaa; cursor: not-allowed; }
+
+    /* ── Tables ── */
+    .table-card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: var(--card-shadow);
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+    }
+    .table-header {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid #e5e9ef;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .table-header h2 { font-size: 1rem; font-weight: 600; }
+    .table-count { font-size: 0.8rem; color: #6e7d8c; }
+    table { width: 100%; border-collapse: collapse; }
+    th {
+      background: #f5f6f7;
+      padding: 0.75rem 1rem;
+      text-align: left;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #6e7d8c;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      border-bottom: 1px solid #e5e9ef;
+    }
+    td {
+      padding: 0.75rem 1rem;
+      font-size: 0.875rem;
+      border-bottom: 1px solid #f0f1f2;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f8f9fa; }
+
+    /* ── Risk Badge ── */
+    .risk-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 10px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .risk-HIGH   { background: #ffeaea; color: var(--high); }
+    .risk-MEDIUM { background: #fff3e0; color: var(--medium); }
+    .risk-LOW    { background: #e8f5e9; color: var(--low); }
+    .risk-PREDICT { background: #e8eef7; color: var(--sap-blue); font-style: italic; }
+
+    /* ── Status Bar ── */
+    #statusBar {
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+      font-size: 0.875rem;
+      display: none;
+    }
+    #statusBar.info    { background: #e8eef7; color: var(--sap-blue); display: block; }
+    #statusBar.success { background: #e8f5e9; color: #1a6e1a; display: block; }
+    #statusBar.error   { background: #ffeaea; color: var(--high); display: block; }
+
+    /* ── Two-column layout ── */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+
+    /* ── Loader ── */
+    .loader {
+      display: inline-block;
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.78rem;
+      color: #6e7d8c;
+    }
+    footer a { color: var(--sap-blue); }
+
+    @media (max-width: 768px) {
+      .kpi-row  { grid-template-columns: 1fr 1fr; }
+      .two-col  { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Header ─────────────────────────────── -->
+<header>
+  <h1>🔮 SAP-RPT-1 | Payment Risk Predictor</h1>
+  <span class="badge">Powered by SAP Relational Foundation Model</span>
+</header>
+
+<main>
+
+  <!-- ── Status Bar ── -->
+  <div id="statusBar"></div>
+
+  <!-- ── KPI Cards ── -->
+  <p class="section-title">Prediction Summary</p>
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <div class="kpi-label">Customers Assessed</div>
+      <div class="kpi-value" id="kpiTotal">—</div>
+    </div>
+    <div class="kpi-card high">
+      <div class="kpi-label">High Risk</div>
+      <div class="kpi-value" id="kpiHigh">—</div>
+    </div>
+    <div class="kpi-card medium">
+      <div class="kpi-label">Medium Risk</div>
+      <div class="kpi-value" id="kpiMedium">—</div>
+    </div>
+    <div class="kpi-card low">
+      <div class="kpi-label">Low Risk</div>
+      <div class="kpi-value" id="kpiLow">—</div>
+    </div>
+  </div>
+
+  <!-- ── Token Panel + Predict Button ── -->
+  <div class="token-panel">
+    <label for="rpt1Token">RPT-1 API Token</label>
+    <input type="password" id="rpt1Token"
+           placeholder="Paste your token from rpt.cloud.sap" />
+    <button class="btn-predict" id="btnPredict" onclick="runPrediction()">
+      ▶ Run Prediction
+    </button>
+    <span class="token-hint">
+      Get your free token at <a href="https://rpt.cloud.sap/docs" target="_blank">rpt.cloud.sap</a>
+      (S-user login required)
+    </span>
+  </div>
+
+  <!-- ── Main Content ── -->
+  <div class="two-col">
+
+    <!-- Left: New Customers (to predict) -->
+    <div class="table-card">
+      <div class="table-header">
+        <h2>📋 New Customers — Awaiting Prediction</h2>
+        <span class="table-count" id="newCount">Loading…</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Customer</th>
+            <th>Region</th>
+            <th>Industry</th>
+            <th>Invoice Amt</th>
+            <th>Days Overdue</th>
+            <th>Risk</th>
+          </tr>
+        </thead>
+        <tbody id="newCustomersBody">
+          <tr><td colspan="6" style="text-align:center;color:#aaa;padding:2rem">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Right: Prediction Results -->
+    <div class="table-card">
+      <div class="table-header">
+        <h2>🎯 RPT-1 Predictions</h2>
+        <span class="table-count" id="resultCount">No predictions yet</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Customer</th>
+            <th>Region</th>
+            <th>Industry</th>
+            <th>Invoice Amt</th>
+            <th>Predicted Risk</th>
+            <th>Confidence</th>
+          </tr>
+        </thead>
+        <tbody id="resultsBody">
+          <tr><td colspan="6" style="text-align:center;color:#aaa;padding:2rem">
+            Run prediction to see results
+          </td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- ── Historical Context Table ── -->
+  <p class="section-title">Historical FI-AR Context Data (sent to RPT-1 as few-shot examples)</p>
+  <div class="table-card">
+    <div class="table-header">
+      <h2>📂 Payment History — Training Context</h2>
+      <span class="table-count" id="historyCount">Loading…</span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Customer ID</th>
+          <th>Region</th>
+          <th>Industry</th>
+          <th>Invoice Amt</th>
+          <th>Terms</th>
+          <th>Avg Days Overdue</th>
+          <th>Late Payments</th>
+          <th>Known Risk</th>
+        </tr>
+      </thead>
+      <tbody id="historyBody">
+        <tr><td colspan="8" style="text-align:center;color:#aaa;padding:2rem">Loading…</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</main>
+
+<footer>
+  Built with ❤️ using <strong>SAP Cloud Application Programming Model</strong> +
+  <a href="https://rpt.cloud.sap" target="_blank">SAP-RPT-1</a> |
+  SAP AI Architect Learning Journey
+</footer>
+
+<script>
+  const BASE = '/payment-risk';
+
+  // ── Helpers ────────────────────────────────
+  function fmt(amount) {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(amount);
+  }
+
+  function riskBadge(risk) {
+    const cls = risk === '[PREDICT]' ? 'PREDICT' : (risk || 'PREDICT');
+    const label = risk === '[PREDICT]' ? 'Pending…' : (risk || '—');
+    return `<span class="risk-badge risk-${cls}">${label}</span>`;
+  }
+
+  function setStatus(msg, type) {
+    const bar = document.getElementById('statusBar');
+    bar.textContent = msg;
+    bar.className = type;
+  }
+
+  // ── Load Historical Data ────────────────────
+  async function loadHistory() {
+    const res  = await fetch(`${BASE}/PaymentHistory?$orderby=ID`);
+    const data = await res.json();
+    const rows = data.value || [];
+    document.getElementById('historyCount').textContent = `${rows.length} records`;
+    document.getElementById('historyBody').innerHTML = rows.map(r => `
+      <tr>
+        <td><strong>${r.customer_id}</strong></td>
+        <td>${r.region}</td>
+        <td>${r.industry}</td>
+        <td>${fmt(r.invoice_amount)}</td>
+        <td>${r.payment_terms}</td>
+        <td>${r.days_overdue_avg} days</td>
+        <td>${r.num_late_payments}</td>
+        <td>${riskBadge(r.payment_risk)}</td>
+      </tr>`).join('');
+  }
+
+  // ── Load New Customers ──────────────────────
+  async function loadNewCustomers() {
+    const res  = await fetch(`${BASE}/NewCustomers?$orderby=ID`);
+    const data = await res.json();
+    const rows = data.value || [];
+    document.getElementById('newCount').textContent = `${rows.length} customers`;
+    document.getElementById('newCustomersBody').innerHTML = rows.map(r => `
+      <tr>
+        <td><strong>${r.customer_name}</strong><br/><small style="color:#888">${r.customer_id}</small></td>
+        <td>${r.region}</td>
+        <td>${r.industry}</td>
+        <td>${fmt(r.invoice_amount)}</td>
+        <td>${r.days_overdue_avg} days</td>
+        <td>${riskBadge('[PREDICT]')}</td>
+      </tr>`).join('');
+  }
+
+  // ── Load Existing Predictions (if any) ─────
+  async function loadResults() {
+    const res  = await fetch(`${BASE}/PredictionResults?$orderby=ID`);
+    const data = await res.json();
+    renderResults(data.value || []);
+    if ((data.value || []).length > 0) await loadSummary();
+  }
+
+  function renderResults(rows) {
+    document.getElementById('resultCount').textContent =
+      rows.length > 0 ? `${rows.length} predictions` : 'No predictions yet';
+    document.getElementById('resultsBody').innerHTML = rows.length === 0
+      ? '<tr><td colspan="6" style="text-align:center;color:#aaa;padding:2rem">Run prediction to see results</td></tr>'
+      : rows.map(r => `
+          <tr>
+            <td><strong>${r.customer_name}</strong><br/><small style="color:#888">${r.customer_id}</small></td>
+            <td>${r.region}</td>
+            <td>${r.industry}</td>
+            <td>${fmt(r.invoice_amount)}</td>
+            <td>${riskBadge(r.predicted_risk)}</td>
+            <td>${r.confidence}</td>
+          </tr>`).join('');
+  }
+
+  // ── Load KPI Summary ───────────────────────
+  async function loadSummary() {
+    const res  = await fetch(`${BASE}/getRiskSummary()`);
+    const data = await res.json();
+    document.getElementById('kpiTotal').textContent  = data.value?.total_predicted   ?? data.total_predicted   ?? 0;
+    document.getElementById('kpiHigh').textContent   = data.value?.high_risk_count   ?? data.high_risk_count   ?? 0;
+    document.getElementById('kpiMedium').textContent = data.value?.medium_risk_count ?? data.medium_risk_count ?? 0;
+    document.getElementById('kpiLow').textContent    = data.value?.low_risk_count    ?? data.low_risk_count    ?? 0;
+  }
+
+  // ── Run Prediction ─────────────────────────
+  async function runPrediction() {
+    const token = document.getElementById('rpt1Token').value.trim();
+    if (!token) {
+      setStatus('⚠️  Please enter your RPT-1 API token first.', 'error');
+      return;
+    }
+
+    const btn = document.getElementById('btnPredict');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loader"></span>Running RPT-1 Prediction…';
+    setStatus('⏳ Sending data to SAP-RPT-1 API… This may take 15-30 seconds.', 'info');
+
+    try {
+      const res = await fetch(`${BASE}/runPrediction`, {
+        method  : 'POST',
+        headers : { 'Content-Type': 'application/json' },
+        body    : JSON.stringify({ rpt1Token: token })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error?.message || data.message || 'Prediction failed');
+      }
+
+      const results = data.value || data || [];
+      renderResults(results.map((r, i) => ({
+        ...r,
+        region        : '',   // will reload from DB
+        industry      : '',
+        invoice_amount: 0
+      })));
+
+      // Reload full results from DB for complete data
+      await loadResults();
+      await loadSummary();
+
+      setStatus(`✅ Prediction complete! ${results.length} customers assessed by SAP-RPT-1.`, 'success');
+
+    } catch (err) {
+      console.error(err);
+      setStatus(`❌ Error: ${err.message}`, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '▶ Run Prediction';
+    }
+  }
+
+  // ── Init ───────────────────────────────────
+  (async () => {
+    await Promise.all([loadHistory(), loadNewCustomers(), loadResults()]);
+  })();
+</script>
+</body>
+</html>
