@@ -1,0 +1,26 @@
+ID,region,subaccount,serviceName,serviceCategory,billingModel,monthYear,allocatedBudgetUSD,actualSpendUSD,forecastedSpendUSD,spendVariancePct,creditUnitsUsed,isIdle,idleDays,recommendation
+co001,cf-us10,SwiftIS-Prod,SAP Integration Suite - Standard,Integration,CPEA,2026-03,3000.00,2850.00,3200.00,6.67,2590.90,false,0,Monitor forecast overage - message volume increasing month-on-month
+co002,cf-us10,SwiftIS-Stage,SAP Integration Suite - Standard,Integration,CPEA,2026-03,800.00,420.00,460.00,-42.50,381.81,false,0,Stage under budget - consider rebalancing to Prod where overage occurring
+co003,cf-us10,SwiftIS-QA,SAP Integration Suite - Standard,Integration,CPEA,2026-03,600.00,310.00,340.00,-43.33,281.81,false,0,QA on track
+co004,cf-us10,SwiftIS-Dev,SAP Integration Suite - Dev,Integration,CPEA,2026-03,400.00,85.00,92.00,-77.00,77.27,false,0,DEV low usage - team ramping up
+co005,cf-us10,BDC-Dev,SAP Datasphere - Global Dev,Data,CPEA,2026-03,1200.00,1080.00,1260.00,5.00,981.81,false,0,Global DS near budget - monitor CU consumption
+co006,cf-us10,BDC-Dev,SAP Datasphere - US Dev,Data,CPEA,2026-03,1200.00,1140.00,1380.00,15.00,1036.36,false,0,US DS over forecast - Databricks POC driving CU spike
+co007,cf-us10,BDC-Dev,SAP Datasphere - Global QA,Data,CPEA,2026-03,500.00,210.00,230.00,-54.00,190.90,false,0,QA on track
+co008,cf-us10,BDC-Dev,SAP Datasphere - US QA,Data,CPEA,2026-03,500.00,195.00,215.00,-57.00,177.27,false,0,QA on track
+co009,cf-us10,BDC-Dev,SAP Datasphere - Global Prod,Data,CPEA,2026-03,2000.00,1880.00,2240.00,12.00,1709.09,false,0,Prod CU 12% over forecast - review space allocations
+co010,cf-us10,BDC-Dev,SAP Datasphere - US Prod,Data,CPEA,2026-03,2000.00,1950.00,2350.00,17.50,1772.72,false,0,US Prod highest variance - Databricks POC data flows driving spike
+co011,cf-us10,BDC-Dev,SAP Analytics Cloud - Global,Analytics,Subscription,2026-03,1500.00,1500.00,1500.00,0.00,0.00,false,0,Fixed subscription - monitor license utilization separately
+co012,cf-us10,BDC-Dev,SAP Analytics Cloud - US,Analytics,Subscription,2026-03,1200.00,1200.00,1200.00,0.00,0.00,false,0,Fixed subscription - monitor license utilization separately
+co013,cf-us10,Joule-Prod,SAP AI Core - Extended,AI,CPEA,2026-03,1000.00,892.00,1085.00,8.50,810.90,false,0,GenAI Hub token consumption rising - review model usage patterns
+co014,cf-us10,Joule-Prod,Joule - Production,AI,CPEA,2026-03,800.00,745.00,910.00,13.75,677.27,false,0,US POC usage driving overage - budget increase recommended
+co015,cf-us10,Joule-Staging,SAP AI Core - Standard,AI,CPEA,2026-03,300.00,95.00,105.00,-65.00,86.36,false,0,Staging on track
+co016,cf-us10,Joule-QA,Joule - QA,AI,CPEA,2026-03,200.00,48.00,53.00,-73.50,43.63,false,0,QA minimal usage - expected
+co017,cf-us10,Joule-Dev,SAP BAS - Dev Spaces,Dev,CPEA,2026-03,350.00,285.00,320.00,-8.57,259.09,false,0,Dev active - team building BTP Monitoring dashboard
+co018,cf-us10,Joule-Dev,Joule - DEV,AI,CPEA,2026-03,150.00,42.00,48.00,-68.00,38.18,false,0,DEV Joule low usage - on track
+co019,cf-us10,BDC-Dev,HANA Cloud - BDC,Data,CPEA,2026-03,900.00,820.00,975.00,8.33,745.45,false,0,HANA Cloud storage growing with new Datasphere spaces
+co020,cf-us10,SwiftIS-Prod,API Management - Prod,Integration,CPEA,2026-03,500.00,465.00,540.00,8.00,422.72,false,0,API call volume increasing month-on-month
+co021,cf-us10,BDC-Dev,SAP Build Process Automation,Integration,CPEA,2026-03,600.00,125.00,140.00,-76.67,113.63,true,22,Idle since Feb 15 - BPA project paused. Review license
+co022,cf-us10,SwiftIS-Prod,Open Connectors - Prod,Integration,CPEA,2026-03,250.00,18.00,20.00,-92.00,16.36,true,45,Idle 45 days - no active connector jobs. Candidate for decommission
+co023,cf-us10,BDC-Dev,Document Information Extraction,AI,CPEA,2026-03,400.00,368.00,445.00,11.25,334.54,false,0,Invoice processing volume increasing - on track with rollout
+co024,cf-us10,D4D-US,D4D US - BTP Platform Services,Dev,CPEA,2026-03,500.00,385.00,440.00,-12.00,350.00,false,0,D4D US platform costs stable
+co025,cf-us10,D4D-Finance,D4D Finance - BTP Platform Services,Dev,CPEA,2026-03,400.00,295.00,335.00,-16.25,268.18,false,0,D4D Finance on track

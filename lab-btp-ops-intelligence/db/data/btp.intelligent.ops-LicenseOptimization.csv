@@ -1,0 +1,16 @@
+ID,region,subaccount,serviceName,licenseType,licensedUsers,activeUsers,unusedLicenses,utilizationPercent,monthlyCostPerLicense,monthlyWastedCost,lastLoginDate,daysSinceLastLogin,billingMonth,recommendation,status
+l0001,cf-us10,Joule-Prod,Joule Premium (AI Units PUPM),PUPM,75,42,33,56.00,22.00,726.00,2026-03-08,0,2026-03,33 seats reserved for Global Financial AI use case not yet started. Downgrade to Base until project approved.,Critical-Waste
+l0002,cf-us10,BDC-Dev,SAP Analytics Cloud - Global BI,Named-User,100,66,34,66.00,25.00,850.00,2026-03-07,1,2026-03,34 inactive SAC-Global BI users - cross-reference with HR offboarding list and reclaim seats.,Waste
+l0003,cf-us10,BDC-Dev,SAP Analytics Cloud - US BI,Named-User,80,58,22,72.50,25.00,550.00,2026-03-06,2,2026-03,22 inactive SAC-US BI users - validate with US member firm team leads,Waste
+l0004,cf-us10,BDC-Dev,SAP Datasphere - Standard,Named-User,30,27,3,90.00,35.00,105.00,2026-03-08,0,2026-03,Good utilization - minor cleanup possible next quarter,Optimal
+l0005,cf-us10,SwiftIS-Prod,SAP Integration Suite - Developer,Developer,15,13,2,86.67,80.00,160.00,2026-03-07,1,2026-03,2 developer licenses idle - check project assignments with SwiftIS leads,Review
+l0006,cf-us10,Joule-Prod,SAP AI Launchpad - Standard,Named-User,10,6,4,60.00,40.00,160.00,2026-02-28,9,2026-03,4 AI Launchpad users inactive 9+ days - likely from initial Joule rollout team,Review
+l0007,cf-us10,BDC-Dev,SAP Build Base Users,Base,120,74,46,61.67,12.00,552.00,2026-03-06,2,2026-03,46 unused base licenses - cross-reference with active project rosters and offboard leavers,Waste
+l0008,cf-us10,BDC-Dev,SAP Build Developer,Developer,20,17,3,85.00,45.00,135.00,2026-03-07,1,2026-03,3 developer licenses idle - reassign to new joiners on waitlist,Review
+l0009,cf-us10,Joule-Dev,SAP BAS - Full Stack Dev,Named-User,20,18,2,90.00,28.00,56.00,2026-03-08,0,2026-03,Healthy utilization - no action needed,Optimal
+l0010,cf-us10,SwiftIS-Prod,Document Management Service,Named-User,30,16,14,53.33,12.00,168.00,2026-02-15,22,2026-03,14 DMS users inactive 22+ days - likely from completed migration project,Waste
+l0011,cf-us10,BDC-Dev,SAP Datasphere - Dev Access,Named-User,15,5,10,33.33,20.00,200.00,2026-02-10,27,2026-03,Only 5 of 15 dev Datasphere licenses active - team downsized after project phase 1,Critical-Waste
+l0012,cf-us10,Joule-Prod,Joule Studio - Access,Named-User,8,6,2,75.00,30.00,60.00,2026-03-05,3,2026-03,2 Joule Studio licenses idle - review with AI COE team,Review
+l0013,cf-us10,BDC-Dev,SAP Build Work Zone - Standard,Named-User,500,471,29,94.20,8.00,232.00,2026-03-08,0,2026-03,Excellent adoption rate across Global and US users - no action needed,Optimal
+l0014,cf-us10,SwiftIS-Dev,SAP Integration Suite - Dev,Developer,8,3,5,37.50,45.00,225.00,2026-02-01,36,2026-03,Only 3 of 8 SwiftIS-Dev licenses active 36+ days - sprint team reduced,Critical-Waste
+l0015,cf-us10,D4D-US,D4D US - Joule Access,Named-User,25,22,3,88.00,22.00,66.00,2026-03-08,0,2026-03,Good utilization - D4D US POC team actively using Joule,Optimal

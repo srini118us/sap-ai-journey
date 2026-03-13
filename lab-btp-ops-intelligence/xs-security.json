@@ -1,0 +1,39 @@
+{
+  "xsappname": "btp-intelligent-ops",
+  "tenant-mode": "dedicated",
+  "description": "BTP Intelligent Operations Dashboard Security",
+  "scopes": [
+    {
+      "name": "$XSAPPNAME.OpsViewer",
+      "description": "View BTP Operations Dashboard"
+    },
+    {
+      "name": "$XSAPPNAME.OpsAdmin",
+      "description": "Manage recommendations and acknowledge alerts"
+    }
+  ],
+  "role-templates": [
+    {
+      "name": "OpsViewer",
+      "description": "Operations Dashboard Viewer",
+      "scope-references": [ "$XSAPPNAME.OpsViewer" ]
+    },
+    {
+      "name": "OpsAdmin",
+      "description": "Operations Dashboard Administrator",
+      "scope-references": [ "$XSAPPNAME.OpsViewer", "$XSAPPNAME.OpsAdmin" ]
+    }
+  ],
+  "role-collections": [
+    {
+      "name": "BTP_Ops_Viewer",
+      "description": "BTP Operations - Read Only",
+      "role-template-references": [ "$XSAPPNAME.OpsViewer" ]
+    },
+    {
+      "name": "BTP_Ops_Admin",
+      "description": "BTP Operations - Full Access",
+      "role-template-references": [ "$XSAPPNAME.OpsAdmin" ]
+    }
+  ]
+}

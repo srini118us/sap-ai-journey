@@ -1,0 +1,74 @@
+_schema-version: '3.1'
+ID: btp-intelligent-ops-dashboard
+version: 1.0.0
+description: "SAP BTP Intelligent Operations & FinOps Copilot"
+
+parameters:
+  enable-parallel-deployments: true
+
+build-parameters:
+  before-all:
+    - builder: custom
+      commands:
+        - npx cds build --production
+
+modules:
+  # ── CAP Backend (Node.js on CF) ──────────────────────────────────────
+  - name: btp-intelligent-ops-srv
+    type: nodejs
+    path: gen/srv
+    parameters:
+      buildpack: nodejs_buildpack
+      readiness-health-check-type: http
+      readiness-health-check-http-endpoint: /health
+    build-parameters:
+      builder: npm
+    provides:
+      - name: srv-api
+        properties:
+          srv-url: ${default-url}
+    requires:
+      - name: btp-intelligent-ops-db
+      - name: btp-intelligent-ops-xsuaa
+
+  # ── Static App (dashboard.html served from CF) ───────────────────────
+  - name: btp-intelligent-ops-app
+    type: staticfile
+    path: app
+    parameters:
+      buildpack: staticfile_buildpack
+    requires:
+      - name: srv-api
+        group: destinations
+        properties:
+          name: btp-ops-srv-api
+          url: ~{srv-url}
+          forwardAuthToken: true
+
+  # ── HANA Cloud DB Deployer ───────────────────────────────────────────
+  - name: btp-intelligent-ops-db-deployer
+    type: hdb
+    path: gen/db
+    build-parameters:
+      buildpack: nodejs_buildpack
+    requires:
+      - name: btp-intelligent-ops-db
+
+resources:
+  # ── HANA Cloud HDI Container ─────────────────────────────────────────
+  - name: btp-intelligent-ops-db
+    type: com.sap.xs.hdi-container
+    parameters:
+      service: hana
+      service-plan: hdi-shared
+
+  # ── XSUAA (Authentication) ───────────────────────────────────────────
+  - name: btp-intelligent-ops-xsuaa
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: xsuaa
+      service-plan: application
+      path: ./xs-security.json
+      config:
+        xsappname: btp-intelligent-ops-${org}-${space}
+        tenant-mode: dedicated

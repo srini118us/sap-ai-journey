@@ -1,0 +1,13 @@
+ID,region,subaccount,agentOrModel,activityType,aiUnitsConsumed,tokensIn,tokensOut,costPerUnitUSD,totalCostUSD,intentSuccessRate,manualHoursReplaced,sessionDate,monthYear
+a0001,cf-us10,Joule-Prod,Joule (gpt-4o),Conversational-Ops,12.4500,285000,142000,0.001100,0.3114,94.20,8.50,2026-03-08,2026-03
+a0002,cf-us10,Joule-Prod,Joule (gpt-4o),Alert-Triage,8.2200,188000,94000,0.001100,0.2057,97.50,5.20,2026-03-07,2026-03
+a0003,cf-us10,Joule-Prod,gpt-4o-mini,Document-Classification,3.1800,720000,180000,0.000110,0.0792,91.00,3.80,2026-03-08,2026-03
+a0004,cf-us10,Joule-Prod,gpt-4o,FinOps-Budget-Forecast,5.6700,128000,64000,0.001100,0.1421,96.80,4.20,2026-03-08,2026-03
+a0005,cf-us10,BDC-Dev,gpt-4o,DS-Space-Health-Check,4.3200,98000,49000,0.001100,0.1080,95.10,3.20,2026-03-07,2026-03
+a0006,cf-us10,Joule-Prod,text-embedding-3-large,RAG-Knowledge-Embeddings,2.1600,1850000,0,0.000020,0.0432,100.00,1.50,2026-03-06,2026-03
+a0007,cf-us10,SwiftIS-Prod,gpt-4o,Integration-Flow-Diagnostics,6.8900,155000,78000,0.001100,0.1724,93.40,4.80,2026-03-08,2026-03
+a0008,cf-us10,Joule-Prod,gpt-4o-mini,Certificate-Expiry-Monitor,1.2400,280000,70000,0.000110,0.0308,98.90,2.10,2026-03-08,2026-03
+a0009,cf-us10,BDC-Dev,gpt-4o,DBX-Connection-Advisor,3.9800,90000,45000,0.001100,0.0995,88.50,2.80,2026-03-06,2026-03
+a0010,cf-us10,Joule-Prod,gpt-4o,License-Waste-Detection,4.1500,94000,47000,0.001100,0.1038,96.20,3.50,2026-03-04,2026-03
+a0011,cf-us10,Joule-Dev,gpt-4o-mini,Dev-Copilot-BAS,0.8900,200000,50000,0.000110,0.0220,89.00,1.20,2026-03-07,2026-03
+a0012,cf-us10,D4D-US,gpt-4o,D4D-Finance-Analysis,5.1200,115000,58000,0.001100,0.1280,94.80,3.80,2026-03-07,2026-03

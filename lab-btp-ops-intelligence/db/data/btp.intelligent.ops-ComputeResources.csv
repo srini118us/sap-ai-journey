@@ -1,0 +1,16 @@
+ID,region,subaccount,resourceName,resourceType,allocatedGB,usedGB,usagePercent,peakUsagePct,lastActivityDate,daysSinceActivity,isGhostSpace,monthlyCostUSD,status,scalingRecommend
+cp001,cf-us10,BDC-Dev,BDC_DS_Global_Prod,Datasphere-Space,500.00,468.50,93.70,96.20,2026-03-08,0,false,1880.00,Critical,Urgent: Provision additional 100GB - approaching hard limit
+cp002,cf-us10,BDC-Dev,BDC_DS_US_Prod,Datasphere-Space,500.00,475.00,95.00,97.80,2026-03-08,0,false,1950.00,Critical,Critical: US Prod at 95% - Databricks POC ingestion contributing
+cp003,cf-us10,BDC-Dev,BDC_DS_Global_QA,Datasphere-Space,200.00,118.00,59.00,65.00,2026-03-07,1,false,210.00,Optimal,QA on track - monitor quarterly
+cp004,cf-us10,BDC-Dev,BDC_DS_US_QA,Datasphere-Space,200.00,102.00,51.00,58.00,2026-03-06,2,false,195.00,Optimal,QA on track
+cp005,cf-us10,BDC-Dev,BDC_DS_Global_Dev,Datasphere-Space,100.00,78.00,78.00,82.00,2026-03-08,0,false,1080.00,Underutilized,Dev healthy - DBX-Global connection planned. Size before connecting.
+cp006,cf-us10,BDC-Dev,BDC_DS_US_Dev,Datasphere-Space,100.00,84.00,84.00,88.00,2026-03-08,0,false,1140.00,AtRisk,US Dev at 84% - Databricks POC ingestion jobs running daily
+cp007,cf-us10,BDC-Dev,BDC_DS_Global_Stage,Datasphere-Space,150.00,45.00,30.00,35.00,2026-03-01,7,false,180.00,Optimal,Stage lightly used - expected pre-release
+cp008,cf-us10,BDC-Dev,BDC_DS_US_Stage,Datasphere-Space,150.00,38.00,25.33,30.00,2026-03-01,7,false,165.00,Optimal,Stage lightly used
+cp009,cf-us10,BDC-Dev,HANA-Cloud-BDC-Prod,HANA-Cloud,256.00,238.00,92.97,94.50,2026-03-08,0,false,820.00,Critical,Scale up recommended - persistent storage near limit
+cp010,cf-us10,Joule-Prod,CF-Runtime-Joule-Prod,CF-Space,64.00,48.00,75.00,82.00,2026-03-08,0,false,745.00,Optimal,CF runtime healthy - autoscaling active
+cp011,cf-us10,SwiftIS-Prod,EventMesh-Prod-Queue,EventMesh-Queue,50.00,48.50,97.00,98.20,2026-03-08,0,false,465.00,Critical,Event queue at 97% - increase partition count immediately
+cp012,cf-us10,SwiftIS-Dev,CF-Runtime-SwiftIS-Dev,CF-Space,16.00,1.20,7.50,12.00,2026-02-15,21,true,85.00,Underutilized,Ghost space - no activity 21 days. Dev team on sprint break.
+cp013,cf-us10,Joule-Dev,CF-Runtime-Joule-Dev,CF-Space,16.00,0.80,5.00,8.00,2026-02-10,26,true,42.00,Underutilized,Ghost space - no activity 26 days. Joule DEV idle.
+cp014,cf-us10,BDC-Dev,CF-Runtime-BPA-Dev,CF-Space,8.00,0.20,2.50,4.00,2026-02-01,35,true,125.00,Underutilized,Ghost space - BPA project paused Feb 1. Decommission candidate.
+cp015,cf-us10,Joule-Staging,CF-Runtime-Joule-Staging,CF-Space,32.00,8.50,26.56,32.00,2026-03-05,3,false,95.00,Optimal,Staging runtime healthy

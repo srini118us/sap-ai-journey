@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAP BTP Intelligent Operations Copilot</title>
+<style>
+  /* ── SAP Icon Font ── */
+  @font-face {
+    font-family: 'SAP-icons';
+    src: url('https://ui5.sap.com/resources/sap/ui/core/themes/base/fonts/SAP-icons.woff2') format('woff2'),
+         url('https://openui5.hana.ondemand.com/resources/sap/ui/core/themes/base/fonts/SAP-icons.woff2') format('woff2');
+    font-weight: normal; font-style: normal;
+  }
+  /* Generic SAP icon span */
+  .si { font-family: 'SAP-icons'; font-style: normal; speak: none;
+        line-height: 1; display: inline-block; vertical-align: middle; }
+  /* Tile icon size */
+  .tile-icon .si { font-size: 28px; }
+  /* Nav tab icon size */
+  .nav-tab .si { font-size: 16px; margin-right: 5px; vertical-align: -2px; }
+  /* Banner icon size */
+  .intel-label .si { font-size: 15px; margin-right: 4px; vertical-align: -2px; }
+  /* KPI card icon */
+  .kpi-icon .si { font-size: 20px; }
+
+  :root {
+    --sap-blue: #0070f2; --sap-dark: #1f3a5f; --sap-shell: #354a5e;
+    --green: #107e3e; --red: #bb0000; --orange: #e9730c; --yellow: #df6e0c;
+    --bg: #f5f6f7; --card: #ffffff; --border: #d9d9d9;
+    --text: #32363a; --sub: #6a6d70;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: '72', Arial, sans-serif; }
+  body { background: var(--bg); color: var(--text); font-size: 14px; }
+
+  /* ── Shell Header ── */
+  .shell { background: var(--sap-shell); color: #fff; display: flex; align-items: center;
+    justify-content: space-between; padding: 0 24px; height: 44px; }
+  .shell-logo { font-size: 13px; font-weight: 600; letter-spacing: 0.5px; }
+  .shell-right { font-size: 12px; color: #bec5cb; }
+
+  /* ── Page Header ── */
+  .page-header { background: var(--sap-dark); color: #fff; padding: 16px 32px; }
+  .page-header h1 { font-size: 20px; font-weight: 300; margin-bottom: 2px; }
+  .page-header p { font-size: 12px; color: #9ab4c8; }
+  .page-header-row { display: flex; justify-content: space-between; align-items: flex-end; }
+  .refresh-info { font-size: 12px; color: #9ab4c8; text-align: right; }
+  .health-badge { background: #fff; color: var(--sap-dark); border-radius: 20px;
+    padding: 4px 16px; font-size: 18px; font-weight: 700; margin-left: 12px; }
+
+  /* ── Region Toggle ── */
+  .region-bar { background: #2c4158; padding: 6px 32px; display: flex; gap: 8px; align-items: center; }
+  .region-label { font-size: 11px; color: #9ab4c8; margin-right: 8px; }
+  .region-btn { border: 1px solid #4a6070; background: transparent; color: #ccd; 
+    padding: 3px 14px; border-radius: 12px; font-size: 12px; cursor: pointer; }
+  .region-btn.active { background: var(--sap-blue); border-color: var(--sap-blue); color: #fff; }
+
+  /* ── Tabs ── */
+  .nav-tabs { background: #fff; border-bottom: 2px solid var(--border); 
+    padding: 0 32px; display: flex; gap: 0; overflow-x: auto; }
+  .nav-tab { padding: 12px 20px; font-size: 13px; cursor: pointer; border: none;
+    background: transparent; color: var(--sub); border-bottom: 3px solid transparent;
+    white-space: nowrap; transition: all 0.15s; margin-bottom: -2px; }
+  .nav-tab:hover { color: var(--sap-blue); }
+  .nav-tab.active { color: var(--sap-blue); border-bottom-color: var(--sap-blue); font-weight: 600; }
+  .tab-badge { background: var(--red); color: #fff; border-radius: 8px; 
+    font-size: 10px; padding: 1px 6px; margin-left: 6px; }
+
+  /* ── Content ── */
+  .content { padding: 24px 32px; max-width: 1400px; }
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
+
+  /* ── KPI Strip ── */
+  .kpi-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); 
+    gap: 12px; margin-bottom: 24px; }
+  .kpi-card { background: #fff; border: 1px solid var(--border); border-radius: 8px; 
+    padding: 14px 16px; border-top: 3px solid var(--sap-blue); }
+  .kpi-card.red   { border-top-color: var(--red); }
+  .kpi-card.green { border-top-color: var(--green); }
+  .kpi-card.orange{ border-top-color: var(--orange); }
+  .kpi-card.yellow{ border-top-color: var(--yellow); }
+  .kpi-card.purple{ border-top-color: #8b5cf6; }
+  .kpi-label { font-size: 11px; color: var(--sub); text-transform: uppercase; letter-spacing: 0.5px; }
+  .kpi-value { font-size: 26px; font-weight: 300; color: var(--text); margin: 4px 0 2px; line-height: 1; }
+  .kpi-value.red    { color: var(--red); }
+  .kpi-value.orange { color: var(--orange); }
+  .kpi-value.green  { color: var(--green); }
+  .kpi-sub { font-size: 11px; color: var(--sub); }
+
+  /* ── Intelligence Alert Banner ── */
+  .intel-banner { border-radius: 6px; padding: 10px 16px; margin-bottom: 16px;
+    display: flex; align-items: center; gap: 12px; font-size: 13px; }
+  .intel-banner.critical { background: #ffeaea; border-left: 4px solid var(--red); }
+  .intel-banner.warning  { background: #fff5e6; border-left: 4px solid var(--orange); }
+  .intel-banner.info     { background: #e8f4ff; border-left: 4px solid var(--sap-blue); }
+  .intel-banner.success  { background: #eaf5ea; border-left: 4px solid var(--green); }
+  .intel-label { font-weight: 600; min-width: 130px; }
+
+  /* ── Two-col layout ── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  @media(max-width: 900px) { .two-col, .three-col { grid-template-columns: 1fr; } }
+
+  /* ── Cards / Sections ── */
+  .card { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 20px; }
+  .card-title { font-size: 14px; font-weight: 600; color: var(--sap-dark); 
+    margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+  .badge.red    { background: #ffeaea; color: var(--red); }
+  .badge.orange { background: #fff3e0; color: var(--orange); }
+  .badge.green  { background: #eaf5ea; color: var(--green); }
+  .badge.blue   { background: #e8f4ff; color: var(--sap-blue); }
+  .badge.gray   { background: #f0f0f0; color: #666; }
+
+  /* ── Tables ── */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { background: #f7f7f7; color: var(--sub); font-weight: 600; font-size: 11px;
+    text-transform: uppercase; letter-spacing: 0.3px; padding: 8px 12px; 
+    text-align: left; border-bottom: 2px solid var(--border); }
+  td { padding: 9px 12px; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
+  tr:hover td { background: #fafbff; }
+  tr:last-child td { border-bottom: none; }
+
+  /* ── Progress Bar ── */
+  .prog-wrap { background: #f0f0f0; border-radius: 4px; height: 8px; width: 100%; min-width: 80px; }
+  .prog-bar { height: 8px; border-radius: 4px; transition: width 0.3s; }
+  .prog-green  { background: var(--green); }
+  .prog-yellow { background: var(--yellow); }
+  .prog-orange { background: var(--orange); }
+  .prog-red    { background: var(--red); }
+
+  /* ── Tile Grid (Overview 4-tile) ── */
+  .tile-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+  @media(max-width: 1100px) { .tile-grid { grid-template-columns: repeat(2, 1fr); } }
+  .tile { background: #fff; border: 1px solid var(--border); border-radius: 10px; 
+    padding: 20px; cursor: pointer; transition: box-shadow 0.15s; }
+  .tile:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+  .tile-icon { font-size: 22px; margin-bottom: 8px; }
+  .tile-name { font-size: 12px; color: var(--sub); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .tile-kpi  { font-size: 28px; font-weight: 300; color: var(--text); margin-bottom: 4px; }
+  .tile-kpi.red    { color: var(--red); }
+  .tile-kpi.orange { color: var(--orange); }
+  .tile-kpi.green  { color: var(--green); }
+  .tile-intel { font-size: 11px; color: var(--sub); margin-top: 8px; padding-top: 8px; 
+    border-top: 1px solid #f0f0f0; }
+  .tile-intel strong { color: var(--orange); }
+
+  /* ── What/Why/Action panel ── */
+  .rec-card { background: #fff; border: 1px solid var(--border); border-radius: 8px; 
+    padding: 16px; margin-bottom: 12px; }
+  .rec-priority { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 3px; margin-right: 8px; }
+  .rec-priority.p1 { background: #ffeaea; color: var(--red); }
+  .rec-priority.p2 { background: #fff3e0; color: var(--orange); }
+  .rec-priority.p3 { background: #e8f4ff; color: var(--sap-blue); }
+  .rec-section { margin-top: 8px; font-size: 12px; }
+  .rec-section-label { font-weight: 600; color: var(--sub); font-size: 11px; text-transform: uppercase; margin-bottom: 2px; }
+  .rec-saving { color: var(--green); font-weight: 600; }
+
+  .loading { text-align: center; padding: 40px; color: var(--sub); font-style: italic; }
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <div class="shell-logo">SAP BTP Intelligent Operations Copilot</div>
+  <div class="shell-right">Global BTP Account · cf-us10 | Refreshed: <span id="lastRefresh">--</span></div>
+</div>
+
+<div class="page-header">
+  <div class="page-header-row">
+    <div>
+      <h1>BTP Operations &amp; FinOps Dashboard</h1>
+      <p>Real-time intelligence across Trust &amp; Connectivity · Cloud Economics · Compute Efficiency · AI ROI</p>
+    </div>
+    <div class="refresh-info">
+      Health Score<span class="health-badge" id="healthScore">--</span>
+      <div style="margin-top:6px">
+        <span id="critCount" style="color:#ff8080">-- Critical</span> &nbsp;|&nbsp;
+        <span id="openRecs" style="color:#ffd080">-- Recommendations</span> &nbsp;|&nbsp;
+        <span id="savings" style="color:#80ff80">$-- Savings</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="region-bar">
+  <span class="region-label">Environment:</span>
+  <button class="region-btn active" onclick="setEnv('ALL')">All Environments</button>
+  <button class="region-btn" onclick="setEnv('Production')">Production</button>
+  <button class="region-btn" onclick="setEnv('Stage')">Stage</button>
+  <button class="region-btn" onclick="setEnv('QA')">QA</button>
+  <button class="region-btn" onclick="setEnv('Development')">Dev</button>
+</div>
+
+<div class="nav-tabs">
+  <button class="nav-tab active" onclick="showTab('overview')"><span class="si">&#xE00B;</span> Overview</button>
+  <button class="nav-tab" onclick="showTab('services')"><span class="si">&#xE052;</span> Services <span class="tab-badge" id="badgeServices">0</span></button>
+  <button class="nav-tab" onclick="showTab('costs')"><span class="si">&#xE1B3;</span> Cloud Economics</button>
+  <button class="nav-tab" onclick="showTab('certs')"><span class="si">&#xE1D0;</span> Trust &amp; Certs <span class="tab-badge" id="badgeCerts">0</span></button>
+  <button class="nav-tab" onclick="showTab('compute')"><span class="si">&#xE0AF;</span> Compute</button>
+  <button class="nav-tab" onclick="showTab('ai')"><span class="si">&#xE4CE;</span> AI ROI</button>
+  <button class="nav-tab" onclick="showTab('licenses')"><span class="si">&#xE01D;</span> Licenses</button>
+  <button class="nav-tab" onclick="showTab('actions')"><span class="si">&#xE076;</span> Actions <span class="tab-badge" id="badgeActions">0</span></button>
+</div>
+
+<div class="content">
+
+<!-- ══ OVERVIEW TAB ══════════════════════════════════════════════════ -->
+<div id="tab-overview" class="tab-pane active">
+
+  <div id="intelligenceBanners"></div>
+
+  <div class="tile-grid">
+    <div class="tile" onclick="showTab('certs')">
+      <div class="tile-icon"><span class="si" style="color:#0070f2">&#xE1D0;</span></div>
+      <div class="tile-name">Trust &amp; Connectivity</div>
+      <div class="tile-kpi" id="tile1Kpi">--</div>
+      <div class="tile-sub" id="tile1Sub" style="font-size:12px;color:var(--sub)"></div>
+      <div class="tile-intel" id="tile1Intel">Loading intelligence...</div>
+    </div>
+    <div class="tile" onclick="showTab('costs')">
+      <div class="tile-icon"><span class="si" style="color:#e9730c">&#xE1B3;</span></div>
+      <div class="tile-name">Cloud Economics</div>
+      <div class="tile-kpi" id="tile2Kpi">--</div>
+      <div class="tile-sub" id="tile2Sub" style="font-size:12px;color:var(--sub)"></div>
+      <div class="tile-intel" id="tile2Intel">Loading intelligence...</div>
+    </div>
+    <div class="tile" onclick="showTab('compute')">
+      <div class="tile-icon"><span class="si" style="color:#df6e0c">&#xE0AF;</span></div>
+      <div class="tile-name">Compute Efficiency</div>
+      <div class="tile-kpi" id="tile3Kpi">--</div>
+      <div class="tile-sub" id="tile3Sub" style="font-size:12px;color:var(--sub)"></div>
+      <div class="tile-intel" id="tile3Intel">Loading intelligence...</div>
+    </div>
+    <div class="tile" onclick="showTab('ai')">
+      <div class="tile-icon"><span class="si" style="color:#8b5cf6">&#xE4CE;</span></div>
+      <div class="tile-name">Innovation &amp; AI ROI</div>
+      <div class="tile-kpi" id="tile4Kpi">--</div>
+      <div class="tile-sub" id="tile4Sub" style="font-size:12px;color:var(--sub)"></div>
+      <div class="tile-intel" id="tile4Intel">Loading intelligence...</div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <div class="card-title">Services at Risk <span id="riskCount" class="badge red">0</span></div>
+      <table>
+        <thead><tr><th>Service</th><th>Usage</th><th>Status</th><th>Env</th></tr></thead>
+        <tbody id="riskBody"><tr><td colspan="4" class="loading">Loading...</td></tr></tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">Expiring Certificates <span id="certUrgentCount" class="badge red">0</span></div>
+      <table>
+        <thead><tr><th>Certificate</th><th>Service</th><th>Days Left</th></tr></thead>
+        <tbody id="certUrgentBody"><tr><td colspan="3" class="loading">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <div class="card-title">Top Cost Overruns <span class="badge orange" id="overBudgetCount">0</span></div>
+      <table>
+        <thead><tr><th>Service</th><th>Budget</th><th>Forecast</th><th>Variance</th></tr></thead>
+        <tbody id="costOverBody"><tr><td colspan="4" class="loading">Loading...</td></tr></tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">License Waste Summary <span class="badge red" id="wasteCount">0</span></div>
+      <table>
+        <thead><tr><th>Service</th><th>Unused</th><th>Waste/mo</th><th>Status</th></tr></thead>
+        <tbody id="licWasteBody"><tr><td colspan="4" class="loading">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SERVICES TAB ══════════════════════════════════════════════════ -->
+<div id="tab-services" class="tab-pane">
+  <div class="kpi-strip" id="svcKpis"></div>
+  <div class="card">
+    <div class="card-title">All BTP Services — Health &amp; Quota</div>
+    <table>
+      <thead><tr><th>Region</th><th>Subaccount</th><th>Service</th><th>Type</th><th>Usage</th><th>Quota</th><th>%</th><th>Status</th><th>Env</th></tr></thead>
+      <tbody id="svcBody"><tr><td colspan="9" class="loading">Loading...</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══ COSTS TAB ══════════════════════════════════════════════════════ -->
+<div id="tab-costs" class="tab-pane">
+  <div class="kpi-strip" id="costKpis"></div>
+  <div class="card">
+    <div class="card-title">Cloud Economics — Service Spend vs Budget</div>
+    <table>
+      <thead><tr><th>Region</th><th>Subaccount</th><th>Service</th><th>Category</th><th>Budget</th><th>Actual</th><th>Forecast</th><th>Variance</th><th>Idle?</th><th>AI Recommendation</th></tr></thead>
+      <tbody id="costBody"><tr><td colspan="10" class="loading">Loading...</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══ CERTS TAB ══════════════════════════════════════════════════════ -->
+<div id="tab-certs" class="tab-pane">
+  <div class="kpi-strip" id="certKpis"></div>
+  <div class="two-col">
+    <div class="card">
+      <div class="card-title">Certificate Health</div>
+      <table>
+        <thead><tr><th>Certificate</th><th>Service</th><th>Type</th><th>Days Left</th><th>Auto-Renew</th><th>Status</th></tr></thead>
+        <tbody id="certBody"><tr><td colspan="6" class="loading">Loading...</td></tr></tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">Destination Health</div>
+      <table>
+        <thead><tr><th>Destination</th><th>Type</th><th>Status</th><th>Response ms</th><th>Failures 24h</th><th>Critical For</th></tr></thead>
+        <tbody id="destBody"><tr><td colspan="6" class="loading">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══ COMPUTE TAB ══════════════════════════════════════════════════════ -->
+<div id="tab-compute" class="tab-pane">
+  <div class="kpi-strip" id="compKpis"></div>
+  <div class="card">
+    <div class="card-title">Compute Resources — Ghost Space Detection</div>
+    <table>
+      <thead><tr><th>Region</th><th>Resource</th><th>Type</th><th>Used/Alloc</th><th>Usage %</th><th>Ghost Space?</th><th>Idle Days</th><th>Cost/mo</th><th>Status</th><th>Recommendation</th></tr></thead>
+      <tbody id="compBody"><tr><td colspan="10" class="loading">Loading...</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══ AI ROI TAB ══════════════════════════════════════════════════════ -->
+<div id="tab-ai" class="tab-pane">
+  <div class="kpi-strip" id="aiKpis"></div>
+  <div class="card">
+    <div class="card-title">AI Activity Log — Agent &amp; Model Consumption</div>
+    <table>
+      <thead><tr><th>Region</th><th>Agent / Model</th><th>Activity</th><th>AI Units</th><th>Tokens In</th><th>Tokens Out</th><th>Cost USD</th><th>Success %</th><th>Hours Saved</th></tr></thead>
+      <tbody id="aiBody"><tr><td colspan="9" class="loading">Loading...</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══ LICENSES TAB ══════════════════════════════════════════════════════ -->
+<div id="tab-licenses" class="tab-pane">
+  <div class="kpi-strip" id="licKpis"></div>
+  <div class="card">
+    <div class="card-title">License Optimization — Waste Detection</div>
+    <table>
+      <thead><tr><th>Region</th><th>Subaccount</th><th>Service</th><th>Licensed</th><th>Active</th><th>Unused</th><th>Utilization</th><th>Waste/mo</th><th>Status</th><th>Recommendation</th></tr></thead>
+      <tbody id="licBody"><tr><td colspan="10" class="loading">Loading...</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══ ACTIONS TAB (What / Why / What Next) ══════════════════════════════════════════ -->
+<div id="tab-actions" class="tab-pane">
+  <div class="kpi-strip" id="actionKpis"></div>
+  <div class="card">
+    <div class="card-title">Operational Alerts <span class="badge red" id="alertCount">0</span></div>
+    <table>
+      <thead><tr><th>Region</th><th>Time</th><th>Severity</th><th>Category</th><th>Alert</th><th>Service</th><th>AI Triaged?</th><th>Status</th></tr></thead>
+      <tbody id="alertBody"><tr><td colspan="8" class="loading">Loading...</td></tr></tbody>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">AI Recommendations — What · Why · What Next
+      <span style="font-size:12px;color:var(--sub);font-weight:400">Powered by GenAI Hub Orchestration</span>
+    </div>
+    <div id="recsContainer"><div class="loading">Loading recommendations...</div></div>
+  </div>
+</div>
+
+</div><!-- /content -->
+
+<script>
+const BASE = '/service/btp-ops';
+let ALL_DATA = {};
+let currentEnv = 'ALL';
+
+const $ = id => document.getElementById(id);
+const money = v => '$' + parseFloat(v || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+const num = v => parseFloat(v || 0);
+const pct = v => num(v).toFixed(1) + '%';
+
+// Map subaccount names to environment
+function getEnv(subaccount) {
+  const s = (subaccount || '').toLowerCase();
+  if (s.includes('_prod')) return 'Production';
+  if (s.includes('_stage') || s.includes('_staging')) return 'Stage';
+  if (s.includes('_qa')) return 'QA';
+  if (s.includes('_dev')) return 'Development';
+  return 'Production'; // BDC_DEV is the single BDC subaccount, treat as all envs
+}
+
+function setEnv(e) {
+  currentEnv = e;
+  document.querySelectorAll('.region-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  renderAll();
+}
+
+function filterByRegion(arr) {
+  if (currentEnv === 'ALL') return arr;
+  // BDC_DEV contains all BDC environments - filter by resource/service name instead
+  return arr.filter(x => {
+    if (!x.subaccount) return true;
+    const sub = x.subaccount.toLowerCase();
+    // BDC_DEV hosts all envs - filter by service/resource name
+    if (sub === 'bdc_dev') {
+      const name = ((x.serviceName || x.resourceName || x.certName || x.destinationName || '') + ' ' + (x.environment || '')).toLowerCase();
+      if (currentEnv === 'Production') return name.includes('prod') || name.includes('production');
+      if (currentEnv === 'Stage') return name.includes('stage') || name.includes('staging');
+      if (currentEnv === 'QA') return name.includes('_qa') || name.includes(' qa');
+      if (currentEnv === 'Development') return name.includes('_dev') || name.includes(' dev') || name.includes('development');
+      return true;
+    }
+    return getEnv(x.subaccount) === currentEnv;
+  });
+}
+
+function progBar(val, max) {
+  val = num(val); max = max || 100;
+  const p = Math.min(100, (val / max) * 100);
+  const cls = p >= 90 ? 'prog-red' : p >= 80 ? 'prog-orange' : p >= 60 ? 'prog-yellow' : 'prog-green';
+  return `<div class="prog-wrap"><div class="prog-bar ${cls}" style="width:${p}%"></div></div><small style="color:var(--sub)">${p.toFixed(0)}%</small>`;
+}
+
+function progBarDirect(p) {
+  p = num(p);
+  const cls = p >= 90 ? 'prog-red' : p >= 80 ? 'prog-orange' : p >= 60 ? 'prog-yellow' : 'prog-green';
+  return `<div class="prog-wrap"><div class="prog-bar ${cls}" style="width:${Math.min(100,p)}%"></div></div><small style="color:var(--sub)">${p.toFixed(1)}%</small>`;
+}
+
+function statusBadge(s) {
+  const map = {
+    'Critical':'red','Unreachable':'red','Expired':'red','Critical-Waste':'red',
+    'Warning':'orange','Degraded':'orange','AtRisk':'orange','Waste':'orange',
+    'Active':'green','Healthy':'green','Reachable':'green','Optimal':'green',
+    'Review':'blue','In-Progress':'blue',
+    'Inactive':'gray','Unknown':'gray','Resolved':'gray'
+  };
+  return `<span class="badge ${map[s]||'gray'}">${s||'—'}</span>`;
+}
+
+function showTab(name) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  $(`tab-${name}`).classList.add('active');
+  const tabs = document.querySelectorAll('.nav-tab');
+  tabs.forEach(t => { if (t.textContent.toLowerCase().includes(name)) t.classList.add('active'); });
+  renderTab(name);
+}
+
+
+async function fetchJSON(url) {
+  try {
+    const r = await fetch(BASE + url);
+    if (!r.ok) { console.error('HTTP error', r.status, url); return []; }
+    const d = await r.json();
+    return d.value !== undefined ? d.value : d;
+  } catch(e) { console.error('Fetch failed', url, e); return []; }
+}
+
+async function loadAll() {
+  try {
+    const [certs, dests, costs, compute, aiLogs, alerts, recs, services, licenses] = await Promise.all([
+      fetchJSON('/CertificatesHealth'),
+      fetchJSON('/DestinationsHealth'),
+      fetchJSON('/CostConsumption'),
+      fetchJSON('/ComputeResources'),
+      fetchJSON('/AIActivityLog'),
+      fetchJSON('/OperationalAlerts'),
+      fetchJSON('/AIRecommendations'),
+      fetchJSON('/BTPServices'),
+      fetchJSON('/LicenseOptimization'),
+    ]);
+    ALL_DATA = { certs, dests, costs, compute, aiLogs, alerts, recs, services, licenses };
+    $('lastRefresh').textContent = new Date().toLocaleTimeString();
+    renderAll();
+  } catch(e) { console.error('loadAll failed', e); }
+}
+
+function renderAll() {
+  renderHeader();
+  renderOverview();
+  renderTab(document.querySelector('.tab-pane.active')?.id?.replace('tab-','') || 'overview');
+}
+
+function renderHeader() {
+  const { alerts = [], recs = [] } = ALL_DATA;
+  const critical = filterByRegion(alerts).filter(a => a.severity === 'Critical' && a.status !== 'Resolved').length;
+  const openRecs = filterByRegion(recs).filter(r => r.status === 'New' || r.status === 'Accepted').length;
+  const savings  = filterByRegion(recs).reduce((s,r) => s + num(r.estimatedSavingUSD), 0);
+  const score    = Math.max(0, Math.min(100, 100 - critical * 15 - filterByRegion(alerts).filter(a=>a.severity==='High'&&a.status!=='Resolved').length * 8));
+
+  $('healthScore').textContent = score.toFixed(0);
+  $('healthScore').style.color = score < 50 ? '#bb0000' : score < 75 ? '#e9730c' : '#107e3e';
+  $('critCount').textContent = `${critical} Critical`;
+  $('openRecs').textContent = `${openRecs} Recommendations`;
+  $('savings').textContent = money(savings) + ' Savings';
+  $('badgeActions').textContent = critical + filterByRegion(alerts).filter(a=>a.severity==='High'&&a.status!=='Resolved').length;
+  $('badgeCerts').textContent = filterByRegion(ALL_DATA.certs||[]).filter(c=>c.status==='Critical'||c.status==='Expired').length;
+  $('badgeServices').textContent = filterByRegion(ALL_DATA.services||[]).filter(s=>s.status==='Critical').length;
+}
+
+function renderOverview() {
+  const { certs=[], dests=[], costs=[], compute=[], aiLogs=[], recs=[], licenses=[], services=[] } = ALL_DATA;
+  const fc = filterByRegion(certs), fd = filterByRegion(dests), fco = filterByRegion(costs);
+  const fcp = filterByRegion(compute), fa = filterByRegion(aiLogs), fr = filterByRegion(recs);
+  const fl = filterByRegion(licenses), fs = filterByRegion(services);
+
+  // Intelligence banners
+  const banners = [];
+  const expConv = fc.filter(c => c.daysToExpiry >= 0 && c.daysToExpiry <= 21).sort((a,b)=>a.daysToExpiry-b.daysToExpiry);
+  if (expConv.length >= 2 && expConv[expConv.length-1].daysToExpiry - expConv[0].daysToExpiry <= 7) {
+    banners.push(`<div class="intel-banner critical"><span class="intel-label"><span class="si">&#xE0B1;</span> Expiry Convergence</span>${expConv.length} critical certs expire within ${expConv[expConv.length-1].daysToExpiry - expConv[0].daysToExpiry} days of each other — simultaneous outage risk if maintenance window missed</div>`);
+  }
+  const dayOfMonth = new Date().getDate();
+  const totalActual = fco.reduce((s,c)=>s+num(c.actualSpendUSD),0);
+  const totalBudget = fco.reduce((s,c)=>s+num(c.allocatedBudgetUSD),0);
+  const burnDaily = totalActual / dayOfMonth;
+  const daysLeft = Math.floor((totalBudget - totalActual) / burnDaily);
+  if (daysLeft < 15 && daysLeft > 0) {
+    banners.push(`<div class="intel-banner critical"><span class="intel-label"><span class="si">&#xE215;</span> Budget Run-Out</span>At current burn rate of ${money(burnDaily)}/day, total budget exhausted in <strong>${daysLeft} days</strong></div>`);
+  }
+  const ghosts = fcp.filter(r => r.isGhostSpace);
+  if (ghosts.length > 0) {
+    const waste = ghosts.reduce((s,r)=>s+num(r.monthlyCostUSD),0);
+    banners.push(`<div class="intel-banner warning"><span class="intel-label"><span class="si">&#xE23A;</span> Ghost Spaces</span>${ghosts.length} idle resources with zero activity detected — ${money(waste)}/month recoverable</div>`);
+  }
+  const unreachable = fd.filter(d=>d.status==='Unreachable');
+  if (unreachable.length > 0) {
+    banners.push(`<div class="intel-banner critical"><span class="intel-label"><span class="si">&#xE0D5;</span> Dest Unreachable</span>${unreachable.map(d=>d.destinationName).join(', ')} unreachable — ${unreachable[0]?.criticalForProcess} process blocked</div>`);
+  }
+  $('intelligenceBanners').innerHTML = banners.join('') || '';
+
+  // 4 Tiles
+  const critCerts = fc.filter(c=>c.status==='Critical'||c.status==='Expired').length;
+  const compliance = fc.length ? (((fc.length - critCerts) / fc.length)*100).toFixed(0) : 100;
+  $('tile1Kpi').textContent = compliance + '%';
+  $('tile1Kpi').className = 'tile-kpi ' + (compliance < 80 ? 'red' : compliance < 90 ? 'orange' : 'green');
+  $('tile1Sub').textContent = `${critCerts} critical certs · ${unreachable.length} unreachable dests`;
+  $('tile1Intel').innerHTML = expConv.length >= 2 ? `<span class="si" style="color:var(--orange);font-size:13px">&#xE0B1;</span> <strong>Expiry Convergence:</strong> ${expConv[0].associatedService} + ${expConv[1]?.associatedService} expire within days` : `Next expiry: ${fc.filter(c=>c.daysToExpiry>0).sort((a,b)=>a.daysToExpiry-b.daysToExpiry)[0]?.associatedService || '—'} in ${fc.filter(c=>c.daysToExpiry>0).sort((a,b)=>a.daysToExpiry-b.daysToExpiry)[0]?.daysToExpiry || '—'} days`;
+
+  const totalForecast = fco.reduce((s,c)=>s+num(c.forecastedSpendUSD),0);
+  $('tile2Kpi').textContent = money(totalActual);
+  $('tile2Kpi').className = 'tile-kpi ' + (totalForecast > totalBudget ? 'red' : 'orange');
+  $('tile2Sub').textContent = `Forecast: ${money(totalForecast)} vs budget ${money(totalBudget)}`;
+  const runOut = daysLeft > 0 ? new Date(new Date().setDate(new Date().getDate()+daysLeft)).toDateString() : 'Exceeded';
+  $('tile2Intel').innerHTML = `<span class="si" style="color:var(--orange);font-size:13px">&#xE228;</span> <strong>Budget Run-Out:</strong> ${runOut} at ${money(burnDaily)}/day`;
+
+  const ghCount = fcp.filter(r=>r.isGhostSpace).length;
+  const critComp = fcp.filter(r=>r.status==='Critical').length;
+  const totAlloc = fcp.reduce((s,r)=>s+num(r.allocatedGB),0);
+  const totUsed  = fcp.reduce((s,r)=>s+num(r.usedGB),0);
+  const overallPct = totAlloc > 0 ? (totUsed/totAlloc*100).toFixed(1) : 0;
+  $('tile3Kpi').textContent = overallPct + '%';
+  $('tile3Kpi').className = 'tile-kpi ' + (overallPct >= 85 ? 'red' : overallPct >= 70 ? 'orange' : 'green');
+  $('tile3Sub').textContent = `${totUsed.toFixed(0)} GB used of ${totAlloc.toFixed(0)} GB · ${critComp} critical`;
+  const ghostWaste = ghosts.reduce((s,r)=>s+num(r.monthlyCostUSD),0);
+  $('tile3Intel').innerHTML = `<span class="si" style="color:var(--orange);font-size:13px">&#xE23A;</span> <strong>Ghost Spaces:</strong> ${ghCount} idle resources · ${money(ghostWaste)}/mo waste`;
+
+  const hoursSaved = fa.reduce((s,a)=>s+num(a.manualHoursReplaced),0);
+  const aiCost = fa.reduce((s,a)=>s+num(a.totalCostUSD),0);
+  const roi = aiCost > 0 ? (hoursSaved * 150 / aiCost).toFixed(0) : '∞';
+  $('tile4Kpi').textContent = roi + 'x';
+  $('tile4Kpi').className = 'tile-kpi green';
+  $('tile4Sub').textContent = `${hoursSaved.toFixed(0)} hrs saved · ${money(hoursSaved*150)} value vs ${money(aiCost)} cost`;
+  const autoTriaged = filterByRegion(ALL_DATA.alerts||[]).filter(a=>a.isAutoTriaged).length;
+  $('tile4Intel').innerHTML = `${autoTriaged} alerts auto-triaged · ${fa.length} agent sessions · Avg ${(fa.reduce((s,a)=>s+num(a.intentSuccessRate),0)/Math.max(1,fa.length)).toFixed(1)}% intent success`;
+
+  // Services at Risk
+  const atRisk = fs.filter(s=>s.usagePercent>=s.alertThreshold||s.status==='Critical').sort((a,b)=>b.usagePercent-a.usagePercent).slice(0,6);
+  $('riskCount').textContent = atRisk.length;
+  $('riskBody').innerHTML = atRisk.length ? atRisk.map(s=>`<tr><td><strong>${s.serviceName}</strong></td><td>${progBarDirect(s.usagePercent)}</td><td>${statusBadge(s.status)}</td><td>${statusBadge(s.environment)}</td></tr>`).join('') : '<tr><td colspan="4" style="color:var(--green);text-align:center">All services healthy ✓</td></tr>';
+
+  // Expiring Certs
+  const urgent = fc.filter(c=>c.daysToExpiry>=0&&c.daysToExpiry<=30).sort((a,b)=>a.daysToExpiry-b.daysToExpiry);
+  $('certUrgentCount').textContent = urgent.length;
+  $('certUrgentBody').innerHTML = urgent.length ? urgent.map(c=>`<tr><td><strong>${c.certName}</strong></td><td>${c.associatedService}</td><td style="color:${c.daysToExpiry<=7?'var(--red)':c.daysToExpiry<=14?'var(--orange)':'var(--yellow)'};font-weight:600">${c.daysToExpiry}d</td></tr>`).join('') : '<tr><td colspan="3" style="color:var(--green);text-align:center">No urgent expirations ✓</td></tr>';
+
+  // Cost Overruns
+  const overBudget = fco.filter(c=>num(c.forecastedSpendUSD)>num(c.allocatedBudgetUSD)).sort((a,b)=>num(b.spendVariancePct)-num(a.spendVariancePct)).slice(0,5);
+  $('overBudgetCount').textContent = overBudget.length;
+  $('costOverBody').innerHTML = overBudget.length ? overBudget.map(c=>`<tr><td><strong>${c.serviceName}</strong></td><td>${money(c.allocatedBudgetUSD)}</td><td>${money(c.forecastedSpendUSD)}</td><td style="color:var(--red);font-weight:600">+${num(c.spendVariancePct).toFixed(1)}%</td></tr>`).join('') : '<tr><td colspan="4" style="color:var(--green);text-align:center">All within budget ✓</td></tr>';
+
+  // License Waste
+  const waste = fl.filter(l=>l.status==='Waste'||l.status==='Critical-Waste').sort((a,b)=>num(b.monthlyWastedCost)-num(a.monthlyWastedCost)).slice(0,5);
+  $('wasteCount').textContent = waste.length;
+  $('licWasteBody').innerHTML = waste.length ? waste.map(l=>`<tr><td><strong>${l.serviceName}</strong></td><td>${l.unusedLicenses} seats</td><td style="color:var(--red);font-weight:600">${money(l.monthlyWastedCost)}</td><td>${statusBadge(l.status)}</td></tr>`).join('') : '<tr><td colspan="4" style="color:var(--green);text-align:center">No waste detected ✓</td></tr>';
+}
+
+function renderTab(name) {
+  if (!Object.keys(ALL_DATA).length) return;
+  const { certs=[], dests=[], costs=[], compute=[], aiLogs=[], alerts=[], recs=[], services=[], licenses=[] } = ALL_DATA;
+  const fc=filterByRegion(certs), fd=filterByRegion(dests), fco=filterByRegion(costs);
+  const fcp=filterByRegion(compute), fa=filterByRegion(aiLogs), fal=filterByRegion(alerts);
+  const fr=filterByRegion(recs), fs=filterByRegion(services), fl=filterByRegion(licenses);
+
+  if (name === 'services') {
+    const critical = fs.filter(s=>s.status==='Critical').length;
+    const warning = fs.filter(s=>s.status==='Warning').length;
+    $('svcKpis').innerHTML = `
+      <div class="kpi-card red"><div class="kpi-label">Critical</div><div class="kpi-value red">${critical}</div><div class="kpi-sub">Services</div></div>
+      <div class="kpi-card orange"><div class="kpi-label">Warning</div><div class="kpi-value orange">${warning}</div><div class="kpi-sub">Services</div></div>
+      <div class="kpi-card green"><div class="kpi-label">Healthy</div><div class="kpi-value green">${fs.filter(s=>s.status==='Active').length}</div><div class="kpi-sub">Services</div></div>
+      <div class="kpi-card"><div class="kpi-label">Total Services</div><div class="kpi-value">${fs.length}</div><div class="kpi-sub">Monitored</div></div>`;
+    $('svcBody').innerHTML = fs.sort((a,b)=>num(b.usagePercent)-num(a.usagePercent)).map(s=>`<tr>
+      <td>${s.region}</td><td>${s.subaccount}</td><td><strong>${s.serviceName}</strong></td><td>${s.serviceType}</td>
+      <td>${num(s.currentUsage).toLocaleString()}</td><td>${num(s.entitledQuota).toLocaleString()}</td>
+      <td>${progBarDirect(s.usagePercent)}</td><td>${statusBadge(s.status)}</td><td>${statusBadge(s.environment)}</td></tr>`).join('');
+  }
+
+  if (name === 'costs') {
+    const totalB=fco.reduce((s,c)=>s+num(c.allocatedBudgetUSD),0);
+    const totalA=fco.reduce((s,c)=>s+num(c.actualSpendUSD),0);
+    const totalF=fco.reduce((s,c)=>s+num(c.forecastedSpendUSD),0);
+    const idle=fco.filter(c=>c.isIdle).reduce((s,c)=>s+num(c.actualSpendUSD),0);
+    $('costKpis').innerHTML = `
+      <div class="kpi-card"><div class="kpi-label">Total Budget</div><div class="kpi-value">${money(totalB)}</div><div class="kpi-sub">This month</div></div>
+      <div class="kpi-card orange"><div class="kpi-label">Actual Spend</div><div class="kpi-value orange">${money(totalA)}</div><div class="kpi-sub">MTD</div></div>
+      <div class="kpi-card red"><div class="kpi-label">Forecast</div><div class="kpi-value red">${money(totalF)}</div><div class="kpi-sub">End-of-month</div></div>
+      <div class="kpi-card red"><div class="kpi-label">Idle Waste</div><div class="kpi-value red">${money(idle)}</div><div class="kpi-sub">${fco.filter(c=>c.isIdle).length} idle services</div></div>`;
+    $('costBody').innerHTML = fco.sort((a,b)=>num(b.spendVariancePct)-num(a.spendVariancePct)).map(c=>`<tr>
+      <td>${c.region}</td><td>${c.subaccount}</td><td><strong>${c.serviceName}</strong></td><td>${c.serviceCategory}</td>
+      <td>${money(c.allocatedBudgetUSD)}</td><td>${money(c.actualSpendUSD)}</td>
+      <td style="color:${num(c.forecastedSpendUSD)>num(c.allocatedBudgetUSD)?'var(--red)':'var(--green)'};font-weight:600">${money(c.forecastedSpendUSD)}</td>
+      <td style="color:${num(c.spendVariancePct)>15?'var(--red)':num(c.spendVariancePct)>0?'var(--orange)':'var(--green)'};font-weight:600">${num(c.spendVariancePct)>0?'+':''}${num(c.spendVariancePct).toFixed(1)}%</td>
+      <td>${c.isIdle?'<span class="badge orange">Yes</span>':'—'}</td>
+      <td style="font-size:11px;color:var(--sub)">${c.recommendation||'—'}</td></tr>`).join('');
+  }
+
+  if (name === 'certs') {
+    const exp = fc.filter(c=>c.status==='Critical'||c.status==='Expired').length;
+    $('certKpis').innerHTML = `
+      <div class="kpi-card red"><div class="kpi-label">Critical/Expired</div><div class="kpi-value red">${exp}</div><div class="kpi-sub">Certs</div></div>
+      <div class="kpi-card orange"><div class="kpi-label">Warning (≤30d)</div><div class="kpi-value orange">${fc.filter(c=>c.status==='Warning').length}</div><div class="kpi-sub">Certs</div></div>
+      <div class="kpi-card red"><div class="kpi-label">Unreachable Dests</div><div class="kpi-value red">${fd.filter(d=>d.status==='Unreachable').length}</div><div class="kpi-sub">Destinations</div></div>
+      <div class="kpi-card green"><div class="kpi-label">Healthy Certs</div><div class="kpi-value green">${fc.filter(c=>c.status==='Healthy').length}</div><div class="kpi-sub">Certs</div></div>`;
+    $('certBody').innerHTML = fc.sort((a,b)=>a.daysToExpiry-b.daysToExpiry).map(c=>`<tr>
+      <td><strong>${c.certName}</strong></td><td>${c.associatedService}</td><td>${c.certType}</td>
+      <td style="color:${c.daysToExpiry<=7?'var(--red)':c.daysToExpiry<=14?'var(--orange)':c.daysToExpiry<=30?'var(--yellow)':'var(--green)'};font-weight:600">${c.daysToExpiry}d</td>
+      <td>${c.autoRenewEnabled?'<span class="badge green">Yes</span>':'<span class="badge red">No</span>'}</td>
+      <td>${statusBadge(c.status)}</td></tr>`).join('');
+    $('destBody').innerHTML = fd.sort((a,b)=>a.status==='Unreachable'?-1:1).map(d=>`<tr>
+      <td><strong>${d.destinationName}</strong></td><td>${d.destinationType}</td><td>${statusBadge(d.status)}</td>
+      <td style="color:${num(d.responseTimeMs)>1000?'var(--red)':num(d.responseTimeMs)>500?'var(--orange)':'var(--green)'}">${d.responseTimeMs||'—'}ms</td>
+      <td style="color:${num(d.failureCount24h)>10?'var(--red)':num(d.failureCount24h)>0?'var(--orange)':'var(--green)'}">${d.failureCount24h}</td>
+      <td style="font-size:11px">${d.criticalForProcess||'—'}</td></tr>`).join('');
+  }
+
+  if (name === 'compute') {
+    const ghosts = fcp.filter(r=>r.isGhostSpace);
+    const crit = fcp.filter(r=>r.status==='Critical').length;
+    const ghostWaste = ghosts.reduce((s,r)=>s+num(r.monthlyCostUSD),0);
+    $('compKpis').innerHTML = `
+      <div class="kpi-card red"><div class="kpi-label">Critical Resources</div><div class="kpi-value red">${crit}</div><div class="kpi-sub">Immediate action</div></div>
+      <div class="kpi-card orange"><div class="kpi-label">Ghost Spaces</div><div class="kpi-value orange">${ghosts.length}</div><div class="kpi-sub">Zero activity ≥14d</div></div>
+      <div class="kpi-card red"><div class="kpi-label">Ghost Waste/mo</div><div class="kpi-value red">${money(ghostWaste)}</div><div class="kpi-sub">Recoverable</div></div>
+      <div class="kpi-card"><div class="kpi-label">Resources Monitored</div><div class="kpi-value">${fcp.length}</div><div class="kpi-sub">Total</div></div>`;
+    $('compBody').innerHTML = fcp.sort((a,b)=>(b.status==='Critical'?3:b.status==='AtRisk'?2:b.isGhostSpace?1:0)-(a.status==='Critical'?3:a.status==='AtRisk'?2:a.isGhostSpace?1:0)).map(r=>`<tr>
+      <td>${r.region}</td><td><strong>${r.resourceName}</strong></td><td>${r.resourceType}</td>
+      <td style="font-size:12px">${num(r.usedGB).toFixed(0)} / ${num(r.allocatedGB).toFixed(0)} GB</td>
+      <td>${progBarDirect(r.usagePercent)}</td>
+      <td>${r.isGhostSpace?'<span class="badge orange">👻 Yes</span>':'—'}</td>
+      <td style="color:${num(r.daysSinceActivity)>14?'var(--orange)':'var(--sub)'}">${r.daysSinceActivity}d</td>
+      <td>${money(r.monthlyCostUSD)}</td><td>${statusBadge(r.status)}</td>
+      <td style="font-size:11px;color:var(--sub)">${(r.scalingRecommend||'').substring(0,60)}${(r.scalingRecommend||'').length>60?'…':''}</td></tr>`).join('');
+  }
+
+  if (name === 'ai') {
+    const totalUnits = fa.reduce((s,a)=>s+num(a.aiUnitsConsumed),0);
+    const totalCost  = fa.reduce((s,a)=>s+num(a.totalCostUSD),0);
+    const hoursSaved = fa.reduce((s,a)=>s+num(a.manualHoursReplaced),0);
+    const avgSuccess = fa.length ? fa.reduce((s,a)=>s+num(a.intentSuccessRate),0)/fa.length : 0;
+    $('aiKpis').innerHTML = `
+      <div class="kpi-card purple"><div class="kpi-label">AI Units Used</div><div class="kpi-value">${totalUnits.toFixed(1)}</div><div class="kpi-sub">This month</div></div>
+      <div class="kpi-card"><div class="kpi-label">AI Cost</div><div class="kpi-value">${money(totalCost)}</div><div class="kpi-sub">Total</div></div>
+      <div class="kpi-card green"><div class="kpi-label">Hours Saved</div><div class="kpi-value green">${hoursSaved.toFixed(1)}</div><div class="kpi-sub">${money(hoursSaved*150)} value</div></div>
+      <div class="kpi-card green"><div class="kpi-label">Intent Success</div><div class="kpi-value green">${avgSuccess.toFixed(1)}%</div><div class="kpi-sub">Avg across agents</div></div>
+      <div class="kpi-card green"><div class="kpi-label">ROI Multiplier</div><div class="kpi-value green">${totalCost>0?(hoursSaved*150/totalCost).toFixed(0):'∞'}x</div><div class="kpi-sub">Value / AI Cost</div></div>`;
+    $('aiBody').innerHTML = fa.map(a=>`<tr>
+      <td>${a.region}</td><td><strong>${a.agentOrModel}</strong></td><td>${a.activityType}</td>
+      <td>${num(a.aiUnitsConsumed).toFixed(2)}</td>
+      <td>${(num(a.tokensIn)/1000).toFixed(0)}K</td><td>${(num(a.tokensOut)/1000).toFixed(0)}K</td>
+      <td>${money(a.totalCostUSD)}</td>
+      <td style="color:${num(a.intentSuccessRate)>=90?'var(--green)':'var(--orange)'};font-weight:600">${num(a.intentSuccessRate).toFixed(1)}%</td>
+      <td style="color:var(--green);font-weight:600">${num(a.manualHoursReplaced).toFixed(1)}h</td></tr>`).join('');
+  }
+
+  if (name === 'licenses') {
+    const totalL = fl.reduce((s,l)=>s+num(l.licensedUsers),0);
+    const totalA = fl.reduce((s,l)=>s+num(l.activeUsers),0);
+    const totalW = fl.reduce((s,l)=>s+num(l.monthlyWastedCost),0);
+    $('licKpis').innerHTML = `
+      <div class="kpi-card"><div class="kpi-label">Total Licensed</div><div class="kpi-value">${totalL}</div><div class="kpi-sub">Seats</div></div>
+      <div class="kpi-card green"><div class="kpi-label">Active Users</div><div class="kpi-value green">${totalA}</div><div class="kpi-sub">Seats used</div></div>
+      <div class="kpi-card orange"><div class="kpi-label">Unused Seats</div><div class="kpi-value orange">${totalL-totalA}</div><div class="kpi-sub">Idle licenses</div></div>
+      <div class="kpi-card red"><div class="kpi-label">Monthly Waste</div><div class="kpi-value red">${money(totalW)}</div><div class="kpi-sub">Recoverable</div></div>
+      <div class="kpi-card"><div class="kpi-label">Utilization</div><div class="kpi-value">${totalL>0?(totalA/totalL*100).toFixed(1):'0'}%</div><div class="kpi-sub">Overall</div></div>`;
+    $('licBody').innerHTML = fl.sort((a,b)=>num(b.monthlyWastedCost)-num(a.monthlyWastedCost)).map(l=>`<tr>
+      <td>${l.region}</td><td>${l.subaccount}</td><td><strong>${l.serviceName}</strong></td>
+      <td>${l.licensedUsers}</td><td>${l.activeUsers}</td>
+      <td style="color:${num(l.unusedLicenses)>0?'var(--orange)':'var(--green)'};font-weight:600">${l.unusedLicenses}</td>
+      <td>${progBarDirect(l.utilizationPercent)}</td>
+      <td style="color:${num(l.monthlyWastedCost)>200?'var(--red)':'var(--orange)'};font-weight:600">${money(l.monthlyWastedCost)}</td>
+      <td>${statusBadge(l.status)}</td>
+      <td style="font-size:11px;color:var(--sub)">${(l.recommendation||'').substring(0,70)}${(l.recommendation||'').length>70?'…':''}</td></tr>`).join('');
+  }
+
+  if (name === 'actions') {
+    const crit = fal.filter(a=>a.severity==='Critical'&&a.status!=='Resolved').length;
+    $('alertCount').textContent = fal.filter(a=>a.status!=='Resolved').length;
+    $('actionKpis').innerHTML = `
+      <div class="kpi-card red"><div class="kpi-label">Critical Alerts</div><div class="kpi-value red">${crit}</div><div class="kpi-sub">Open</div></div>
+      <div class="kpi-card orange"><div class="kpi-label">High Alerts</div><div class="kpi-value orange">${fal.filter(a=>a.severity==='High'&&a.status!=='Resolved').length}</div><div class="kpi-sub">Open</div></div>
+      <div class="kpi-card green"><div class="kpi-label">AI Auto-Triaged</div><div class="kpi-value green">${fal.filter(a=>a.isAutoTriaged).length}</div><div class="kpi-sub">of ${fal.length} total</div></div>
+      <div class="kpi-card green"><div class="kpi-label">Est. Savings</div><div class="kpi-value green">${money(fr.reduce((s,r)=>s+num(r.estimatedSavingUSD),0))}</div><div class="kpi-sub">Open recs</div></div>`;
+    $('alertBody').innerHTML = fal.sort((a,b)=>['Critical','High','Medium','Low'].indexOf(a.severity)-['Critical','High','Medium','Low'].indexOf(b.severity)).map(a=>`<tr>
+      <td>${a.region}</td>
+      <td style="font-size:11px">${new Date(a.alertTime).toLocaleString()}</td>
+      <td>${statusBadge(a.severity)}</td><td>${a.alertCategory}</td>
+      <td><strong>${a.title}</strong></td><td>${a.affectedService}</td>
+      <td>${a.isAutoTriaged?`<span class="badge green">✓ ${a.triageAgent||'AI'}</span>`:'<span class="badge gray">Manual</span>'}</td>
+      <td>${statusBadge(a.status)}</td></tr>`).join('');
+    $('recsContainer').innerHTML = fr.sort((a,b)=>['P1','P2','P3'].indexOf(a.priority)-['P1','P2','P3'].indexOf(b.priority)).map(r=>`
+      <div class="rec-card">
+        <div style="display:flex;align-items:center;margin-bottom:8px">
+          <span class="rec-priority ${r.priority.toLowerCase()}">${r.priority}</span>
+          <strong>${r.affectedService}</strong>
+          <span style="margin-left:auto">${statusBadge(r.status)}</span>
+          ${num(r.estimatedSavingUSD)>0?`<span class="rec-saving" style="margin-left:12px">💰 Save ${money(r.estimatedSavingUSD)}</span>`:''}
+        </div>
+        <div class="rec-section"><div class="rec-section-label"><span class="si" style="font-size:12px">&#xE0B1;</span> What is happening</div>${r.what}</div>
+        <div class="rec-section" style="margin-top:8px"><div class="rec-section-label"><span class="si" style="font-size:12px">&#xE076;</span> Why it matters</div>${r.why}</div>
+        <div class="rec-section" style="margin-top:8px;background:#f0faf0;padding:8px;border-radius:4px"><div class="rec-section-label"><span class="si" style="font-size:12px">&#xE1D7;</span> Recommended Action</div><strong>${r.action}</strong></div>
+        <div style="margin-top:8px;font-size:11px;color:var(--sub)">Effort: ${r.estimatedEffortHrs}hrs · Region: ${r.region} · Category: ${r.category}</div>
+      </div>`).join('');
+  }
+}
+
+// Init
+loadAll();
+setInterval(loadAll, 60000); // auto-refresh every 60s
+</script>
+</body>
+</html>

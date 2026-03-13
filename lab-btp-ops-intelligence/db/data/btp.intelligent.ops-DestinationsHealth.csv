@@ -1,0 +1,18 @@
+ID,region,subaccount,destinationName,destinationType,targetHost,authType,status,responseTimeMs,lastPingTimestamp,failureCount24h,criticalForProcess
+d0001,cf-us10,SwiftIS-Prod,S4H-Prod-Finance-Flows,RFC,s4h-prod.internal,BasicAuth,Reachable,120,2026-03-08T07:45:00Z,0,Finance Integration Flows
+d0002,cf-us10,SwiftIS-Prod,S4H-Prod-HR-Outbound,HTTP,s4h-prod.internal,OAuth2,Reachable,185,2026-03-08T07:45:00Z,0,HR Data Sync
+d0003,cf-us10,SwiftIS-Prod,S4H-Prod-Procurement-API,HTTP,s4h-prod.internal,OAuth2,Degraded,1840,2026-03-08T07:45:00Z,7,Procurement Approval Flows
+d0004,cf-us10,SwiftIS-Stage,S4H-Stage-Finance-Flows,RFC,s4h-stage.internal,BasicAuth,Reachable,145,2026-03-08T07:45:00Z,0,Stage Finance Testing
+d0005,cf-us10,SwiftIS-QA,S4H-QA-Integration-Test,HTTP,s4h-qa.internal,BasicAuth,Reachable,210,2026-03-08T07:45:00Z,0,QA Integration Testing
+d0006,cf-us10,BDC-Dev,DBX-US-Sandbox,HTTP,adb-us.azuredatabricks.net,OAuth2,Reachable,340,2026-03-08T07:30:00Z,2,BDC_DS_US_Dev - Databricks POC Active
+d0007,cf-us10,BDC-Dev,DBX-Global-Sandbox,HTTP,adb-global.azuredatabricks.net,OAuth2,Unknown,0,2026-03-08T07:30:00Z,0,BDC_DS_Global_Dev - Databricks Planned
+d0008,cf-us10,BDC-Dev,DS-Global-Prod-HANA,HTTP,bdc-ds-global.hanacloud.ondemand.com,OAuth2,Reachable,95,2026-03-08T07:45:00Z,0,Global Datasphere Production
+d0009,cf-us10,BDC-Dev,DS-US-Prod-HANA,HTTP,bdc-ds-us.hanacloud.ondemand.com,OAuth2,Reachable,88,2026-03-08T07:45:00Z,0,US Datasphere Production
+d0010,cf-us10,Joule-Prod,AI-Core-GenAI-Hub,HTTP,api.ai.prod.eu-central-1.aws.ml.hana.ondemand.com,OAuth2,Reachable,210,2026-03-08T07:45:00Z,0,Joule AI Core Inference
+d0011,cf-us10,SwiftIS-Prod,IAS-Prod-SCIM-Provisioning,HTTP,accounts.ondemand.com,OAuth2,Reachable,165,2026-03-08T07:45:00Z,0,Identity Provisioning
+d0012,cf-us10,SwiftIS-Prod,WorkZone-Prod-Content,HTTP,workzone.cfapps.us10.hana.ondemand.com,OAuth2,Reachable,220,2026-03-08T07:45:00Z,0,Work Zone Content Integration
+d0013,cf-us10,SwiftIS-Dev,S4H-Dev-Sandbox,HTTP,s4h-dev.internal,BasicAuth,Unreachable,0,2026-03-08T06:00:00Z,24,DEV Integration Testing
+d0014,cf-us10,BDC-Dev,SAC-Global-DS-LiveConn,HTTP,sac-global.eu10.sapanalytics.cloud,OAuth2,Reachable,310,2026-03-08T07:45:00Z,0,SAC-Global Live Data Connection
+d0015,cf-us10,BDC-Dev,SAC-US-DS-LiveConn,HTTP,sac-us.us10.sapanalytics.cloud,OAuth2,Reachable,290,2026-03-08T07:45:00Z,0,SAC-US Live Data Connection
+d0016,cf-us10,D4D-US,D4D-S4H-US-Finance,HTTP,d4d-s4h.internal,OAuth2,Reachable,155,2026-03-08T07:45:00Z,0,D4D US Finance Reporting
+d0017,cf-us10,D4D-Finance,D4D-Finance-SAC-Dest,HTTP,sac-d4d.us10.sapanalytics.cloud,OAuth2,Reachable,195,2026-03-08T07:45:00Z,0,D4D Finance Analytics

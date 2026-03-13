@@ -1,0 +1,29 @@
+ID,region,subaccount,serviceName,serviceType,status,entitledQuota,currentUsage,usagePercent,alertThreshold,expirationDate,daysToExpiration,environment,lastUpdated
+b0001,cf-us10,SwiftIS-Prod,SAP Integration Suite - Standard,Integration,Warning,1000000.00,874000.00,87.40,80,2026-12-31,298,Production,2026-03-08T07:00:00Z
+b0002,cf-us10,SwiftIS-Stage,SAP Integration Suite - Standard,Integration,Active,500000.00,210000.00,42.00,80,2026-12-31,298,Stage,2026-03-08T07:00:00Z
+b0003,cf-us10,SwiftIS-QA,SAP Integration Suite - Standard,Integration,Active,500000.00,260000.00,52.00,80,2026-12-31,298,QA,2026-03-08T07:00:00Z
+b0004,cf-us10,SwiftIS-Dev,SAP Integration Suite - Dev,Integration,Active,100000.00,21000.00,21.00,80,2026-09-30,206,Development,2026-03-08T07:00:00Z
+b0005,cf-us10,BDC-Dev,SAP Datasphere - Global Prod,Data,Critical,500.00,468.50,93.70,80,2027-01-31,329,Production,2026-03-08T07:00:00Z
+b0006,cf-us10,BDC-Dev,SAP Datasphere - US Prod,Data,Critical,500.00,475.00,95.00,80,2027-01-31,329,Production,2026-03-08T07:00:00Z
+b0007,cf-us10,BDC-Dev,SAP Datasphere - Global Dev,Data,Warning,100.00,78.00,78.00,80,2026-09-30,206,Development,2026-03-08T07:00:00Z
+b0008,cf-us10,BDC-Dev,SAP Datasphere - US Dev,Data,Warning,100.00,84.00,84.00,80,2026-09-30,206,Development,2026-03-08T07:00:00Z
+b0009,cf-us10,BDC-Dev,SAP Datasphere - Global QA,Data,Active,200.00,118.00,59.00,80,2026-12-31,298,QA,2026-03-08T07:00:00Z
+b0010,cf-us10,BDC-Dev,SAP Datasphere - US QA,Data,Active,200.00,102.00,51.00,80,2026-12-31,298,QA,2026-03-08T07:00:00Z
+b0011,cf-us10,BDC-Dev,SAP Analytics Cloud - Global,Analytics,Active,100.00,88.00,88.00,80,2026-12-31,298,Production,2026-03-08T07:00:00Z
+b0012,cf-us10,BDC-Dev,SAP Analytics Cloud - US,Analytics,Warning,100.00,82.00,82.00,80,2026-12-31,298,Production,2026-03-08T07:00:00Z
+b0013,cf-us10,Joule-Prod,SAP AI Core - Extended,AI,Warning,1000.00,892.00,89.20,80,2027-01-31,329,Production,2026-03-08T07:00:00Z
+b0014,cf-us10,Joule-Prod,Joule - Production,AI,Warning,500.00,445.00,89.00,80,2027-01-31,329,Production,2026-03-08T07:00:00Z
+b0015,cf-us10,Joule-Prod,GenAI Hub - Token Quota,AI,Critical,5000000.00,4920000.00,98.40,80,2026-12-31,298,Production,2026-03-08T07:00:00Z
+b0016,cf-us10,Joule-Staging,SAP AI Core - Standard,AI,Active,500.00,95.00,19.00,80,2027-01-31,329,Stage,2026-03-08T07:00:00Z
+b0017,cf-us10,Joule-QA,Joule - QA,AI,Active,200.00,24.00,12.00,80,2026-09-30,206,QA,2026-03-08T07:00:00Z
+b0018,cf-us10,Joule-Dev,SAP BAS - Dev Spaces,Dev,Active,20.00,14.00,70.00,80,2026-09-30,206,Development,2026-03-08T07:00:00Z
+b0019,cf-us10,BDC-Dev,HANA Cloud - BDC,Data,Critical,256.00,238.00,92.97,80,2027-06-30,479,Production,2026-03-08T07:00:00Z
+b0020,cf-us10,SwiftIS-Prod,Event Mesh - Standard,Integration,Critical,50.00,48.50,97.00,80,2026-12-31,298,Production,2026-03-08T07:00:00Z
+b0021,cf-us10,SwiftIS-Prod,API Management - Production,Integration,Active,1000000.00,654000.00,65.40,80,2026-12-31,298,Production,2026-03-08T07:00:00Z
+b0022,cf-us10,BDC-Dev,Document Information Extraction,AI,Warning,50000.00,43500.00,87.00,80,2026-12-31,298,Production,2026-03-08T07:00:00Z
+b0023,cf-us10,BDC-Dev,SAP Build Process Automation,Integration,Inactive,10000.00,0.00,0.00,80,2026-12-31,298,Development,2026-03-08T07:00:00Z
+b0024,cf-us10,Joule-Prod,SAP Build Work Zone - Standard,Dev,Active,500.00,461.00,92.20,80,2026-12-31,298,Production,2026-03-08T07:00:00Z
+b0025,cf-us10,BDC-Dev,Databricks Sandbox - US (POC),Data,Active,0.00,0.00,0.00,0,2026-06-30,114,Development,2026-03-08T07:00:00Z
+b0026,cf-us10,BDC-Dev,Databricks Sandbox - Global (Planned),Data,Inactive,0.00,0.00,0.00,0,2026-09-30,206,Development,2026-03-08T07:00:00Z
+b0027,cf-us10,D4D-US,D4D US - Platform Services,Dev,Active,200.00,145.00,72.50,80,2026-12-31,298,Production,2026-03-08T07:00:00Z
+b0028,cf-us10,D4D-Finance,D4D Finance - Platform Services,Dev,Active,150.00,98.00,65.33,80,2026-12-31,298,Production,2026-03-08T07:00:00Z

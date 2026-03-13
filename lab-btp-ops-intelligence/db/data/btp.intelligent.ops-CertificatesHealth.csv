@@ -1,0 +1,21 @@
+ID,region,subaccount,certName,certType,issuedBy,expiryDate,daysToExpiry,status,associatedService,autoRenewEnabled,lastChecked
+c0001,cf-us10,SwiftIS-Prod,SwiftIS-Prod-OAuth-ServiceKey,OAuth,SAP Trust CA,2026-03-20,12,Critical,SAP Integration Suite,false,2026-03-08T06:00:00Z
+c0002,cf-us10,SwiftIS-Prod,SwiftIS-Prod-CloudConnector-X509,X509,DigiCert,2026-03-22,14,Critical,Cloud Connector,false,2026-03-08T06:00:00Z
+c0003,cf-us10,SwiftIS-Stage,SwiftIS-Stage-OAuth-ServiceKey,OAuth,SAP Trust CA,2026-03-30,22,Warning,SAP Integration Suite,false,2026-03-08T06:00:00Z
+c0004,cf-us10,BDC-Dev,BDC-DS-Global-Prod-SSL,SSL,DigiCert,2026-04-10,33,Warning,BDC_DS_Global_Prod,true,2026-03-08T06:00:00Z
+c0005,cf-us10,BDC-Dev,BDC-DS-US-Prod-SSL,SSL,DigiCert,2026-04-15,38,Warning,BDC_DS_US_Prod,true,2026-03-08T06:00:00Z
+c0006,cf-us10,Joule-Prod,Joule-Prod-IAS-SAML-Signing,SAML,SAP Trust CA,2027-01-15,313,Healthy,SAP Cloud Identity Services,true,2026-03-08T06:00:00Z
+c0007,cf-us10,Joule-Prod,Joule-Prod-AICore-ServiceKey,OAuth,SAP Trust CA,2026-09-01,177,Healthy,SAP AI Core,false,2026-03-08T06:00:00Z
+c0008,cf-us10,SwiftIS-Prod,SwiftIS-Prod-S4H-ClientCert,X509,DigiCert,2026-10-01,207,Healthy,S/4HANA Integration,false,2026-03-08T06:00:00Z
+c0009,cf-us10,BDC-Dev,BDC-SAC-Global-OAuth,OAuth,SAP Trust CA,2026-11-15,252,Healthy,SAC-Global-Prod,true,2026-03-08T06:00:00Z
+c0010,cf-us10,BDC-Dev,BDC-SAC-US-OAuth,OAuth,SAP Trust CA,2026-11-15,252,Healthy,SAC-US-Prod,true,2026-03-08T06:00:00Z
+c0011,cf-us10,SwiftIS-QA,SwiftIS-QA-OAuth-ServiceKey,OAuth,SAP Trust CA,2026-07-01,115,Healthy,SAP Integration Suite,false,2026-03-08T06:00:00Z
+c0012,cf-us10,Joule-Staging,Joule-Staging-AICore-ServiceKey,OAuth,SAP Trust CA,2026-06-15,99,Healthy,SAP AI Core,false,2026-03-08T06:00:00Z
+c0013,cf-us10,SwiftIS-Prod,SwiftIS-Prod-APIPortal-SSL,SSL,DigiCert,2026-05-01,54,Healthy,API Management,true,2026-03-08T06:00:00Z
+c0014,cf-us10,Joule-Prod,Joule-Prod-GenAIHub-ServiceKey,OAuth,SAP Trust CA,2026-12-31,298,Healthy,GenAI Hub,false,2026-03-08T06:00:00Z
+c0015,cf-us10,BDC-Dev,BDC-DBX-US-ServicePrincipal,OAuth,Azure AD,2026-04-01,24,Warning,Databricks Sandbox US,false,2026-03-08T06:00:00Z
+c0016,cf-us10,SwiftIS-Dev,SwiftIS-Dev-OAuth-ServiceKey,OAuth,SAP Trust CA,2026-08-01,146,Healthy,SAP Integration Suite,false,2026-03-08T06:00:00Z
+c0017,cf-us10,Joule-Dev,Joule-Dev-BAS-ServiceKey,OAuth,SAP Trust CA,2026-09-15,192,Healthy,SAP BAS,false,2026-03-08T06:00:00Z
+c0018,cf-us10,BDC-Dev,BDC-HANA-Cloud-SSL,SSL,DigiCert,2026-05-15,68,Healthy,HANA Cloud,true,2026-03-08T06:00:00Z
+c0019,cf-us10,SwiftIS-Prod,SwiftIS-Prod-IAS-SAML,SAML,SAP Trust CA,2027-03-01,358,Healthy,Identity Authentication,true,2026-03-08T06:00:00Z
+c0020,cf-us10,Joule-Prod,Joule-Prod-WorkZone-OAuth,OAuth,SAP Trust CA,2026-10-15,221,Healthy,SAP Build Work Zone,true,2026-03-08T06:00:00Z
