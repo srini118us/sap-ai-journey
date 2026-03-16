@@ -2,10 +2,8 @@ _schema-version: '3.1'
 ID: btp-intelligent-ops-dashboard
 version: 1.0.0
 description: "SAP BTP Intelligent Operations & FinOps Copilot"
-
 parameters:
   enable-parallel-deployments: true
-
 build-parameters:
   before-all:
     - builder: custom
@@ -13,6 +11,7 @@ build-parameters:
         - npx cds build --production
 
 modules:
+
   # ── CAP Backend (Node.js on CF) ──────────────────────────────────────
   - name: btp-intelligent-ops-srv
     type: nodejs
@@ -30,20 +29,19 @@ modules:
     requires:
       - name: btp-intelligent-ops-db
       - name: btp-intelligent-ops-xsuaa
+      - name: btp-intelligent-ops-destination   # ADDED for WZ routing
 
-  # ── Static App (dashboard.html served from CF) ───────────────────────
+  # ── Fiori / HTML5 App (type changed to html5 for Work Zone) ──────────
   - name: btp-intelligent-ops-app
-    type: staticfile
+    type: html5                                  # CHANGED from staticfile
     path: app
-    parameters:
-      buildpack: staticfile_buildpack
+    build-parameters:
+      build-result: .
+      builder: custom
+      commands: []
+      supported-platforms: []
     requires:
-      - name: srv-api
-        group: destinations
-        properties:
-          name: btp-ops-srv-api
-          url: ~{srv-url}
-          forwardAuthToken: true
+      - name: btp-intelligent-ops-html5-repo    # ADDED for WZ html5 hosting
 
   # ── HANA Cloud DB Deployer ───────────────────────────────────────────
   - name: btp-intelligent-ops-db-deployer
@@ -55,11 +53,12 @@ modules:
       - name: btp-intelligent-ops-db
 
 resources:
+
   # ── HANA Cloud HDI Container ─────────────────────────────────────────
   - name: btp-intelligent-ops-db
     type: com.sap.xs.hdi-container
     parameters:
-      service: hana
+      service: hanatrial                         # CHANGED from hana (required for trial)
       service-plan: hdi-shared
 
   # ── XSUAA (Authentication) ───────────────────────────────────────────
@@ -72,3 +71,17 @@ resources:
       config:
         xsappname: btp-intelligent-ops-${org}-${space}
         tenant-mode: dedicated
+
+  # ── HTML5 App Host (ADDED — required for Work Zone tile) ─────────────
+  - name: btp-intelligent-ops-html5-repo
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: html5-apps-repo
+      service-plan: app-host
+
+  # ── Destination Service (ADDED — required for Work Zone routing) ──────
+  - name: btp-intelligent-ops-destination
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: destination
+      service-plan: lite
