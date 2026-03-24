@@ -1,0 +1,99 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: data-processing-pipeline
+  annotations:
+    scenarios.ai.sap.com/description: "Multi-step pipeline with S3 artifacts"
+    scenarios.ai.sap.com/name: "data-pipeline"
+    executables.ai.sap.com/description: "Process customer data from S3"
+    executables.ai.sap.com/name: "data-processor"
+  labels:
+    scenarios.ai.sap.com/id: "data-pipeline"
+    ai.sap.com/version: "1.0.0"
+spec:
+  entrypoint: main
+  templates:
+    - name: main
+      steps:
+        - - name: process-data
+            template: process-template
+
+    - name: process-template
+      inputs:
+        artifacts:
+          - name: inputdata
+            path: /app/input/
+      outputs:
+        artifacts:
+          - name: outputdata
+            path: /app/output/
+            globalName: processeddata
+            archive:
+              none: {}
+      container:
+        image: python:3.9-slim
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            echo "=== Starting Data Processing Pipeline ==="
+            echo ""
+            echo "Step 1: Reading input from S3..."
+            ls -la /app/input/
+            echo ""
+            echo "--- Input Data ---"
+            cat /app/input/customers.csv
+            echo ""
+            echo "Step 2: Processing data..."
+            mkdir -p /app/output
+            
+            python3 << 'EOF'
+            import csv
+            
+            # Read input
+            with open('/app/input/customers.csv', 'r') as f:
+                reader = csv.DictReader(f)
+                rows = list(reader)
+            
+            # Process: Add spend_category column
+            for row in rows:
+                spend = int(row['spend'])
+                if spend >= 3000:
+                    row['spend_category'] = 'Premium'
+                elif spend >= 2000:
+                    row['spend_category'] = 'Gold'
+                else:
+                    row['spend_category'] = 'Standard'
+            
+            # Write output
+            with open('/app/output/processed_customers.csv', 'w', newline='') as f:
+                fieldnames = ['id', 'name', 'country', 'spend', 'spend_category']
+                writer = csv.DictWriter(f, fieldnames=fieldnames)
+                writer.writeheader()
+                writer.writerows(rows)
+            
+            # Generate summary
+            summary = {'Premium': 0, 'Gold': 0, 'Standard': 0}
+            for row in rows:
+                summary[row['spend_category']] += 1
+            
+            with open('/app/output/summary.txt', 'w') as f:
+                f.write("=== Customer Analysis Summary ===\n")
+                f.write(f"Total Customers: {len(rows)}\n")
+                f.write(f"Premium (3000+): {summary['Premium']}\n")
+                f.write(f"Gold (2000-2999): {summary['Gold']}\n")
+                f.write(f"Standard (<2000): {summary['Standard']}\n")
+            
+            print("Processing complete!")
+            EOF
+            
+            echo ""
+            echo "Step 3: Output files created..."
+            ls -la /app/output/
+            echo ""
+            echo "--- Processed Data ---"
+            cat /app/output/processed_customers.csv
+            echo ""
+            echo "--- Summary Report ---"
+            cat /app/output/summary.txt
+            echo ""
+            echo "=== Pipeline Complete ==="
