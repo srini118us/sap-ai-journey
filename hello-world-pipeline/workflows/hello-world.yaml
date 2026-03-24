@@ -3,10 +3,13 @@ kind: WorkflowTemplate
 metadata:
   name: hello-world-pipeline
   annotations:
-    scenarios.ai.sap.com/name: "hello-world"
     scenarios.ai.sap.com/description: "My first AI Core pipeline"
-    executables.ai.sap.com/name: "hello-world-exec"
+    scenarios.ai.sap.com/name: "hello-world"
     executables.ai.sap.com/description: "Hello World Execution"
+    executables.ai.sap.com/name: "hello-world-exec"
+  labels:
+    scenarios.ai.sap.com/id: "hello-world"
+    ai.sap.com/version: "1.0.0"
 spec:
   entrypoint: main
   templates:
