@@ -1,1 +1,17 @@
-
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: hello-world-pipeline
+  annotations:
+    scenarios.ai.sap.com/name: "hello-world"
+    scenarios.ai.sap.com/description: "My first AI Core pipeline"
+    executables.ai.sap.com/name: "hello-world-exec"
+    executables.ai.sap.com/description: "Hello World Execution"
+spec:
+  entrypoint: main
+  templates:
+    - name: main
+      container:
+        image: python:3.9-slim
+        command: ["python", "-c"]
+        args: ["print('Hello from SAP AI Core!')"]
