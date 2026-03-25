@@ -1,4 +1,24 @@
-- name: process-template
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: data-processing-pipeline
+  annotations:
+    scenarios.ai.sap.com/description: "Multi-step pipeline with S3 artifacts"
+    scenarios.ai.sap.com/name: "data-pipeline"
+    executables.ai.sap.com/description: "Process customer data from S3"
+    executables.ai.sap.com/name: "data-processor"
+  labels:
+    scenarios.ai.sap.com/id: "data-pipeline"
+    ai.sap.com/version: "1.0.1"
+spec:
+  entrypoint: main
+  templates:
+    - name: main
+      steps:
+        - - name: process-data
+            template: process-template
+
+    - name: process-template
       inputs:
         artifacts:
           - name: inputdata
