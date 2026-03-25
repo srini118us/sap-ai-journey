@@ -1,24 +1,4 @@
-apiVersion: argoproj.io/v1alpha1
-kind: WorkflowTemplate
-metadata:
-  name: data-processing-pipeline
-  annotations:
-    scenarios.ai.sap.com/description: "Multi-step pipeline with S3 artifacts"
-    scenarios.ai.sap.com/name: "data-pipeline"
-    executables.ai.sap.com/description: "Process customer data from S3"
-    executables.ai.sap.com/name: "data-processor"
-  labels:
-    scenarios.ai.sap.com/id: "data-pipeline"
-    ai.sap.com/version: "1.0.0"
-spec:
-  entrypoint: main
-  templates:
-    - name: main
-      steps:
-        - - name: process-data
-            template: process-template
-
-    - name: process-template
+- name: process-template
       inputs:
         artifacts:
           - name: inputdata
@@ -26,7 +6,7 @@ spec:
       outputs:
         artifacts:
           - name: outputdata
-            path: /app/output/
+            path: /tmp/output/
             globalName: processeddata
             archive:
               none: {}
@@ -44,7 +24,7 @@ spec:
             cat /app/input/customers.csv
             echo ""
             echo "Step 2: Processing data..."
-            mkdir -p /app/output
+            mkdir -p /tmp/output
             
             python3 << 'EOF'
             import csv
@@ -65,7 +45,7 @@ spec:
                     row['spend_category'] = 'Standard'
             
             # Write output
-            with open('/app/output/processed_customers.csv', 'w', newline='') as f:
+            with open('/tmp/output/processed_customers.csv', 'w', newline='') as f:
                 fieldnames = ['id', 'name', 'country', 'spend', 'spend_category']
                 writer = csv.DictWriter(f, fieldnames=fieldnames)
                 writer.writeheader()
@@ -76,7 +56,7 @@ spec:
             for row in rows:
                 summary[row['spend_category']] += 1
             
-            with open('/app/output/summary.txt', 'w') as f:
+            with open('/tmp/output/summary.txt', 'w') as f:
                 f.write("=== Customer Analysis Summary ===\n")
                 f.write(f"Total Customers: {len(rows)}\n")
                 f.write(f"Premium (3000+): {summary['Premium']}\n")
@@ -88,12 +68,12 @@ spec:
             
             echo ""
             echo "Step 3: Output files created..."
-            ls -la /app/output/
+            ls -la /tmp/output/
             echo ""
             echo "--- Processed Data ---"
-            cat /app/output/processed_customers.csv
+            cat /tmp/output/processed_customers.csv
             echo ""
             echo "--- Summary Report ---"
-            cat /app/output/summary.txt
+            cat /tmp/output/summary.txt
             echo ""
             echo "=== Pipeline Complete ==="
