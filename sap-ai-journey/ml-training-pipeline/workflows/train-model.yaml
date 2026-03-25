@@ -1,0 +1,149 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: churn-model-training
+  annotations:
+    scenarios.ai.sap.com/description: "Train customer churn prediction model"
+    scenarios.ai.sap.com/name: "ml-training"
+    executables.ai.sap.com/description: "Train sklearn classifier"
+    executables.ai.sap.com/name: "churn-trainer"
+  labels:
+    scenarios.ai.sap.com/id: "ml-training"
+    ai.sap.com/version: "1.0.0"
+spec:
+  entrypoint: main
+  templates:
+    - name: main
+      steps:
+        - - name: train-model
+            template: training-template
+
+    - name: training-template
+      inputs:
+        artifacts:
+          - name: trainingdata
+            path: /app/data/
+      outputs:
+        artifacts:
+          - name: trainedmodel
+            path: /tmp/model/
+            globalName: churnmodel
+            archive:
+              none: {}
+      container:
+        image: python:3.9-slim
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            echo "=== ML Model Training Pipeline ==="
+            echo ""
+            echo "Step 1: Installing dependencies..."
+            pip install pandas scikit-learn joblib --quiet
+            echo "Dependencies installed!"
+            echo ""
+            echo "Step 2: Loading training data..."
+            ls -la /app/data/
+            echo ""
+            
+            python3 << 'EOF'
+            import pandas as pd
+            import numpy as np
+            from sklearn.model_selection import train_test_split
+            from sklearn.ensemble import RandomForestClassifier
+            from sklearn.metrics import accuracy_score, classification_report
+            import joblib
+            import os
+            import json
+            
+            # Create output directory
+            os.makedirs('/tmp/model', exist_ok=True)
+            
+            # Load data
+            print("--- Training Data Preview ---")
+            df = pd.read_csv('/app/data/customer_churn.csv')
+            print(df.head(10))
+            print(f"\nDataset shape: {df.shape}")
+            print(f"Churn distribution:\n{df['churned'].value_counts()}")
+            
+            # Prepare features
+            print("\n--- Preparing Features ---")
+            # Convert contract_type to numeric
+            df['contract_numeric'] = df['contract_type'].map({'monthly': 0, 'annual': 1})
+            
+            # Features and target
+            X = df[['monthly_spend', 'tenure_months', 'support_tickets', 'contract_numeric']]
+            y = df['churned']
+            
+            print(f"Features: {list(X.columns)}")
+            print(f"Target: churned (0=stayed, 1=left)")
+            
+            # Split data
+            X_train, X_test, y_train, y_test = train_test_split(
+                X, y, test_size=0.3, random_state=42
+            )
+            print(f"\nTraining samples: {len(X_train)}")
+            print(f"Test samples: {len(X_test)}")
+            
+            # Train model
+            print("\n--- Training Random Forest Model ---")
+            model = RandomForestClassifier(
+                n_estimators=100,
+                max_depth=5,
+                random_state=42
+            )
+            model.fit(X_train, y_train)
+            print("Model training complete!")
+            
+            # Evaluate
+            print("\n--- Model Evaluation ---")
+            y_pred = model.predict(X_test)
+            accuracy = accuracy_score(y_test, y_pred)
+            print(f"Accuracy: {accuracy:.2%}")
+            print("\nClassification Report:")
+            print(classification_report(y_test, y_pred, target_names=['Stayed', 'Churned']))
+            
+            # Feature importance
+            print("\n--- Feature Importance ---")
+            importance = dict(zip(X.columns, model.feature_importances_))
+            for feat, imp in sorted(importance.items(), key=lambda x: x[1], reverse=True):
+                print(f"  {feat}: {imp:.3f}")
+            
+            # Save model
+            print("\n--- Saving Model ---")
+            model_path = '/tmp/model/churn_model.pkl'
+            joblib.dump(model, model_path)
+            print(f"Model saved to: {model_path}")
+            
+            # Save metrics
+            metrics = {
+                'accuracy': float(accuracy),
+                'n_training_samples': len(X_train),
+                'n_test_samples': len(X_test),
+                'features': list(X.columns),
+                'model_type': 'RandomForestClassifier',
+                'n_estimators': 100,
+                'max_depth': 5
+            }
+            
+            metrics_path = '/tmp/model/metrics.json'
+            with open(metrics_path, 'w') as f:
+                json.dump(metrics, f, indent=2)
+            print(f"Metrics saved to: {metrics_path}")
+            
+            # Save feature importance
+            importance_path = '/tmp/model/feature_importance.json'
+            with open(importance_path, 'w') as f:
+                json.dump(importance, f, indent=2)
+            print(f"Feature importance saved to: {importance_path}")
+            
+            print("\n=== Training Complete! ===")
+            EOF
+            
+            echo ""
+            echo "Step 3: Verifying outputs..."
+            ls -la /tmp/model/
+            echo ""
+            echo "--- Metrics ---"
+            cat /tmp/model/metrics.json
+            echo ""
+            echo "=== Pipeline Complete ==="
