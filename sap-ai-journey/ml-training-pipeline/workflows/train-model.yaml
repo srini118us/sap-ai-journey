@@ -9,7 +9,7 @@ metadata:
     executables.ai.sap.com/name: "churn-trainer"
   labels:
     scenarios.ai.sap.com/id: "ml-training"
-    ai.sap.com/version: "1.0.1"
+    ai.sap.com/version: "1.0.2"
 spec:
   entrypoint: main
   templates:
@@ -17,7 +17,6 @@ spec:
       steps:
         - - name: train-model
             template: training-template
-
     - name: training-template
       inputs:
         artifacts:
@@ -64,17 +63,14 @@ spec:
             import os
             import json
             
-            # Create output directory
             os.makedirs('/tmp/model', exist_ok=True)
             
-            # Load data
             print("--- Training Data Preview ---")
             df = pd.read_csv('/app/data/customer_churn.csv')
             print(df.head(10))
             print(f"\nDataset shape: {df.shape}")
             print(f"Churn distribution:\n{df['churned'].value_counts()}")
             
-            # Prepare features
             print("\n--- Preparing Features ---")
             df['contract_numeric'] = df['contract_type'].map({'monthly': 0, 'annual': 1})
             
@@ -84,20 +80,44 @@ spec:
             print(f"Features: {list(X.columns)}")
             print(f"Target: churned (0=stayed, 1=left)")
             
-            X_train, X_test, y_train, y_test = train_test_split(
-                X, y, test_size=0.3, random_state=42
-            )
+            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
             print(f"\nTraining samples: {len(X_train)}")
             print(f"Test samples: {len(X_test)}")
             
             print("\n--- Training Random Forest Model ---")
-            model = RandomForestClassifier(
-                n_estimators=100,
-                max_depth=5,
-                random_state=42
-            )
+            model = RandomForestClassifier(n_estimators=100, max_depth=5, random_state=42)
             model.fit(X_train, y_train)
             print("Model training complete!")
             
             print("\n--- Model Evaluation ---")
-            y_pr
+            y_pred = model.predict(X_test)
+            accuracy = accuracy_score(y_test, y_pred)
+            print(f"Accuracy: {accuracy:.2%}")
+            print("\nClassification Report:")
+            print(classification_report(y_test, y_pred, target_names=['Stayed', 'Churned']))
+            
+            print("\n--- Feature Importance ---")
+            importance = dict(zip(X.columns, model.feature_importances_))
+            for feat, imp in sorted(importance.items(), key=lambda x: x[1], reverse=True):
+                print(f"  {feat}: {imp:.3f}")
+            
+            print("\n--- Saving Model ---")
+            joblib.dump(model, '/tmp/model/churn_model.pkl')
+            print("Model saved!")
+            
+            metrics = {'accuracy': float(accuracy), 'features': list(X.columns), 'model_type': 'RandomForestClassifier'}
+            with open('/tmp/model/metrics.json', 'w') as f:
+                json.dump(metrics, f, indent=2)
+            print("Metrics saved!")
+            
+            print("\n=== Training Complete! ===")
+            EOF
+            
+            echo ""
+            echo "Step 3: Verifying outputs..."
+            ls -la /tmp/model/
+            echo ""
+            echo "--- Metrics ---"
+            cat /tmp/model/metrics.json
+            echo ""
+            echo "=== Pipeline Complete ==="
