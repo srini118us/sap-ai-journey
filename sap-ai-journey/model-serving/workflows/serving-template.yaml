@@ -25,7 +25,7 @@ spec:
     apiVersion: "serving.kserve.io/v1beta1"
     kind: "InferenceService"
     metadata:
-      labels:
+      labels: |
         ai.sap.com/resourcePlan: starter
       annotations: |
         autoscaling.knative.dev/metric: concurrency
