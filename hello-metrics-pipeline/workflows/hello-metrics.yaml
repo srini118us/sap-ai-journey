@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: hello-metrics-pipeline
+  annotations:
+    scenarios.ai.sap.com/description: "Pipeline with metrics tracking"
+    scenarios.ai.sap.com/name: "hello-metrics"
+    executables.ai.sap.com/description: "Hello World with Metrics"
+    executables.ai.sap.com/name: "hello-metrics-exec"
+  labels:
+    scenarios.ai.sap.com/id: "hello-metrics"
+    ai.sap.com/version: "1.0.0"
+spec:
+  imagePullSecrets:
+    - name: default
+  entrypoint: main
+  templates:
+    - name: main
+      container:
+        image: docker.io/srini117us/hello-metrics:1.0.0
+        command: ["python", "main.py"]
