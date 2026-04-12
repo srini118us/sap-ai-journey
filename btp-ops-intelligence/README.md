@@ -1,25 +1,84 @@
-# Getting Started
+# BTP Ops Intelligence Dashboard
 
-Welcome to your new project.
+CAP-based operations dashboard exposing 9 OData endpoints for BTP landscape monitoring.
 
-It contains these folders and files, following our recommended project layout:
+## Architecture
 
-File or Folder | Purpose
----------|----------
-`app/` | content for UI frontends goes here
-`db/` | your domain models and data go here
-`srv/` | your service models and code go here
-`package.json` | project metadata and configuration
-`readme.md` | this getting started guide
+```mermaid
+graph LR
+    subgraph "Presentation"
+        UI[Dashboard UI]
+        JL[Joule Chat]
+    end
+    
+    subgraph "Application"
+        CAP[CAP Service]
+    end
+    
+    subgraph "Persistence"
+        HC[HANA Cloud]
+    end
+    
+    UI --> CAP
+    JL --> CAP
+    CAP --> HC
+```
 
+## OData Endpoints
 
-## Next Steps
+| Endpoint | Description |
+|----------|-------------|
+| `/odata/v4/ops/SystemHealth` | System health status |
+| `/odata/v4/ops/CostTrends` | Monthly cost data |
+| `/odata/v4/ops/ActiveAlerts` | Current alerts |
+| `/odata/v4/ops/UserActivity` | User metrics |
+| `/odata/v4/ops/ServiceStatus` | Service availability |
+| `/odata/v4/ops/Incidents` | Open incidents |
+| `/odata/v4/ops/Deployments` | Recent deployments |
+| `/odata/v4/ops/Compliance` | Compliance status |
+| `/odata/v4/ops/Capacity` | Resource utilization |
 
-- Open a new terminal and run `cds watch`
-- (in VS Code simply choose _**Terminal** > Run Task > cds watch_)
-- Start adding content, for example, a [db/schema.cds](db/schema.cds).
+## Project Structure
 
+```
+btp-ops-intelligence/
+├── app/
+│   └── dashboard.html
+├── db/
+│   └── schema.cds
+├── srv/
+│   ├── ops-service.cds
+│   └── ops-service.js
+├── package.json
+└── mta.yaml
+```
 
-## Learn More
+## Local Development
 
-Learn more at https://cap.cloud.sap/docs/get-started/.
+```bash
+npm install
+cds watch
+```
+
+Access: http://localhost:4004
+
+## Cloud Foundry Deployment
+
+```bash
+mbt build
+cf deploy mta_archives/btp-ops-intelligence_1.0.0.mtar
+```
+
+Note: HANA Cloud on trial auto-stops after idle period. Start via BTP Cockpit before demos.
+
+## Joule Integration
+
+Dashboard includes NL query widget supporting:
+- System health queries
+- Cost trend analysis
+- Alert summaries
+
+## References
+
+- [SAP CAP](https://cap.cloud.sap/docs)
+- [SAP HANA Cloud](https://help.sap.com/docs/hana-cloud)
