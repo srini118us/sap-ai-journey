@@ -1,0 +1,12 @@
+# FastMCP - MCP Server Framework
+# Version 2.3+ required for streamable-http transport
+fastmcp>=2.3.0
+
+# MCP SDK (required dependency)
+mcp>=1.5.0
+
+# HTTP client for S/4HANA OData calls
+requests>=2.31.0
+
+# HTTP async client (optional)
+httpx>=0.25.0

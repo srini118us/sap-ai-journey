@@ -1,0 +1,17 @@
+{
+    "sap_odata": {
+        "base_url": "http://mtsapserver3.themdlabs.com:8003/sap/opu/odata/sap/APJ_JOB_MANAGEMENT_SRV",
+        "username": "sdasari",
+        "password": "Welcome#234",
+        "client": "100"
+    },
+    "ai_core": {
+        "mode": "local",
+        "model_name": "gpt-4o"
+    },
+    "agent": {
+        "hours_lookback": 24,
+        "auto_restart_enabled": false,
+        "require_approval": true
+    }
+}

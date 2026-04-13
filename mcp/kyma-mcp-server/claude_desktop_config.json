@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "sap-procurement": {
+      "command": "python",
+      "args": ["C:\\sap-ai-journey\\mcp_server\\server.py"],
+      "env": {}
+    }
+  }
+}

@@ -1,0 +1,28 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sap-mcp-server
+  labels:
+    app: sap-mcp-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sap-mcp-server
+  template:
+    metadata:
+      labels:
+        app: sap-mcp-server
+    spec:
+      containers:
+      - name: sap-mcp-server
+        image: srini117us/sap-mcp-server:latest
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"

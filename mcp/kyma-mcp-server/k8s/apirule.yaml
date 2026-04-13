@@ -1,0 +1,17 @@
+﻿apiVersion: gateway.kyma-project.io/v2
+kind: APIRule
+metadata:
+  name: sap-mcp-server
+  labels:
+    app: sap-mcp-server
+spec:
+  hosts:
+    - sap-mcp-server
+  service:
+    name: sap-mcp-server
+    port: 8080
+  gateway: kyma-system/kyma-gateway
+  rules:
+    - path: /*
+      methods: ["GET", "POST", "OPTIONS"]
+      noAuth: true
