@@ -1,172 +1,279 @@
-# SAP-RPT-1 Payment Risk Predictor
-## CAP + SAP Relational Foundation Model Demo
+# Payment Risk Predictor (SAP-RPT-1)
 
-**Author:** Srinivasa | SAP AI Architect Learning Journey
-**Purpose:** Demonstrates SAP-RPT-1 in-context learning integrated into a CAP application
-**Use Case:** Predict payment risk (HIGH/MEDIUM/LOW) for new customers using historical FI-AR data
+## Scope
 
----
+Demonstrates SAP's Relational Foundation Model (RPT-1) integrated with a CAP application for payment risk prediction. Unlike traditional ML pipelines that require training, RPT-1 uses in-context learning — historical FI-AR records with known outcomes teach the model patterns at inference time.
 
-## What This Does
-
-This CAP app shows how SAP-RPT-1 replaces traditional ML pipelines for tabular prediction:
+## Architecture
 
 ```
-Historical FI-AR Data (20 records with known risk)
-         +
-New Customer Records (8 records, risk unknown)
-         ↓
-    SAP-RPT-1 API (rpt.cloud.sap/api/predict)
-         ↓
-Payment Risk Predictions: HIGH / MEDIUM / LOW
+┌─────────────────────────────────────────────────────────────────┐
+│                   RPT-1 PAYMENT RISK FLOW                       │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│   ┌─────────────────────────────────────────────────────────┐   │
+│   │                   CAP APPLICATION                        │   │
+│   │                                                          │   │
+│   │   ┌───────────────┐       ┌───────────────┐             │   │
+│   │   │ PaymentHistory│       │  NewCustomers │             │   │
+│   │   │               │       │               │             │   │
+│   │   │ 20 records    │       │ 8 records     │             │   │
+│   │   │ KNOWN labels  │       │ [PREDICT]     │             │   │
+│   │   └───────┬───────┘       └───────┬───────┘             │   │
+│   │           │                       │                      │   │
+│   │           └───────────┬───────────┘                      │   │
+│   │                       │                                  │   │
+│   │                       ▼                                  │   │
+│   │           ┌───────────────────────┐                      │   │
+│   │           │   runPrediction()     │                      │   │
+│   │           │   (cat-service.js)    │                      │   │
+│   │           └───────────┬───────────┘                      │   │
+│   │                       │                                  │   │
+│   └───────────────────────┼──────────────────────────────────┘   │
+│                           │                                      │
+│                           ▼                                      │
+│   ┌─────────────────────────────────────────────────────────┐   │
+│   │                   RPT-1 API                              │   │
+│   │           https://rpt.cloud.sap/api/predict              │   │
+│   │                                                          │   │
+│   │   INPUT:                                                 │   │
+│   │   {                                                      │   │
+│   │     "rows": [                                            │   │
+│   │       // Context rows (known labels)                     │   │
+│   │       {"customer_id": "C1001", "days_overdue_avg": "2",  │   │
+│   │        "payment_risk": "LOW"},                           │   │
+│   │       {"customer_id": "C1002", "days_overdue_avg": "45", │   │
+│   │        "payment_risk": "HIGH"},                          │   │
+│   │       ...                                                │   │
+│   │       // Target rows (to predict)                        │   │
+│   │       {"customer_id": "C2001", "days_overdue_avg": "35", │   │
+│   │        "payment_risk": "[PREDICT]"}                      │   │
+│   │     ]                                                    │   │
+│   │   }                                                      │   │
+│   │                                                          │   │
+│   │   OUTPUT:                                                │   │
+│   │   { "prediction": { "predictions": [                     │   │
+│   │       { "payment_risk": [                                │   │
+│   │           { "prediction": "HIGH", "confidence": 0.7 }    │   │
+│   │       ]}                                                 │   │
+│   │   ]}}                                                    │   │
+│   │                                                          │   │
+│   └─────────────────────────────────────────────────────────┘   │
+│                           │                                      │
+│                           ▼                                      │
+│   ┌─────────────────────────────────────────────────────────┐   │
+│   │                 PredictionResults                        │   │
+│   │                                                          │   │
+│   │   customer_id │ predicted_risk │ confidence │ timestamp  │   │
+│   │   ────────────┼────────────────┼────────────┼────────────│   │
+│   │   C2001       │ HIGH           │ 70%        │ 2024-...   │   │
+│   │   C2002       │ LOW            │ 85%        │ 2024-...   │   │
+│   │                                                          │   │
+│   └─────────────────────────────────────────────────────────┘   │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-No model training. No Docker. No Argo workflows. Just data + API call.
+## How RPT-1 Works
 
----
+RPT-1 (Relational Pre-trained Transformer) is SAP's foundation model for tabular data. It uses **in-context learning**:
 
-## Prerequisites
+1. **Context Rows** — Historical records with known labels serve as few-shot examples
+2. **Target Rows** — New records with `[PREDICT]` placeholder in the target column
+3. **Pattern Learning** — Model learns relationships from context and predicts targets
+4. **No Training Required** — Works like few-shot prompting for structured data
 
-- Node.js 18+ installed
-- `@sap/cds-dk` installed globally (`npm install -g @sap/cds-dk`)
-- RPT-1 API token from https://rpt.cloud.sap (free, S-user login)
-
----
-
-## Step 1: Setup
-
-```bash
-# Clone or copy project
-cd rpt1-payment-risk
-
-# Install dependencies
-npm install
-
-# Verify CDS is working
-cds version
+```
+Traditional ML Pipeline        vs        RPT-1
+─────────────────────                    ─────
+Data Collection                          Data Collection
+Feature Engineering                      ───────────────
+Model Selection                          API Call with
+Hyperparameter Tuning                    labeled examples
+Training                                 ───────────────
+Evaluation                               Predictions
+Deployment
 ```
 
----
+## Components
 
-## Step 2: Get Your RPT-1 Token
+### CDS Entities
 
-1. Go to https://rpt.cloud.sap
-2. Click **Documentation** (top right)
-3. Log in with your **SAP S-user** credentials
-4. Copy the **API Token** displayed on the docs page
-5. Keep this handy — you'll paste it in the app UI
+| Entity | Purpose | Records |
+|--------|---------|---------|
+| `PaymentHistory` | Historical FI-AR data with known risk | 20 |
+| `NewCustomers` | Customers to predict | 8 |
+| `PredictionResults` | Stored predictions | - |
 
----
+### Service Actions
 
-## Step 3: Run the App
+| Action/Function | Description |
+|-----------------|-------------|
+| `runPrediction(rpt1Token)` | Call RPT-1 API and store results |
+| `getRiskSummary()` | Return HIGH/MEDIUM/LOW counts |
 
-```bash
-# Start with sample data (SQLite in-memory)
-cds watch
-```
+## Features (FI-AR Data)
 
-Open browser: **http://localhost:4004/app/index.html**
-
----
-
-## Step 4: Run a Prediction
-
-1. Paste your RPT-1 token into the **API Token** field
-2. Click **▶ Run Prediction**
-3. Watch RPT-1 classify 8 new customers as HIGH / MEDIUM / LOW risk
-4. KPI cards update with the summary
-
----
-
-## How RPT-1 In-Context Learning Works
-
-The `runPrediction` action in `cat-service.js` builds this payload:
-
-```json
-{
-  "rows": [
-    // 20 context rows with known payment_risk labels
-    { "customer_id": "C1001", "days_overdue_avg": "2", "payment_risk": "LOW" },
-    { "customer_id": "C1002", "days_overdue_avg": "45", "payment_risk": "HIGH" },
-    ...
-
-    // 8 target rows with [PREDICT] placeholder
-    { "customer_id": "C2001", "days_overdue_avg": "35", "payment_risk": "[PREDICT]" },
-    { "customer_id": "C2002", "days_overdue_avg": "6",  "payment_risk": "[PREDICT]" },
-    ...
-  ]
-}
-```
-
-RPT-1 learns from the labeled rows and fills in `[PREDICT]` for the target rows.
-
----
+| Feature | Type | Description |
+|---------|------|-------------|
+| `customer_id` | String | Unique identifier |
+| `region` | String | Geographic region |
+| `industry` | String | Business sector |
+| `invoice_amount` | Number | Invoice value |
+| `payment_terms` | String | Net 30, Net 60, etc. |
+| `days_overdue_avg` | Number | Average days past due |
+| `num_late_payments` | Number | Historical late count |
+| `credit_limit` | Number | Customer credit limit |
+| `outstanding_balance` | Number | Current AR balance |
+| `payment_risk` | String | HIGH / MEDIUM / LOW |
 
 ## API Details
 
-| Item         | Value                                |
-|--------------|--------------------------------------|
-| Endpoint     | https://rpt.cloud.sap/api/predict    |
-| Method       | POST                                 |
-| Auth         | Bearer <token>                       |
-| Content-Type | application/json                     |
-| Payload Key  | `rows` (array of flat objects)       |
-| Predict Flag | `[PREDICT]` in target column value   |
+| Item | Value |
+|------|-------|
+| Endpoint | https://rpt.cloud.sap/api/predict |
+| Method | POST |
+| Auth | Bearer token (from rpt.cloud.sap) |
+| Predict Flag | `[PREDICT]` in target column |
+| Rate Limit | Yes (429 errors) |
+| Timeout | 30 seconds |
 
----
+## Response Handling
 
-## Project Structure
+```javascript
+// RPT-1 response structure
+{
+  "prediction": {
+    "predictions": [
+      {
+        "payment_risk": [
+          { "prediction": "HIGH", "confidence": 0.7 }
+        ]
+      }
+    ]
+  }
+}
 
+// Extract prediction
+const riskEntry = predRow?.payment_risk?.[0] || {};
+const predictedRisk = riskEntry.prediction || 'UNKNOWN';
+const confidence = Math.round(riskEntry.confidence * 100) + '%';
 ```
-rpt1-payment-risk/
-├── db/
-│   └── schema.cds              # PaymentHistory, NewCustomers, PredictionResults
-├── srv/
-│   ├── cat-service.cds         # Service + action + function definitions
-│   └── cat-service.js          # RPT-1 API call logic
-├── data/
-│   ├── sap.rpt1.paymentrisk-PaymentHistory.csv   # 20 historical FI-AR records
-│   └── sap.rpt1.paymentrisk-NewCustomers.csv     # 8 new customers to predict
-├── app/
-│   └── index.html              # Dashboard UI
-├── package.json
-└── README.md
-```
 
----
+## Quick Start
 
-## Extending This Demo
+### Prerequisites
 
-### Add Real S/4HANA Data
-Replace the CSV files with data exported from:
-- **FI-AR Aging Report** (transaction FBL5N)
-- **Customer Credit Master** (transaction FD32)
+- Node.js 18+
+- CDS CLI (`npm install -g @sap/cds-dk`)
+- RPT-1 token from https://rpt.cloud.sap
 
-### Deploy to BTP Cloud Foundry
+### Installation
+
 ```bash
-cds add cf-manifest
-cf push
+cd mlops/payment-risk
+npm install
 ```
 
-### Integrate with GenAI Hub
-Add a second action that calls GenAI Hub orchestration to generate
-a natural language explanation of WHY a customer is high risk —
-combining RPT-1's structured prediction with an LLM's explanation capability.
+### Get RPT-1 Token
 
----
+1. Go to https://rpt.cloud.sap
+2. Click Documentation
+3. Login with SAP S-user
+4. Copy API token
 
-## Key Learning Points
+### Run
 
-1. **RPT-1 vs Traditional ML**: No training pipeline, no Docker, no Argo — just an API call
-2. **In-Context Learning**: Labeled rows teach the model; `[PREDICT]` rows get predictions
-3. **CAP Integration**: Standard `axios.post()` call from a CDS action handler
-4. **SAP Data Fit**: FI-AR data (customer, amounts, overdue days) is exactly what RPT-1 was trained on
+```bash
+cds watch
+```
 
----
+### Access
 
-## Related Resources
+Open browser: http://localhost:4004/app/index.html
 
-- RPT-1 Playground: https://rpt.cloud.sap
-- SAP RPT-1 Docs: https://help.sap.com/docs/sap-ai-core/generative-ai/sap-rpt-1
-- CAP Documentation: https://cap.cloud.sap/docs
-- SAP AI Core Tutorial: https://developers.sap.com/mission.ai-core.html
+### Run Prediction
+
+1. Paste RPT-1 token
+2. Click "Run Prediction"
+3. View results in dashboard
+
+## Files
+
+```
+payment-risk/
+├── README.md                # This file
+├── package.json
+├── app/
+│   ├── index.html           # Dashboard UI
+│   └── services.cds
+├── db/
+│   ├── schema.cds           # Entity definitions
+│   └── data/
+│       ├── ...PaymentHistory.csv
+│       └── ...NewCustomers.csv
+└── srv/
+    ├── cat-service.cds      # Service definition
+    └── cat-service.js       # RPT-1 integration logic
+```
+
+| File | Purpose |
+|------|---------|
+| `cat-service.js` | runPrediction action with RPT-1 API call |
+| `schema.cds` | PaymentHistory, NewCustomers, PredictionResults |
+| `index.html` | Dashboard with token input and results |
+
+## Error Handling
+
+| Error | Cause | Solution |
+|-------|-------|----------|
+| 400 | Missing token | Provide RPT-1 token |
+| 401 | Invalid token | Get fresh token from rpt.cloud.sap |
+| 429 | Rate limit | Wait and retry |
+| 500 | Unexpected response | Check RPT-1 API status |
+
+## Key Concepts
+
+| Concept | Description |
+|---------|-------------|
+| In-Context Learning | Model learns from labeled examples at inference time |
+| Foundation Model | Pre-trained on tabular data, generalizes to new domains |
+| [PREDICT] Marker | Placeholder in target column for values to predict |
+| Confidence Score | RPT-1's certainty (0.0 - 1.0) |
+| Few-Shot Prompting | Technique applied to structured data |
+
+## RPT-1 vs Traditional ML
+
+| Aspect | Traditional ML | RPT-1 |
+|--------|----------------|-------|
+| Training | Required (hours/days) | None |
+| Infrastructure | Docker, Argo, AI Core | API call |
+| Feature Engineering | Critical | Minimal |
+| Model Selection | Manual | Built-in |
+| Deployment | Complex | None |
+| Cost | Compute + storage | API calls only |
+
+## SAP Data Fit
+
+RPT-1 was trained on SAP business data patterns. Ideal use cases include:
+
+- FI-AR payment prediction
+- Vendor performance scoring
+- Customer credit risk
+- Inventory demand forecasting
+- Any structured SAP data
+
+## Integration Points
+
+| Integrates With | Purpose |
+|-----------------|---------|
+| CAP Framework | Service layer |
+| SQLite/HANA | Data persistence |
+| GenAI Hub | Combine RPT-1 + LLM for explanations |
+| SAC | Visualize predictions |
+
+## Reference
+
+- [SAP RPT-1](https://help.sap.com/docs/sap-ai-core/generative-ai/sap-rpt-1)
+- [RPT-1 Playground](https://rpt.cloud.sap)
+- [CAP Documentation](https://cap.cloud.sap/docs)

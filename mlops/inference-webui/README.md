@@ -1,82 +1,119 @@
-# Lab 5: Web UI for Churn Predictions
+# Inference Web UI
 
-A simple web interface to interact with your SAP AI Core churn prediction model.
+## Scope
+
+Browser-based interface for interacting with SAP AI Core model deployments. This lab includes a Node.js proxy server that handles OAuth authentication and CORS, enabling frontend applications to call AI Core inference endpoints securely.
 
 ## Architecture
 
 ```
-┌─────────────────┐         ┌─────────────────┐         ┌─────────────────┐
-│   Browser       │  HTTP   │   Node.js       │  HTTPS  │   SAP AI Core   │
-│   (index.html)  │ ──────► │   Proxy Server  │ ──────► │   (your model)  │
-│                 │         │   (server.js)   │         │                 │
-└─────────────────┘         └─────────────────┘         └─────────────────┘
-        │                           │                           │
-        │                           │                           │
-   User enters              Handles OAuth              Returns prediction
-   customer data            authentication             (churn/stay)
+┌─────────────────────────────────────────────────────────────────┐
+│                     INFERENCE WEB UI                            │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│   ┌─────────────┐         ┌─────────────┐         ┌───────────┐ │
+│   │   Browser   │  HTTP   │   Node.js   │  HTTPS  │  SAP AI   │ │
+│   │             │ ──────► │   Proxy     │ ──────► │   Core    │ │
+│   │ index.html  │         │  server.js  │         │           │ │
+│   └─────────────┘         └─────────────┘         └───────────┘ │
+│         │                       │                       │       │
+│         │                       │                       │       │
+│   Customer data           OAuth token             Prediction    │
+│   (JSON payload)          caching                 response      │
+│                                                                  │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│   WHY PROXY IS NEEDED:                                          │
+│                                                                  │
+│   1. OAuth requires client_secret                               │
+│      └─► Cannot expose secrets in browser JavaScript            │
+│                                                                  │
+│   2. CORS restrictions                                          │
+│      └─► Browser blocks cross-origin requests to AI Core        │
+│                                                                  │
+│   3. Token management                                           │
+│      └─► Server caches token, handles refresh                   │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-## Why a Proxy Server?
+## Components
 
-Browser JavaScript cannot directly call SAP AI Core because:
-1. **OAuth requires client_secret** - Can't expose secrets in browser code
-2. **CORS restrictions** - Cross-origin requests are blocked
-
-The proxy server solves both issues by handling authentication server-side.
-
-## Quick Start
-
-### 1. Install Node.js
-Download from: https://nodejs.org/
-
-### 2. Setup Project
-```bash
-cd C:\sap-ai-journey\labs\lab5-web-ui
-npm install
-```
-
-### 3. Start Server
-```bash
-npm start
-```
-
-### 4. Open Browser
-Navigate to: http://localhost:3000
-
-## Files
-
-| File | Description |
-|------|-------------|
-| `index.html` | Frontend UI (HTML/CSS/JavaScript) |
-| `server.js` | Proxy server (Node.js/Express) |
-| `package.json` | Node.js dependencies |
-
-## API Endpoints
+### Server Endpoints
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/` | GET | Serves the web UI |
-| `/predict` | POST | Makes prediction request |
-| `/health` | GET | Checks model health |
-| `/info` | GET | Server information |
+| `/` | GET | Serves index.html (Web UI) |
+| `/predict` | POST | Forwards prediction to AI Core |
+| `/health` | GET | Checks model deployment health |
+| `/info` | GET | Returns server configuration |
+
+### OAuth Flow
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     TOKEN MANAGEMENT                            │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│   1. Check Cache                                                 │
+│      │                                                           │
+│      ├─► Token valid? ────► Use cached token                    │
+│      │                                                           │
+│      └─► Token expired/missing                                  │
+│              │                                                   │
+│              ▼                                                   │
+│   2. Request New Token                                          │
+│      POST {AUTH_URL}/oauth/token                                │
+│      │                                                           │
+│      │  grant_type: client_credentials                          │
+│      │  client_id: {CLIENT_ID}                                  │
+│      │  client_secret: {CLIENT_SECRET}                          │
+│      │                                                           │
+│      ▼                                                           │
+│   3. Cache Token                                                │
+│      │                                                           │
+│      │  cachedToken = access_token                              │
+│      │  tokenExpiry = now + expires_in - 5min buffer            │
+│      │                                                           │
+│      ▼                                                           │
+│   4. Use Token                                                  │
+│      Authorization: Bearer {token}                              │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 ## Configuration
 
-Edit `server.js` to update credentials:
+The server requires SAP BTP service key credentials:
 
 ```javascript
 const CONFIG = {
-    CLIENT_ID: 'your-client-id',
-    CLIENT_SECRET: 'your-client-secret',
-    AUTH_URL: 'https://your-auth-url.authentication.region.hana.ondemand.com',
-    AI_API_URL: 'https://api.ai.prod.region.aws.ml.hana.ondemand.com',
-    DEPLOYMENT_ID: 'your-deployment-id',
+    // OAuth credentials
+    CLIENT_ID: 'sb-xxx|aicore!b164',
+    CLIENT_SECRET: 'xxx$xxx',
+    
+    // URLs
+    AUTH_URL: 'https://{subdomain}.authentication.{region}.hana.ondemand.com',
+    AI_API_URL: 'https://api.ai.prod.{region}.aws.ml.hana.ondemand.com',
+    
+    // Deployment
+    DEPLOYMENT_ID: 'dxxxxxxxxx',
     RESOURCE_GROUP: 'default'
 };
 ```
 
-## Sample Request
+### Getting Credentials
 
+1. Open SAP BTP Cockpit
+2. Navigate to AI Core service instance
+3. Create or view service key
+4. Extract: `clientid`, `clientsecret`, `url`, `serviceurls.AI_API_URL`
+
+## API Reference
+
+### POST /predict
+
+**Request:**
 ```json
 {
     "customers": [
@@ -90,8 +127,7 @@ const CONFIG = {
 }
 ```
 
-## Sample Response
-
+**Response:**
 ```json
 {
     "predictions": [
@@ -101,36 +137,133 @@ const CONFIG = {
             "risk_level": "Medium"
         }
     ],
-    "model_version": "1.0.0",
-    "features_used": [
-        "monthly_spend",
-        "tenure_months",
-        "support_tickets",
-        "contract_type"
-    ]
+    "model_version": "1.0.0"
 }
 ```
 
-## Screenshots
+### GET /health
 
-(Add screenshots after running the app)
+**Response:**
+```json
+{
+    "proxy": "healthy",
+    "model": {
+        "status": "RUNNING"
+    }
+}
+```
 
-## Troubleshooting
+### GET /info
 
-| Error | Solution |
-|-------|----------|
-| `ECONNREFUSED` | Check if server is running |
-| `401 Unauthorized` | Verify OAuth credentials |
-| `404 Not Found` | Check deployment ID |
-| `CORS error` | Make sure to use proxy server |
+**Response:**
+```json
+{
+    "name": "SAP AI Core Proxy Server",
+    "version": "1.0.0",
+    "deployment_id": "dxxxxxxxxx",
+    "endpoints": {
+        "predict": "POST /predict",
+        "health": "GET /health",
+        "info": "GET /info"
+    }
+}
+```
 
-## Next Steps
+## Quick Start
 
-- Deploy to SAP BTP (HTML5 Repository)
-- Add batch prediction support
-- Add prediction history
-- Add export to CSV
+### Prerequisites
 
----
+- Node.js 18+
+- SAP AI Core service key
+- Deployed model in AI Core
 
-*Lab 5 | SAP AI Core MLOps Series*
+### Installation
+
+```bash
+cd mlops/inference-webui
+npm install
+```
+
+### Configuration
+
+Edit `server.js` and update the CONFIG object with service key values.
+
+### Run
+
+```bash
+npm start
+# or
+node server.js
+```
+
+### Access
+
+Open browser: http://localhost:3000
+
+## Files
+
+```
+inference-webui/
+├── README.md           # This file
+├── index.html          # Web UI (HTML/CSS/JavaScript)
+├── server.js           # Node.js proxy server
+└── package.json        # Dependencies
+```
+
+| File | Purpose |
+|------|---------|
+| `server.js` | Express server with OAuth, prediction proxy |
+| `index.html` | Frontend form for entering customer data |
+| `package.json` | Dependencies: express, cors, node-fetch |
+
+## Dependencies
+
+```json
+{
+    "express": "^4.x",
+    "cors": "^2.x",
+    "node-fetch": "^2.x"
+}
+```
+
+## Error Handling
+
+| Error | Cause | Solution |
+|-------|-------|----------|
+| `ECONNREFUSED` | Server not running | Start with `npm start` |
+| `401 Unauthorized` | Invalid credentials | Check CLIENT_ID/SECRET |
+| `404 Not Found` | Wrong deployment ID | Verify DEPLOYMENT_ID |
+| `CORS error` | Direct browser call | Use proxy server |
+| `Token expired` | Cache issue | Server auto-refreshes |
+
+## Security Considerations
+
+| Item | Implementation |
+|------|----------------|
+| Credentials | Server-side only, never in browser |
+| Token Caching | 5-minute buffer before expiry |
+| CORS | Proxy handles cross-origin |
+| HTTPS | AI Core API uses TLS |
+
+## Key Concepts
+
+| Concept | Description |
+|---------|-------------|
+| OAuth 2.0 Client Credentials | Machine-to-machine authentication |
+| Resource Group | AI Core tenant isolation |
+| Deployment ID | Unique identifier for model deployment |
+| Inference Endpoint | `/v2/inference/deployments/{id}/v2/predict` |
+
+## Integration Points
+
+| Integrates With | Purpose |
+|-----------------|---------|
+| AI Core Deployment | Model inference |
+| XSUAA | OAuth token service |
+| AI Launchpad | Deployment management |
+
+## Reference
+
+- [AI Core Inference](https://help.sap.com/docs/sap-ai-core/sap-ai-core-service-guide/consume-model)
+- [Service Keys](https://help.sap.com/docs/btp/sap-business-technology-platform/creating-service-keys)
+- [Express.js](https://expressjs.com/)

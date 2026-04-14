@@ -1,0 +1,120 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "SAP GenAI Hub - Chat Completions",
+    "description": "OpenAPI spec for SAP AI Core GenAI Hub chat completions endpoint",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.ai.prod.us-east-1.aws.ml.hana.ondemand.com"
+    }
+  ],
+  "paths": {
+    "/v2/inference/deployments/d0630de3469c64eb/chat/completions": {
+      "post": {
+        "summary": "Extract PO fields using GenAI Hub",
+        "description": "Calls GPT-4.1-mini via SAP AI Core to extract purchase order fields from text",
+        "operationId": "extractPOFields",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["messages", "max_tokens"],
+                "properties": {
+                  "messages": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": ["role", "content"],
+                      "properties": {
+                        "role": {
+                          "type": "string",
+                          "description": "Message role: user or system"
+                        },
+                        "content": {
+                          "type": "string",
+                          "description": "Message content - the PO text to extract from"
+                        }
+                      }
+                    }
+                  },
+                  "max_tokens": {
+                    "type": "integer",
+                    "description": "Maximum tokens in response",
+                    "default": 500
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful extraction",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "choices": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "message": {
+                            "type": "object",
+                            "properties": {
+                              "role": {
+                                "type": "string"
+                              },
+                              "content": {
+                                "type": "string",
+                                "description": "Extracted PO fields as JSON string"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "usage": {
+                      "type": "object",
+                      "properties": {
+                        "prompt_tokens": {
+                          "type": "integer"
+                        },
+                        "completion_tokens": {
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "OAuth2": {
+        "type": "oauth2",
+        "flows": {
+          "clientCredentials": {
+            "tokenUrl": "https://sap-btp-joule.authentication.us10.hana.ondemand.com/oauth/token",
+            "scopes": {}
+          }
+        }
+      }
+    }
+  }
+}
