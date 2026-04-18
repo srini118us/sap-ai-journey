@@ -1,0 +1,242 @@
+{
+    "name": "sap-enterprise-guardrail",
+    "description": "Content safety and PII protection for SAP AI applications",
+    "guardrailId": "tp5ijyssbnll",
+    "guardrailArn": "arn:aws:bedrock:us-east-1:220664822528:guardrail/tp5ijyssbnll",
+    "version": "DRAFT",
+    "status": "READY",
+    "topicPolicy": {
+        "topics": [
+            {
+                "name": "non-business-content",
+                "definition": "Requests for creative writing, entertainment, jokes, stories, poems, or content unrelated to SAP business operations",
+                "examples": [],
+                "type": "DENY",
+                "inputAction": "BLOCK",
+                "outputAction": "BLOCK",
+                "inputEnabled": true,
+                "outputEnabled": true
+            },
+            {
+                "name": "competitor-discussion",
+                "definition": "Requests to compare SAP with competitors or provide information about Oracle, Microsoft Dynamics, or other ERP vendors",
+                "examples": [
+                    "Compare SAP to Oracle, Is Salesforce better, Tell me about Microsoft Dynamics"
+                ],
+                "type": "DENY",
+                "inputAction": "BLOCK",
+                "outputAction": "BLOCK",
+                "inputEnabled": true,
+                "outputEnabled": true
+            },
+            {
+                "name": "financial-advice",
+                "definition": "Requests for investment advice, stock recommendations, or personal financial guidance",
+                "examples": [],
+                "type": "DENY",
+                "inputAction": "BLOCK",
+                "outputAction": "BLOCK",
+                "inputEnabled": true,
+                "outputEnabled": true
+            }
+        ],
+        "tier": {
+            "tierName": "CLASSIC"
+        }
+    },
+    "contentPolicy": {
+        "filters": [
+            {
+                "type": "VIOLENCE",
+                "inputStrength": "HIGH",
+                "outputStrength": "HIGH",
+                "inputModalities": [
+                    "TEXT"
+                ],
+                "outputModalities": [
+                    "TEXT"
+                ],
+                "inputAction": "BLOCK",
+                "outputAction": "BLOCK"
+            },
+            {
+                "type": "PROMPT_ATTACK",
+                "inputStrength": "HIGH",
+                "outputStrength": "NONE",
+                "inputModalities": [
+                    "TEXT"
+                ],
+                "inputAction": "BLOCK"
+            },
+            {
+                "type": "MISCONDUCT",
+                "inputStrength": "HIGH",
+                "outputStrength": "HIGH",
+                "inputModalities": [
+                    "TEXT"
+                ],
+                "outputModalities": [
+                    "TEXT"
+                ],
+                "inputAction": "BLOCK",
+                "outputAction": "BLOCK"
+            },
+            {
+                "type": "HATE",
+                "inputStrength": "HIGH",
+                "outputStrength": "HIGH",
+                "inputModalities": [
+                    "TEXT"
+                ],
+                "outputModalities": [
+                    "TEXT"
+                ],
+                "inputAction": "BLOCK",
+                "outputAction": "BLOCK"
+            },
+            {
+                "type": "SEXUAL",
+                "inputStrength": "HIGH",
+                "outputStrength": "HIGH",
+                "inputModalities": [
+                    "TEXT"
+                ],
+                "outputModalities": [
+                    "TEXT"
+                ],
+                "inputAction": "BLOCK",
+                "outputAction": "BLOCK"
+            },
+            {
+                "type": "INSULTS",
+                "inputStrength": "HIGH",
+                "outputStrength": "HIGH",
+                "inputModalities": [
+                    "TEXT"
+                ],
+                "outputModalities": [
+                    "TEXT"
+                ],
+                "inputAction": "BLOCK",
+                "outputAction": "BLOCK"
+            }
+        ],
+        "tier": {
+            "tierName": "CLASSIC"
+        }
+    },
+    "wordPolicy": {
+        "words": [
+            {
+                "text": "password",
+                "inputAction": "BLOCK",
+                "outputAction": "BLOCK",
+                "inputEnabled": true,
+                "outputEnabled": true
+            },
+            {
+                "text": "credit card",
+                "inputAction": "BLOCK",
+                "outputAction": "BLOCK",
+                "inputEnabled": true,
+                "outputEnabled": true
+            },
+            {
+                "text": "confidential",
+                "inputAction": "BLOCK",
+                "outputAction": "BLOCK",
+                "inputEnabled": true,
+                "outputEnabled": true
+            },
+            {
+                "text": "social security",
+                "inputAction": "BLOCK",
+                "outputAction": "BLOCK",
+                "inputEnabled": true,
+                "outputEnabled": true
+            },
+            {
+                "text": "hack",
+                "inputAction": "BLOCK",
+                "outputAction": "BLOCK",
+                "inputEnabled": true,
+                "outputEnabled": true
+            },
+            {
+                "text": "bypass security",
+                "inputAction": "BLOCK",
+                "outputAction": "BLOCK",
+                "inputEnabled": true,
+                "outputEnabled": true
+            }
+        ],
+        "managedWordLists": []
+    },
+    "sensitiveInformationPolicy": {
+        "piiEntities": [
+            {
+                "type": "EMAIL",
+                "action": "BLOCK",
+                "inputAction": "ANONYMIZE",
+                "outputAction": "ANONYMIZE",
+                "inputEnabled": true,
+                "outputEnabled": true
+            },
+            {
+                "type": "PHONE",
+                "action": "BLOCK",
+                "inputAction": "ANONYMIZE",
+                "outputAction": "ANONYMIZE",
+                "inputEnabled": true,
+                "outputEnabled": true
+            },
+            {
+                "type": "CREDIT_DEBIT_CARD_NUMBER",
+                "action": "BLOCK",
+                "inputAction": "BLOCK",
+                "outputAction": "BLOCK",
+                "inputEnabled": true,
+                "outputEnabled": true
+            },
+            {
+                "type": "US_SOCIAL_SECURITY_NUMBER",
+                "action": "BLOCK",
+                "inputAction": "BLOCK",
+                "outputAction": "BLOCK",
+                "inputEnabled": true,
+                "outputEnabled": true
+            },
+            {
+                "type": "ADDRESS",
+                "action": "BLOCK",
+                "inputAction": "ANONYMIZE",
+                "outputAction": "ANONYMIZE",
+                "inputEnabled": true,
+                "outputEnabled": true
+            }
+        ],
+        "regexes": []
+    },
+    "contextualGroundingPolicy": {
+        "filters": [
+            {
+                "type": "GROUNDING",
+                "threshold": 0.7,
+                "action": "BLOCK",
+                "enabled": true
+            },
+            {
+                "type": "RELEVANCE",
+                "threshold": 0.7,
+                "action": "BLOCK",
+                "enabled": true
+            }
+        ]
+    },
+    "createdAt": "2026-04-18T04:25:10.061842+00:00",
+    "updatedAt": "2026-04-18T04:25:10.158316+00:00",
+    "statusReasons": [],
+    "failureRecommendations": [],
+    "blockedInputMessaging": "I cannot process this request. Please rephrase your question about SAP operations.",
+    "blockedOutputsMessaging": "I cannot process this request. Please rephrase your question about SAP operations."
+}
