@@ -1,0 +1,17 @@
+# MCP Server framework (Python 3.10+, major version 3.x)
+fastmcp>=3.2.0,<4.0.0
+
+# SAP HANA Cloud client
+hdbcli>=2.21.0
+
+# SAP GenAI Hub Python SDK (matches Lab 52 pattern)
+generative-ai-hub-sdk>=3.0.0
+
+# HTTP for any direct API calls (kept for future use)
+requests>=2.32.0
+
+# Environment variable loading (FastMCP 3.x requires >=1.1.0)
+python-dotenv>=1.1.0
+
+# Pydantic (FastMCP 3.x requires >=2.11.7)
+pydantic>=2.11.7,<3.0.0
