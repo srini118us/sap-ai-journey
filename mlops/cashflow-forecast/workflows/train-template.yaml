@@ -11,7 +11,7 @@ metadata:
     artifacts.ai.sap.com/trained_model.kind: "model"
   labels:
     scenarios.ai.sap.com/id: "cashflow-forecast"
-    ai.sap.com/version: "0.1.0"
+    ai.sap.com/version: "0.2.0"
 
 spec:
   imagePullSecrets:
@@ -36,7 +36,7 @@ spec:
             archive:
               none: {}
       container:
-        image: docker.io/srini117us/cashflow-train:0.1
+        image: docker.io/srini117us/cashflow-train:0.2
         command: ["python", "/app/train.py"]
         env:
           - name: MODEL_TYPE

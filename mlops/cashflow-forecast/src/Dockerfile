@@ -8,7 +8,7 @@ FROM python:3.11-slim
 # AI Core executes containers as a non-root user.
 # Pre-create the directories the script needs and make them
 # world-writable, so user 1000 (or whatever AI Core picks) can write.
-RUN mkdir -p /app /app/data /app/output && chmod -R 777 /app
+RUN mkdir -p /app /app/output && chmod -R 777 /app
 
 WORKDIR /app
 
