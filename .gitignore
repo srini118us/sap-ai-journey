@@ -27,3 +27,6 @@ mta_archives/
 
 # Database
 *.db
+
+# UC2.2 cashflow training artifacts
+mlops/cashflow-forecast/output/
