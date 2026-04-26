@@ -1,14 +1,14 @@
 """
-Cashflow forecasting training script — sklearn placeholder.
+Cashflow forecasting — UC2.3.
 
-Reads a CSV with columns: date, company_code, cashflow_amount, currency.
-Trains a LinearRegression model to predict cashflow_amount from a
-day-of-year feature. Saves model + metrics as artifacts.
+Reads from PROC_AI.CASHFLOW_DAILY in SAP HANA Cloud (live data).
+Computes net cashflow per (date, company): INFLOW - OUTFLOW.
+Trains an AutoTS model PER COMPANY (one model per legal entity).
+Saves models + metrics as artifacts.
 
-This is the Friday placeholder. Sunday will swap LinearRegression
-for AutoTS without changing the surrounding pipeline.
+Connection details come from environment variables, populated by the
+AI Core Generic Secret 'hana-cashflow-creds' at runtime.
 """
-
 import json
 import os
 import sys
@@ -17,73 +17,139 @@ from pathlib import Path
 
 import joblib
 import pandas as pd
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_absolute_error, r2_score
+from autots import AutoTS
+from hdbcli import dbapi
 
-
-# Paths follow AI Core Argo conventions.
-# Inputs land at /app/data/ (mounted by Argo from the bound dataset).
-# Outputs go to /app/output/ (uploaded by Argo to S3 as model artifacts).
-DATA_DIR = Path(os.environ.get("DATA_DIR", "/app/data"))
 OUTPUT_DIR = Path(os.environ.get("OUTPUT_DIR", "/app/output"))
-INPUT_FILE = DATA_DIR / "cashflow_sample.csv"
-MODEL_FILE = OUTPUT_DIR / "model.pkl"
 METRICS_FILE = OUTPUT_DIR / "metrics.json"
 
+HANA_HOST = os.environ.get("HANA_HOST")
+HANA_PORT = int(os.environ.get("HANA_PORT", "443"))
+HANA_USER = os.environ.get("HANA_USER")
+HANA_PASSWORD = os.environ.get("HANA_PASSWORD")
+HANA_SCHEMA = os.environ.get("HANA_SCHEMA", "PROC_AI")
 
-def load_data(path: Path) -> pd.DataFrame:
-    print(f"[load] reading {path}")
-    df = pd.read_csv(path)
-    df["date"] = pd.to_datetime(df["date"])
-    df["day_of_year"] = df["date"].dt.dayofyear
-    print(f"[load] rows={len(df)} columns={list(df.columns)}")
+FORECAST_HORIZON = int(os.environ.get("FORECAST_HORIZON", "14"))
+COMPANIES = ["1710", "1010"]
+
+
+def fetch_cashflow_data() -> pd.DataFrame:
+    print(f"[load] connecting to HANA at {HANA_HOST}:{HANA_PORT} as {HANA_USER}")
+    if not all([HANA_HOST, HANA_USER, HANA_PASSWORD]):
+        print("[error] missing HANA env vars - check Generic Secret binding", file=sys.stderr)
+        sys.exit(1)
+
+    conn = dbapi.connect(
+        address=HANA_HOST,
+        port=HANA_PORT,
+        user=HANA_USER,
+        password=HANA_PASSWORD,
+        encrypt=True,
+        sslValidateCertificate=True,
+    )
+    cur = conn.cursor()
+
+    query = f"""
+        SELECT
+            TXN_DATE,
+            COMPANY_CODE,
+            SUM(CASE WHEN TXN_TYPE = 'INFLOW'  THEN CASHFLOW_AMOUNT ELSE 0 END) -
+            SUM(CASE WHEN TXN_TYPE = 'OUTFLOW' THEN CASHFLOW_AMOUNT ELSE 0 END) AS NET_CASHFLOW
+        FROM {HANA_SCHEMA}.CASHFLOW_DAILY
+        WHERE COMPANY_CODE IN ('1710', '1010')
+        GROUP BY TXN_DATE, COMPANY_CODE
+        ORDER BY TXN_DATE, COMPANY_CODE
+    """
+    print(f"[load] executing aggregation query")
+    cur.execute(query)
+    rows = cur.fetchall()
+    cols = [d[0] for d in cur.description]
+    df = pd.DataFrame(rows, columns=cols)
+    conn.close()
+
+    df["TXN_DATE"] = pd.to_datetime(df["TXN_DATE"])
+    df["NET_CASHFLOW"] = df["NET_CASHFLOW"].astype(float)
+    print(f"[load] fetched rows={len(df)} companies={df['COMPANY_CODE'].nunique()} "
+          f"range={df['TXN_DATE'].min().date()}..{df['TXN_DATE'].max().date()}")
     return df
 
 
-def train(df: pd.DataFrame) -> tuple[LinearRegression, dict]:
-    print("[train] fitting LinearRegression on day_of_year -> cashflow_amount")
-    X = df[["day_of_year"]].values
-    y = df["cashflow_amount"].values
+def train_one_company(df_company: pd.DataFrame, company_code: str):
+    print(f"\n[train:{company_code}] starting AutoTS, rows={len(df_company)}")
 
-    model = LinearRegression()
-    model.fit(X, y)
+    ts = df_company.set_index("TXN_DATE")[["NET_CASHFLOW"]].copy()
+    ts.columns = [f"net_cashflow_{company_code}"]
 
-    y_pred = model.predict(X)
+    model = AutoTS(
+        forecast_length=FORECAST_HORIZON,
+        frequency="D",
+        prediction_interval=0.95,
+        ensemble=None,
+        max_generations=2,
+        num_validations=1,
+        validation_method="backwards",
+        models_to_validate=0.2,
+        no_negatives=False,
+        verbose=0,
+    )
+    model = model.fit(ts)
+
+    forecast_df = model.predict().forecast
+    print(f"[train:{company_code}] best model: {model.best_model_name}")
+    print(f"[train:{company_code}] forecast next {FORECAST_HORIZON} days: "
+          f"min={forecast_df.values.min():.0f} max={forecast_df.values.max():.0f}")
+
     metrics = {
-        "model_type": "LinearRegression",
-        "training_rows": len(df),
-        "features": ["day_of_year"],
-        "target": "cashflow_amount",
-        "mae": float(mean_absolute_error(y, y_pred)),
-        "r2": float(r2_score(y, y_pred)),
-        "trained_at": datetime.utcnow().isoformat() + "Z",
-        "version": "0.1.0",
+        "company_code": company_code,
+        "best_model": str(model.best_model_name),
+        "training_rows": len(df_company),
+        "forecast_horizon_days": FORECAST_HORIZON,
+        "forecast_start": forecast_df.index.min().isoformat(),
+        "forecast_end": forecast_df.index.max().isoformat(),
+        "forecast_min": float(forecast_df.values.min()),
+        "forecast_max": float(forecast_df.values.max()),
+        "forecast_mean": float(forecast_df.values.mean()),
     }
-    print(f"[train] metrics={metrics}")
     return model, metrics
-
-
-def save(model: LinearRegression, metrics: dict) -> None:
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    print(f"[save] writing model -> {MODEL_FILE}")
-    joblib.dump(model, MODEL_FILE)
-    print(f"[save] writing metrics -> {METRICS_FILE}")
-    METRICS_FILE.write_text(json.dumps(metrics, indent=2))
 
 
 def main() -> int:
     print("=" * 60)
-    print("cashflow-forecast training (sklearn placeholder)")
+    print("UC2.3 - Cashflow forecasting (HANA + AutoTS)")
     print("=" * 60)
-    if not INPUT_FILE.exists():
-        print(f"[error] input not found: {INPUT_FILE}", file=sys.stderr)
-        print(f"[error] DATA_DIR contents: {list(DATA_DIR.glob('*'))}", file=sys.stderr)
+
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+    df = fetch_cashflow_data()
+    if df.empty:
+        print("[error] no rows returned from HANA", file=sys.stderr)
         return 1
 
-    df = load_data(INPUT_FILE)
-    model, metrics = train(df)
-    save(model, metrics)
-    print("[done] training complete")
+    all_metrics = {
+        "trained_at": datetime.utcnow().isoformat() + "Z",
+        "version": "0.3.0",
+        "data_source": f"{HANA_SCHEMA}.CASHFLOW_DAILY",
+        "models": [],
+    }
+
+    for company_code in COMPANIES:
+        df_company = df[df["COMPANY_CODE"] == company_code].copy()
+        if df_company.empty:
+            print(f"[warn] no rows for company {company_code}, skipping")
+            continue
+
+        model, metrics = train_one_company(df_company, company_code)
+
+        model_path = OUTPUT_DIR / f"model_{company_code}.pkl"
+        print(f"[save] writing model -> {model_path}")
+        joblib.dump(model, model_path)
+
+        all_metrics["models"].append(metrics)
+
+    print(f"[save] writing metrics -> {METRICS_FILE}")
+    METRICS_FILE.write_text(json.dumps(all_metrics, indent=2))
+
+    print("\n[done] training complete for all companies")
     return 0
 
 

@@ -30,3 +30,8 @@ mta_archives/
 
 # UC2.2 cashflow training artifacts
 mlops/cashflow-forecast/output/
+
+# Python venvs
+venv-*/
+venv/
+.venv/

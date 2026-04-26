@@ -4,6 +4,15 @@
 
 FROM python:3.11-slim
 
+# System dependencies for AutoTS scientific stack
+# (numpy/scipy/statsmodels need C compilers and BLAS during install)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    g++ \
+    gfortran \
+    libopenblas-dev \
+    && rm -rf /var/lib/apt/lists/*
+
 # === The rootless trap ===
 # AI Core executes containers as a non-root user.
 # Pre-create the directories the script needs and make them
