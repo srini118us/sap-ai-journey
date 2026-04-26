@@ -10,7 +10,7 @@ metadata:
     artifacts.ai.sap.com/trained_model.kind: "model"
   labels:
     scenarios.ai.sap.com/id: "cashflow-forecast"
-    ai.sap.com/version: "0.3.0"
+    ai.sap.com/version: "0.4.0"
 spec:
   imagePullSecrets:
     - name: docker-hub-srini117us
