@@ -1,0 +1,15 @@
+# Pickle compatibility: these versions MUST mirror the UC2.3 training image
+# (srini117us/cashflow-train:0.3) for the joblib pickles to load cleanly.
+# Source: serving/requirements pulled from training requirements.txt.
+autots==0.6.16
+pandas==2.2.0
+numpy==1.26.4
+scipy==1.13.0
+statsmodels==0.14.2
+scikit-learn==1.4.0
+joblib==1.3.2
+
+# Inference-only additions (no hdbcli — no DB needed at serve time)
+fastapi==0.110.0
+uvicorn[standard]==0.27.1
+pydantic==2.6.1
