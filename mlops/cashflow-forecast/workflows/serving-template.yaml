@@ -1,0 +1,87 @@
+# SAP AI Core ServingTemplate — Cashflow Forecast Inference (UC2.4)
+#
+# One ServingTemplate, parameterized by model_filename. Two Configurations
+# (one per company) bind to this template at deployment time, producing two
+# independent KServe InferenceServices with separate URLs and lifecycles.
+#
+# Scenario shared with the UC2.3 training workflow (scenarios.ai.sap.com/id:
+# cashflow-forecast) so training and serving appear as two Executables under
+# the same Scenario in AI Launchpad — clean lineage from trained_model artifact
+# to deployed endpoint.
+#
+# Verified against SAP AI Core 0.4.0 docs (Apr 2026):
+#   - /mnt/models is hard-coded; KServe storage-initializer auto-copies all
+#     files in the trained_model artifact (model_1710.pkl, model_1010.pkl,
+#     metrics.json) before container starts.
+#   - Endpoint paths must use /v<NUMBER>/ prefix; app.py uses /v2/.
+#   - Inner template apiVersion is serving.kserve.io/v1beta1 (NOT
+#     serving.kubeflow.org/v1beta1, which is deprecated).
+#   - Artifact placeholder names must be alphanumeric only (no hyphens).
+
+apiVersion: ai.sap.com/v1alpha1
+kind: ServingTemplate
+metadata:
+  name: cashflow-forecast-serve
+  annotations:
+    scenarios.ai.sap.com/description: "Cashflow forecasting on financial time-series data"
+    scenarios.ai.sap.com/name: "cashflow-forecast"
+    executables.ai.sap.com/description: "Online inference for AutoTS cashflow models, one company per deployment"
+    executables.ai.sap.com/name: "cashflow-forecast-serve-executable"
+    artifacts.ai.sap.com/cashflowmodel.kind: "model"
+    artifacts.ai.sap.com/cashflowmodel.description: "AutoTS UnivariateMotif models trained per company in UC2.3"
+  labels:
+    scenarios.ai.sap.com/id: "cashflow-forecast"
+    ai.sap.com/version: "0.4.0"
+spec:
+  inputs:
+    # Bound at Configuration creation time; different value per Configuration
+    # gives us two deployments off one template.
+    parameters:
+      - name: model_filename
+        type: string
+        description: "Pickle file to load from /mnt/models, e.g. model_1710.pkl or model_1010.pkl"
+        default: "model_1710.pkl"
+    # Bound at Configuration creation time; both Configurations point at the
+    # same trained_model artifact since both .pkl files live in the same S3 prefix.
+    artifacts:
+      - name: cashflowmodel
+
+  template:
+    apiVersion: "serving.kserve.io/v1beta1"
+    metadata:
+      annotations: |
+        autoscaling.knative.dev/metric: concurrency
+        autoscaling.knative.dev/target: 1
+        autoscaling.knative.dev/targetBurstCapacity: 0
+      labels: |
+        ai.sap.com/resourcePlan: starter
+    spec: |
+      predictor:
+        imagePullSecrets:
+          - name: docker-hub-srini117us
+        # Lab: pin to 1 replica per deployment. Two deployments = two pods total.
+        # Production would set min=1, max=N with concurrency-based autoscale.
+        minReplicas: 1
+        maxReplicas: 1
+        containers:
+          - name: kserve-container
+            image: docker.io/srini117us/cashflow-serve:0.1
+            ports:
+              - containerPort: 8080
+                protocol: TCP
+            env:
+              # STORAGE_URI is the canonical AI Core convention. KServe's
+              # storage-initializer reads this, copies files from the artifact's
+              # S3 location to /mnt/models, then starts the container.
+              - name: STORAGE_URI
+                value: "{{inputs.artifacts.cashflowmodel}}"
+              # MODEL_NAME selects which .pkl app.py loads at startup.
+              # This is the parameter that differs between the two Configurations.
+              - name: MODEL_NAME
+                value: "{{inputs.parameters.model_filename}}"
+              # MODEL_DIR is hardcoded to /mnt/models in app.py default; setting
+              # it explicitly here for clarity. AI Core mount path is fixed.
+              - name: MODEL_DIR
+                value: "/mnt/models"
+              - name: MAX_FORECAST_LENGTH
+                value: "60"
