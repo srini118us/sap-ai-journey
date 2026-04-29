@@ -1,35 +1,29 @@
-# Cashflow forecasting training image
-# Built for SAP AI Core (rootless execution required)
-# Tag convention: srini117us/cashflow-train:<semver>
+# UC2.5 training image — adds insert_synthetic.py to UC2.3's training image.
+# Two scripts in one image; the workflow YAML uses different `command:` entries
+# per step (insert in step 1, train in step 2).
+#
+# Versioning: bumped from 0.3 to 0.4 to signal the new contract.
+# Tag: srini117us/cashflow-train:0.4
 
 FROM python:3.11-slim
 
-# System dependencies for AutoTS scientific stack
-# (numpy/scipy/statsmodels need C compilers and BLAS during install)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc \
-    g++ \
-    gfortran \
-    libopenblas-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-# === The rootless trap ===
-# AI Core executes containers as a non-root user.
-# Pre-create the directories the script needs and make them
-# world-writable, so user 1000 (or whatever AI Core picks) can write.
-RUN mkdir -p /app /app/output && chmod -R 777 /app
-
 WORKDIR /app
 
-# Copy and install dependencies first (better Docker layer caching:
-# requirements rarely change, code changes often)
+# Build deps for hdbcli native bits + scientific stack; stripped after install.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends gcc g++ \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy training script
-COPY train.py /app/train.py
+RUN apt-get purge -y --auto-remove gcc g++
 
-# Run as non-root user (1000 is conventional)
-USER 1000
+# Both scripts live in the same image. Workflow YAML picks which to invoke
+# via the `command:` field per step.
+COPY train.py .
+COPY insert_synthetic.py .
 
-ENTRYPOINT ["python", "/app/train.py"]
+# Default command (manual `docker run` will train); the AI Core workflow
+# overrides this per step.
+CMD ["python", "/app/train.py"]

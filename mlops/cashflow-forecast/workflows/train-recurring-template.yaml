@@ -1,0 +1,119 @@
+# UC2.5 — Recurring training workflow (two-step Argo pipeline).
+#
+# This is a SECOND workflow alongside UC2.3's train-template.yaml; the original
+# stays so the lab history is preserved. Same Scenario, same Resource Group.
+#
+# Pipeline:
+#   1. insert-synthetic — runs insert_synthetic.py to add 1 simulated business
+#      day to PROC_AI.CASHFLOW_DAILY (idempotent: skips if day already inserted)
+#   2. train — runs train.py to retrain AutoTS on the now-updated table and
+#      write a new trained_model artifact to S3
+#
+# Step 2 only runs if step 1 succeeds — Argo's default DAG behavior given the
+# `dependencies:` field in the second template.
+#
+# Verified against SAP AI Core 0.4.0 against the UC2.3 workflow YAML structure;
+# the only structural change is going from a single `container:` template to a
+# `dag:` template orchestrating two `container:` templates.
+
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: cashflow-train-recurring
+  annotations:
+    scenarios.ai.sap.com/description: "Cashflow forecasting on financial time-series data"
+    scenarios.ai.sap.com/name: "cashflow-forecast"
+    executables.ai.sap.com/description: "Recurring retraining: synthetic insert + AutoTS retrain (UC2.5)"
+    executables.ai.sap.com/name: "cashflow-train-recurring-executable"
+    artifacts.ai.sap.com/trained_model.kind: "model"
+  labels:
+    scenarios.ai.sap.com/id: "cashflow-forecast"
+    ai.sap.com/version: "0.5.0"
+spec:
+  imagePullSecrets:
+    - name: docker-hub-srini117us
+  entrypoint: train-pipeline
+  arguments:
+    parameters:
+      - name: model_type
+        value: "autots"
+  templates:
+    # ----- DAG orchestrator (entrypoint) ---------------------------------
+    - name: train-pipeline
+      inputs:
+        parameters:
+          - name: model_type
+      outputs:
+        artifacts:
+          - name: trained_model
+            from: "{{tasks.train.outputs.artifacts.trained_model}}"
+      dag:
+        tasks:
+          - name: insert-synthetic
+            template: step-insert-synthetic
+          - name: train
+            template: step-train
+            dependencies: [insert-synthetic]
+            arguments:
+              parameters:
+                - name: model_type
+                  value: "{{inputs.parameters.model_type}}"
+
+    # ----- Step 1: insert one simulated day into HANA --------------------
+    - name: step-insert-synthetic
+      container:
+        image: docker.io/srini117us/cashflow-train:0.4
+        command: ["python", "/app/insert_synthetic.py"]
+        env:
+          - name: HANA_HOST
+            valueFrom:
+              secretKeyRef: {name: hana-cashflow-creds, key: host}
+          - name: HANA_PORT
+            valueFrom:
+              secretKeyRef: {name: hana-cashflow-creds, key: port}
+          - name: HANA_USER
+            valueFrom:
+              secretKeyRef: {name: hana-cashflow-creds, key: user}
+          - name: HANA_PASSWORD
+            valueFrom:
+              secretKeyRef: {name: hana-cashflow-creds, key: password}
+          - name: HANA_SCHEMA
+            valueFrom:
+              secretKeyRef: {name: hana-cashflow-creds, key: schema}
+
+    # ----- Step 2: AutoTS training (mirrors UC2.3 template) --------------
+    - name: step-train
+      inputs:
+        parameters:
+          - name: model_type
+      outputs:
+        artifacts:
+          - name: trained_model
+            path: /app/output
+            archive:
+              none: {}
+      container:
+        image: docker.io/srini117us/cashflow-train:0.4
+        command: ["python", "/app/train.py"]
+        env:
+          - name: MODEL_TYPE
+            value: "{{inputs.parameters.model_type}}"
+          - name: OUTPUT_DIR
+            value: "/app/output"
+          - name: FORECAST_HORIZON
+            value: "14"
+          - name: HANA_HOST
+            valueFrom:
+              secretKeyRef: {name: hana-cashflow-creds, key: host}
+          - name: HANA_PORT
+            valueFrom:
+              secretKeyRef: {name: hana-cashflow-creds, key: port}
+          - name: HANA_USER
+            valueFrom:
+              secretKeyRef: {name: hana-cashflow-creds, key: user}
+          - name: HANA_PASSWORD
+            valueFrom:
+              secretKeyRef: {name: hana-cashflow-creds, key: password}
+          - name: HANA_SCHEMA
+            valueFrom:
+              secretKeyRef: {name: hana-cashflow-creds, key: schema}
