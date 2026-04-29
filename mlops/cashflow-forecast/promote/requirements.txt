@@ -1,0 +1,4 @@
+# UC2.5 promote container — minimal deps.
+# Single purpose: make HTTP calls to AI Core REST API. No scientific stack
+# needed (we don't load models here — that's the deployments' job).
+requests==2.31.0

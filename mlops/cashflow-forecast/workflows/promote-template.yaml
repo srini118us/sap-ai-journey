@@ -1,0 +1,58 @@
+# UC2.5 — Promote workflow.
+#
+# Single-step workflow that runs promote.py. Same scenario as training and
+# serving (cashflow-forecast) so all three appear under one Scenario in
+# Launchpad — clean lineage continues into the promote layer.
+#
+# Triggered by a Schedule (cron, suspended-by-default) that fires after
+# the train Schedule with a 30-minute offset, so promote runs against the
+# freshest training output.
+#
+# AUTH NOTE: this workflow needs four env vars from a NEW Generic Secret
+# named 'aicore-self-creds' that holds the AI Core service key fields.
+# Create the secret in AI Launchpad BEFORE syncing this YAML — see
+# instructions accompanying this file.
+
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: cashflow-promote
+  annotations:
+    scenarios.ai.sap.com/description: "Cashflow forecasting on financial time-series data"
+    scenarios.ai.sap.com/name: "cashflow-forecast"
+    executables.ai.sap.com/description: "Auto-promote newest Model to live deployments (UC2.5)"
+    executables.ai.sap.com/name: "cashflow-promote-executable"
+  labels:
+    scenarios.ai.sap.com/id: "cashflow-forecast"
+    ai.sap.com/version: "0.5.0"
+spec:
+  imagePullSecrets:
+    - name: docker-hub-srini117us
+  entrypoint: promote
+  templates:
+    - name: promote
+      container:
+        image: docker.io/srini117us/cashflow-promote:0.1
+        command: ["python", "/app/promote.py"]
+        env:
+          # Identity for promote.py to drive the AI Core REST API.
+          # All four come from the new aicore-self-creds Generic Secret.
+          - name: AICORE_AUTH_URL
+            valueFrom:
+              secretKeyRef: {name: aicore-self-creds, key: auth_url}
+          - name: AICORE_API_URL
+            valueFrom:
+              secretKeyRef: {name: aicore-self-creds, key: api_url}
+          - name: AICORE_CLIENT_ID
+            valueFrom:
+              secretKeyRef: {name: aicore-self-creds, key: client_id}
+          - name: AICORE_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef: {name: aicore-self-creds, key: client_secret}
+
+          # Resource group + scenario the script operates on.
+          # Hardcoded for the lab; could be parameters in a multi-tenant version.
+          - name: AICORE_RESOURCE_GROUP
+            value: "ml-training"
+          - name: SCENARIO_ID
+            value: "cashflow-forecast"
