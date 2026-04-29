@@ -62,7 +62,7 @@ spec:
     # ----- Step 1: insert one simulated day into HANA --------------------
     - name: step-insert-synthetic
       container:
-        image: docker.io/srini117us/cashflow-train:0.4
+        image: docker.io/srini117us/cashflow-train:0.5
         command: ["python", "/app/insert_synthetic.py"]
         env:
           - name: HANA_HOST
@@ -93,7 +93,7 @@ spec:
             archive:
               none: {}
       container:
-        image: docker.io/srini117us/cashflow-train:0.4
+        image: docker.io/srini117us/cashflow-train:0.5
         command: ["python", "/app/train.py"]
         env:
           - name: MODEL_TYPE

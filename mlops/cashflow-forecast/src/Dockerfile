@@ -24,6 +24,11 @@ RUN apt-get purge -y --auto-remove gcc g++
 COPY train.py .
 COPY insert_synthetic.py .
 
+# Pre-create output directory with permissive perms so non-root Argo pods
+# can write into it. UC2.3 didn't need this because its single-step pod ran
+# as root; UC2.5's DAG steps run as a non-root user (Argo executor 3.7.4
+# default), and /app is owned by root from WORKDIR.
+RUN mkdir -p /app/output && chmod 777 /app/output
 # Default command (manual `docker run` will train); the AI Core workflow
 # overrides this per step.
 CMD ["python", "/app/train.py"]
