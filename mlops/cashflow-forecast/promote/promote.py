@@ -44,7 +44,7 @@ COMPANY_TO_PKL = {
 
 # The serving Executable that all promote-created Configurations bind to.
 # This is the UC2.4 ServingTemplate; doesn't change across promote runs.
-SERVING_EXECUTABLE = "cashflow-forecast-serve-executable"
+SERVING_EXECUTABLE = "cashflow-forecast-serve"
 
 
 # ---- AUTH -------------------------------------------------------------------
