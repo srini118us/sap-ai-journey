@@ -32,7 +32,7 @@ spec:
   templates:
     - name: promote
       container:
-        image: docker.io/srini117us/cashflow-promote:0.1
+        image: docker.io/srini117us/cashflow-promote:0.2
         command: ["python", "/app/promote.py"]
         env:
           # Identity for promote.py to drive the AI Core REST API.

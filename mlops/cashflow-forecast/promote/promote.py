@@ -45,7 +45,6 @@ COMPANY_TO_PKL = {
 # The serving Executable that all promote-created Configurations bind to.
 # This is the UC2.4 ServingTemplate; doesn't change across promote runs.
 SERVING_EXECUTABLE = "cashflow-forecast-serve-executable"
-SERVING_VERSION = "0.4.0"
 
 
 # ---- AUTH -------------------------------------------------------------------
@@ -74,14 +73,25 @@ def headers(token: str) -> dict:
 
 # ---- AI CORE API CALLS ------------------------------------------------------
 
+def call_with_diagnostics(method: str, url: str, h: dict, **kwargs):
+    """Wraps requests calls so 4xx errors include the response body in the
+    exception message, not just the status. AI Core's 4xx bodies usually
+    explain what's wrong; without this wrapper we lose them."""
+    resp = requests.request(method, url, headers=h, timeout=30, **kwargs)
+    if not resp.ok:
+        body = resp.text[:500] if resp.text else "<empty>"
+        raise RuntimeError(
+            f"{method} {url} returned {resp.status_code}: {body}"
+        )
+    return resp
+
+
 def list_executions_completed(h: dict) -> list[dict]:
     """List COMPLETED Executions for the scenario, newest first."""
-    resp = requests.get(
-        f"{API_URL}/v2/lm/executions",
+    resp = call_with_diagnostics(
+        "GET", f"{API_URL}/v2/lm/executions", h,
         params={"scenarioId": SCENARIO_ID, "status": "COMPLETED", "$top": 50},
-        headers=h, timeout=30,
     )
-    resp.raise_for_status()
     items = resp.json().get("resources", [])
     items.sort(key=lambda x: x.get("startTime", ""), reverse=True)
     return items
@@ -89,12 +99,10 @@ def list_executions_completed(h: dict) -> list[dict]:
 
 def list_models(h: dict) -> list[dict]:
     """List Model artifacts (kind=model) for the scenario, newest first."""
-    resp = requests.get(
-        f"{API_URL}/v2/lm/artifacts",
+    resp = call_with_diagnostics(
+        "GET", f"{API_URL}/v2/lm/artifacts", h,
         params={"scenarioId": SCENARIO_ID, "kind": "model", "$top": 100},
-        headers=h, timeout=30,
     )
-    resp.raise_for_status()
     items = resp.json().get("resources", [])
     items.sort(key=lambda x: x.get("createdAt", ""), reverse=True)
     return items
@@ -123,25 +131,27 @@ def register_model(h: dict, execution_id: str) -> dict:
         "description": f"Auto-promoted by UC2.5 promote.py from execution {execution_id}",
     }
     print(f"[register] creating Model: name={name}, url={payload['url']}")
-    resp = requests.post(
-        f"{API_URL}/v2/lm/artifacts",
-        json=payload, headers=h, timeout=30,
+    resp = call_with_diagnostics(
+        "POST", f"{API_URL}/v2/lm/artifacts", h, json=payload,
     )
-    resp.raise_for_status()
     model = resp.json()
     print(f"[register] Model created: id={model['id']}")
     return model
 
 
 def create_configuration(h: dict, company: str, model_id: str) -> dict:
-    """Create a new Configuration binding the new Model + the company's pkl."""
+    """Create a new Configuration binding the new Model + the company's pkl.
+
+    Body schema uses snake_case per the SAP AI Core SDK convention
+    (parameter_bindings, input_artifact_bindings) — camelCase variants are
+    silently rejected by the API gateway as 404, not 400.
+    """
     timestamp = datetime.utcnow().strftime("%Y%m%d-%H%M%S")
     name = f"cashflow-serve-{company}-promoted-{timestamp}"
     payload = {
         "name": name,
         "scenarioId": SCENARIO_ID,
         "executableId": SERVING_EXECUTABLE,
-        "versionId": SERVING_VERSION,
         "parameterBindings": [
             {"key": "model_filename", "value": COMPANY_TO_PKL[company]},
         ],
@@ -150,11 +160,9 @@ def create_configuration(h: dict, company: str, model_id: str) -> dict:
         ],
     }
     print(f"[config] creating Configuration: {name}, model_filename={COMPANY_TO_PKL[company]}")
-    resp = requests.post(
-        f"{API_URL}/v2/lm/configurations",
-        json=payload, headers=h, timeout=30,
+    resp = call_with_diagnostics(
+        "POST", f"{API_URL}/v2/lm/configurations", h, json=payload,
     )
-    resp.raise_for_status()
     config = resp.json()
     print(f"[config] Configuration created: id={config['id']}")
     return config
@@ -162,22 +170,18 @@ def create_configuration(h: dict, company: str, model_id: str) -> dict:
 
 def list_running_deployments(h: dict) -> list[dict]:
     """List RUNNING Deployments for the scenario."""
-    resp = requests.get(
-        f"{API_URL}/v2/lm/deployments",
+    resp = call_with_diagnostics(
+        "GET", f"{API_URL}/v2/lm/deployments", h,
         params={"scenarioId": SCENARIO_ID, "status": "RUNNING", "$top": 50},
-        headers=h, timeout=30,
     )
-    resp.raise_for_status()
     return resp.json().get("resources", [])
 
 
 def get_configuration(h: dict, config_id: str) -> dict:
     """Read a Configuration to inspect its parameter bindings."""
-    resp = requests.get(
-        f"{API_URL}/v2/lm/configurations/{config_id}",
-        headers=h, timeout=30,
+    resp = call_with_diagnostics(
+        "GET", f"{API_URL}/v2/lm/configurations/{config_id}", h,
     )
-    resp.raise_for_status()
     return resp.json()
 
 
@@ -188,7 +192,13 @@ def deployment_company(h: dict, deployment: dict) -> str | None:
     if not config_id:
         return None
     config = get_configuration(h, config_id)
-    for b in config.get("parameterBindings", []):
+    # Read either snake_case or camelCase, since older configs may have either
+    bindings = (
+        config.get("parameterBindings")
+        or config.get("parameter_bindings")
+        or []
+    )
+    for b in bindings:
         if b.get("key") == "model_filename":
             v = b.get("value", "")
             for company, pkl in COMPANY_TO_PKL.items():
@@ -202,11 +212,9 @@ def patch_deployment(h: dict, deployment_id: str, new_config_id: str) -> None:
     KServe rolling update; URL stays stable."""
     payload = {"configurationId": new_config_id}
     print(f"[patch] {deployment_id} -> configurationId={new_config_id}")
-    resp = requests.patch(
-        f"{API_URL}/v2/lm/deployments/{deployment_id}",
-        json=payload, headers=h, timeout=30,
+    call_with_diagnostics(
+        "PATCH", f"{API_URL}/v2/lm/deployments/{deployment_id}", h, json=payload,
     )
-    resp.raise_for_status()
     print(f"[patch] {deployment_id} updated")
 
 
@@ -218,9 +226,14 @@ def deployments_already_on_model(h: dict, deployments: list[dict], model_id: str
         if not config_id:
             return False
         config = get_configuration(h, config_id)
+        bindings = (
+            config.get("inputArtifactBindings")
+            or config.get("input_artifact_bindings")
+            or []
+        )
         bound_artifact_ids = [
-            b.get("artifactId")
-            for b in config.get("inputArtifactBindings", [])
+            b.get("artifactId") or b.get("artifact_id")
+            for b in bindings
             if b.get("key") == "cashflowmodel"
         ]
         if model_id not in bound_artifact_ids:
