@@ -37,3 +37,4 @@ venv/
 .venv/
 *-key.json
 service-key*.json
+mlops/cashflow-forecast/UC2_*_Documentation.docx
