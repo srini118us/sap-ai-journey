@@ -92,25 +92,25 @@ spec:
               - name: AICORE_AUTH_URL
                 valueFrom:
                   secretKeyRef:
-                    name: aicore-self-creds
+                    name: aicore-explain-creds
                     key: AICORE_AUTH_URL
               - name: AICORE_CLIENT_ID
                 valueFrom:
                   secretKeyRef:
-                    name: aicore-self-creds
+                    name: aicore-explain-creds
                     key: AICORE_CLIENT_ID
               - name: AICORE_CLIENT_SECRET
                 valueFrom:
                   secretKeyRef:
-                    name: aicore-self-creds
+                    name: aicore-explain-creds
                     key: AICORE_CLIENT_SECRET
               - name: AICORE_BASE_URL
                 valueFrom:
                   secretKeyRef:
-                    name: aicore-self-creds
+                    name: aicore-explain-creds
                     key: AICORE_BASE_URL
               - name: AICORE_RESOURCE_GROUP
                 valueFrom:
                   secretKeyRef:
-                    name: aicore-self-creds
+                    name: aicore-explain-creds
                     key: AICORE_RESOURCE_GROUP
