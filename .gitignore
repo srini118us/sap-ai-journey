@@ -38,3 +38,6 @@ venv/
 *-key.json
 service-key*.json
 mlops/cashflow-forecast/UC2_*_Documentation.docx
+
+__pycache__/
+*.swp

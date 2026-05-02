@@ -1,0 +1,65 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: cashflow-shap-train-srini
+  annotations:
+    scenarios.ai.sap.com/description: "Cashflow forecasting on financial time-series data"
+    scenarios.ai.sap.com/name: "cashflow-forecast"
+    executables.ai.sap.com/description: "Compute SHAP summaries for cashflow forecasts via RandomForest surrogate"
+    executables.ai.sap.com/name: "cashflow-shap-train-executable"
+    artifacts.ai.sap.com/shap_summary.kind: "dataset"
+  labels:
+    scenarios.ai.sap.com/id: "cashflow-forecast"
+    ai.sap.com/version: "0.6.0"
+spec:
+  imagePullSecrets:
+    - name: docker-hub-srini117us
+  entrypoint: shap-train-pipeline
+  arguments:
+    parameters:
+      - name: company_codes
+        value: "1010,1710"
+  templates:
+    - name: shap-train-pipeline
+      inputs:
+        parameters:
+          - name: company_codes
+      outputs:
+        artifacts:
+          - name: shap_summary
+            path: /app/output
+            archive:
+              none: {}
+      container:
+        image: docker.io/srini117us/cashflow-shap-train:0.1
+        command: ["python", "/app/compute_shap.py"]
+        env:
+          - name: COMPANY_CODES
+            value: "{{inputs.parameters.company_codes}}"
+          - name: OUTPUT_DIR
+            value: "/app/output"
+          - name: HANA_HOST
+            valueFrom:
+              secretKeyRef:
+                name: hana-cashflow-creds
+                key: host
+          - name: HANA_PORT
+            valueFrom:
+              secretKeyRef:
+                name: hana-cashflow-creds
+                key: port
+          - name: HANA_USER
+            valueFrom:
+              secretKeyRef:
+                name: hana-cashflow-creds
+                key: user
+          - name: HANA_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: hana-cashflow-creds
+                key: password
+          - name: HANA_SCHEMA
+            valueFrom:
+              secretKeyRef:
+                name: hana-cashflow-creds
+                key: schema
