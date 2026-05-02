@@ -1,0 +1,116 @@
+# SAP AI Core ServingTemplate — Cashflow Explainer (UC2.6)
+#
+# Third executable under scenario cashflow-forecast (joins train + serve).
+# Scenario version 0.6.1 aligns with the SHAP training iteration that produced
+# the shap_summary artifact this template consumes.
+#
+# Architecture notes:
+# - Cross-RG calls: AICORE_RESOURCE_GROUP=ai-launchpad for GPT-4o GenAI Hub,
+#   PREDICT_RESOURCE_GROUP=ml-training for /v2/predict on cashflow serving
+#   deployments d50ff74ca07c9968 (1010) and d8ecefa36dd1b465 (1710).
+# - Direct GPT-4o call (deployment df9fcfa534c2131f) bypasses Orchestration
+#   for this lab. Production should route through Orchestration for content
+#   filtering, PII redaction, and centralized prompt management.
+# - shap_summary artifact mounted at /mnt/models via KServe storage-initializer
+#   (same convention as serve template's cashflowmodel binding).
+# - Container listens on port 9000 (non-default for KServe; serve template
+#   uses 8080 — accepted drift, document if probe issues arise).
+
+apiVersion: ai.sap.com/v1alpha1
+kind: ServingTemplate
+metadata:
+  name: cashflow-forecast-explain
+  annotations:
+    scenarios.ai.sap.com/description: "Cashflow forecasting on financial time-series data"
+    scenarios.ai.sap.com/name: "cashflow-forecast"
+    executables.ai.sap.com/description: "Cross-RG explainability: forecast + SHAP top features + GPT-4o narrative"
+    executables.ai.sap.com/name: "cashflow-forecast-explain-executable"
+    artifacts.ai.sap.com/shapsummary.kind: "dataset"
+    artifacts.ai.sap.com/shapsummary.description: "Per-company SHAP feature attributions over surrogate RandomForest, produced by UC2.6 Step 3"
+  labels:
+    scenarios.ai.sap.com/id: "cashflow-forecast"
+    ai.sap.com/version: "0.6.1"
+spec:
+  inputs:
+    parameters:
+      - name: predict_url_1010
+        type: string
+        description: "Full /v2/predict URL for company 1010 serving deployment"
+      - name: predict_url_1710
+        type: string
+        description: "Full /v2/predict URL for company 1710 serving deployment"
+      - name: gpt4o_deployment_id
+        type: string
+        description: "GenAI Hub deployment ID for GPT-4o narrative generation"
+        default: "df9fcfa534c2131f"
+      - name: predict_resource_group
+        type: string
+        description: "Resource group containing the cashflow serving deployments"
+        default: "ml-training"
+    artifacts:
+      - name: shapsummary
+
+  template:
+    apiVersion: "serving.kserve.io/v1beta1"
+    metadata:
+      annotations: |
+        autoscaling.knative.dev/metric: concurrency
+        autoscaling.knative.dev/target: 1
+        autoscaling.knative.dev/targetBurstCapacity: 0
+      labels: |
+        ai.sap.com/resourcePlan: starter
+    spec: |
+      predictor:
+        imagePullSecrets:
+          - name: docker-hub-srini117us
+        minReplicas: 1
+        maxReplicas: 1
+        containers:
+          - name: kserve-container
+            image: docker.io/srini117us/cashflow-explain:0.1
+            ports:
+              - containerPort: 9000
+                protocol: TCP
+            env:
+              # KServe storage-initializer copies shap_summary artifact files
+              # from S3 to /mnt/models before container start.
+              - name: STORAGE_URI
+                value: "{{inputs.artifacts.shapsummary}}"
+              - name: SHAP_SUMMARY_DIR
+                value: "/mnt/models"
+              # Cross-RG predict targets
+              - name: PREDICT_URL_1010
+                value: "{{inputs.parameters.predict_url_1010}}"
+              - name: PREDICT_URL_1710
+                value: "{{inputs.parameters.predict_url_1710}}"
+              - name: PREDICT_RESOURCE_GROUP
+                value: "{{inputs.parameters.predict_resource_group}}"
+              # GenAI Hub target (GPT-4o)
+              - name: GPT4O_DEPLOYMENT_ID
+                value: "{{inputs.parameters.gpt4o_deployment_id}}"
+              # AI Core auth (5 keys from Generic Secret aicore-creds in ai-launchpad RG)
+              - name: AICORE_AUTH_URL
+                valueFrom:
+                  secretKeyRef:
+                    name: aicore-self-creds
+                    key: AICORE_AUTH_URL
+              - name: AICORE_CLIENT_ID
+                valueFrom:
+                  secretKeyRef:
+                    name: aicore-self-creds
+                    key: AICORE_CLIENT_ID
+              - name: AICORE_CLIENT_SECRET
+                valueFrom:
+                  secretKeyRef:
+                    name: aicore-self-creds
+                    key: AICORE_CLIENT_SECRET
+              - name: AICORE_BASE_URL
+                valueFrom:
+                  secretKeyRef:
+                    name: aicore-self-creds
+                    key: AICORE_BASE_URL
+              - name: AICORE_RESOURCE_GROUP
+                valueFrom:
+                  secretKeyRef:
+                    name: aicore-self-creds
+                    key: AICORE_RESOURCE_GROUP
