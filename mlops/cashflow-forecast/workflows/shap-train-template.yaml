@@ -10,7 +10,7 @@ metadata:
     artifacts.ai.sap.com/shap_summary.kind: "dataset"
   labels:
     scenarios.ai.sap.com/id: "cashflow-forecast"
-    ai.sap.com/version: "0.6.0"
+    ai.sap.com/version: "0.6.1"
 spec:
   imagePullSecrets:
     - name: docker-hub-srini117us
@@ -31,7 +31,7 @@ spec:
             archive:
               none: {}
       container:
-        image: docker.io/srini117us/cashflow-shap-train:0.1
+        image: docker.io/srini117us/cashflow-shap-train:0.2
         command: ["python", "/app/compute_shap.py"]
         env:
           - name: COMPANY_CODES
