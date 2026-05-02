@@ -1,0 +1,25 @@
+applications:
+  - name: sap-procurement-mcp
+    memory: 512M
+    disk_quota: 2G
+    instances: 1
+    buildpacks:
+      - python_buildpack
+    command: python -m src.server
+    health-check-type: port
+    timeout: 180
+    env:
+      MCP_SERVER_NAME: procurement-server
+      MCP_HOST: 0.0.0.0
+      FASTMCP_STATELESS_HTTP: "true"
+      LOG_LEVEL: INFO
+      HANA_PORT: "443"
+      HANA_SCHEMA: PROC_AI
+      AICORE_BASE_URL: https://api.ai.prod.us-east-1.aws.ml.hana.ondemand.com
+      AICORE_RESOURCE_GROUP: ai-launchpad
+      GENAI_HUB_DEPLOYMENT_ID_EMBEDDING: da94363cd9046ce4
+      GENAI_HUB_DEPLOYMENT_ID_LLM: d0630de3469c64eb
+      CHUNK_SIZE: "512"
+      CHUNK_OVERLAP: "75"
+      TOP_K_RETRIEVAL: "5"
+      EMBEDDING_DIMENSIONS: "1536"

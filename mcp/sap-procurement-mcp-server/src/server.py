@@ -207,7 +207,7 @@ def check_approval_policy(
 
 if __name__ == "__main__":
     host = os.getenv("MCP_HOST", "0.0.0.0")
-    port = int(os.getenv("MCP_PORT", "8080"))
+    port = int(os.getenv("PORT", os.getenv("MCP_PORT", "8080")))
     logger.info(
         "[SERVER] Starting FastMCP '%s' on %s:%s (Streamable HTTP) — 7 tools registered",
         os.getenv("MCP_SERVER_NAME", "procurement-server"), host, port,
