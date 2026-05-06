@@ -1,0 +1,2203 @@
+SAP BTP Inventory Pass
+Generated: 2026-05-03T15:33:36-04:00
+=======================================
+
+=== CF target ===
+API endpoint:   https://api.cf.us10-001.hana.ondemand.com
+API version:    3.215.0
+user:           support3@manbitech.com
+org:            org-build-sap-btp-joule
+space:          build
+
+=== CF apps ===
+Getting apps in org org-build-sap-btp-joule / space build as support3@manbitech.com...
+
+name                      requested state   processes   routes
+sap-cashflow-mcp-server   started           web:1/1     sap-cashflow-mcp-server.cfapps.us10-001.hana.ondemand.com
+sap-mcp-server-build      started           web:1/1     org-build-sap-btp-joule-build-sap-mcp-server.cfapps.us10-001.hana.ondemand.com
+sap-procurement-mcp       started           web:1/1     sap-procurement-mcp.cfapps.us10-001.hana.ondemand.com
+
+=== CF services ===
+Getting service instances in org org-build-sap-btp-joule / space build as support3@manbitech.com...
+
+name                                   offering                              plan            bound apps             last operation     broker                                                                         upgrade available
+ai-core                                aicore                                extended                               update succeeded   sm-aicore-mlfproduction-79426785-79ab-45f0-bbe6-965b91fd632a                   no
+ai-document                            sap-document-information-extraction   free                                   create succeeded   sm-sap-document-information-extraction-8092c4e5-1e09-45f1-b339-da790b1a3fd3    no
+buildwork                              build-workzone-standard               build-default                          create succeeded   sm-portal-5979e964-c60e-427e-91ff-ca95a6499d6a                                 no
+destination-service                    destination                           lite                                   update succeeded   sm-destination-service-broker-5a214409-e743-4905-9cc1-2c2e8b2bfc1d             no
+dms                                    sdm                                   free                                   create succeeded   sm-sdm-787eaa21-8ae7-470f-b4d3-23ddfb6455f4                                    no
+document-management-standard-service   sdm                                   build-runtime                          create succeeded   sm-sdm-787eaa21-8ae7-470f-b4d3-23ddfb6455f4                                    no
+dox-ai-model                           sap-document-information-extraction   free                                   update succeeded   sm-sap-document-information-extraction-8092c4e5-1e09-45f1-b339-da790b1a3fd3    no
+hanacloud                              hana-cloud                            hana-free                              create succeeded   sm-hana-cloud-cc496c34-82a5-4b7a-98dd-0a910686e796                             no
+process-automation-service             process-automation-service            standard                               create succeeded   sm-process-automation-broker-ee1e8cd9-6d4f-446b-b08d-834e47d6a9f8              no
+sap-mcp-connectivity-build             connectivity                          lite            sap-mcp-server-build   create succeeded   sm-connectivity-cf-us10-001-cf-us10-001-0dca234d-e5d7-415a-be25-dbedda8b94e1   no
+sap-mcp-destination-build              destination                           lite            sap-mcp-server-build   create succeeded   sm-destination-service-broker-5a214409-e743-4905-9cc1-2c2e8b2bfc1d             no
+sap-mcp-xsuaa-build                    xsuaa                                 application     sap-mcp-server-build   update succeeded   sm-xsuaa-333078da-dff3-4cf8-aef6-c089b0560467                                  no
+task-center-service                    one-inbox-service                     build-default                          create succeeded   sm-one-inbox-service-a54f3cb0-1b93-41ab-b61d-50dae7ebd6fe                      no
+work-zone-standard-service             build-workzone-standard               build-default                          create succeeded   sm-portal-5979e964-c60e-427e-91ff-ca95a6499d6a                                 no
+xsuaa-service                          xsuaa                                 apiaccess                              update succeeded   sm-xsuaa-333078da-dff3-4cf8-aef6-c089b0560467                                  no
+
+=== CF service keys (names only) ===
+
+--- Service: ai-core ---
+Getting keys for service instance ai-core as support3@manbitech.com...
+
+name                 last operation     message
+ai-core              create succeeded   
+GroundingKey         create succeeded   
+test-skey            create succeeded   
+sap-build-training   create succeeded   
+
+--- Service: ai-document ---
+Getting keys for service instance ai-document as support3@manbitech.com...
+
+name          last operation     message
+ai-document   create succeeded   
+
+--- Service: buildwork ---
+Getting keys for service instance buildwork as support3@manbitech.com...
+
+name        last operation     message
+buildwork   create succeeded   
+
+--- Service: destination-service ---
+Getting keys for service instance destination-service as support3@manbitech.com...
+
+name                      last operation     message
+destination-service-key   create succeeded   
+
+--- Service: dms ---
+Getting keys for service instance dms as support3@manbitech.com...
+
+name   last operation     message
+dms    create succeeded   
+
+--- Service: document-management-standard-service ---
+Getting keys for service instance document-management-standard-service as support3@manbitech.com...
+
+name                                       last operation     message
+document-management-standard-service-key   create succeeded   
+
+--- Service: dox-ai-model ---
+Getting keys for service instance dox-ai-model as support3@manbitech.com...
+
+name          last operation     message
+dox-ser-key   create succeeded   
+
+--- Service: hanacloud ---
+Getting keys for service instance hanacloud as support3@manbitech.com...
+
+name        last operation     message
+hanacloud   create succeeded   
+
+--- Service: process-automation-service ---
+Getting keys for service instance process-automation-service as support3@manbitech.com...
+
+name                             last operation     message
+process-automation-service-key   create succeeded   
+
+--- Service: sap-mcp-connectivity-build ---
+Getting keys for service instance sap-mcp-connectivity-build as support3@manbitech.com...
+
+No service keys for service instance sap-mcp-connectivity-build
+
+--- Service: sap-mcp-destination-build ---
+Getting keys for service instance sap-mcp-destination-build as support3@manbitech.com...
+
+No service keys for service instance sap-mcp-destination-build
+
+--- Service: sap-mcp-xsuaa-build ---
+Getting keys for service instance sap-mcp-xsuaa-build as support3@manbitech.com...
+
+No service keys for service instance sap-mcp-xsuaa-build
+
+--- Service: task-center-service ---
+Getting keys for service instance task-center-service as support3@manbitech.com...
+
+name                      last operation     message
+task-center-service-key   create succeeded   
+
+--- Service: work-zone-standard-service ---
+Getting keys for service instance work-zone-standard-service as support3@manbitech.com...
+
+name                             last operation     message
+work-zone-standard-service-key   create succeeded   
+
+--- Service: xsuaa-service ---
+Getting keys for service instance xsuaa-service as support3@manbitech.com...
+
+name                last operation     message
+xsuaa-service-key   create succeeded   
+
+=== CF routes ===
+Getting routes for org org-build-sap-btp-joule / space build as support3@manbitech.com...
+
+space   host                                           domain                              port   path   protocol   app-protocol   app-port   apps                      service instance   options
+build   org-build-sap-btp-joule-build-sap-mcp-server   cfapps.us10-001.hana.ondemand.com                 http       http1          8080       sap-mcp-server-build                         
+build   sap-procurement-mcp                            cfapps.us10-001.hana.ondemand.com                 http       http1          8080       sap-procurement-mcp                          
+build   sap-cashflow-mcp-server                        cfapps.us10-001.hana.ondemand.com                 http       http1          8080       sap-cashflow-mcp-server                      
+
+=== MANUAL inventory required (script cannot enumerate) ===
+The following must be enumerated manually from the cockpit. Capture each as
+a separate text file or screenshot in this directory.
+
+a) BTP destinations
+   - Cockpit: Subaccount sap-btp-joule > Connectivity > Destinations
+   - Save as: inventory_destinations.png (screenshot of full list)
+   - For each destination, also note: Name, Type, URL, Authentication type
+     in inventory_destinations.txt
+
+b) SBPA projects
+   - SBPA Lobby > All Projects
+   - Save as: inventory_sbpa.txt (one line per project: Name | Last modified | Status)
+
+c) Joule agents and skills
+   - Joule Studio > Agents tab > list all
+   - Joule Studio > Skills tab > list all
+   - Save as: inventory_joule.txt
+
+d) AI Core artifacts (cross resource group)
+   - AI Launchpad > Resource Groups > expand each
+   - For each RG (ml-training, ai-launchpad, default, others):
+     - List Scenarios, Configurations, Deployments, Datasets,
+       Object Store Secrets, Generic Secrets
+   - Save as: inventory_aicore.txt
+
+e) HANA Cloud
+   - Cockpit > Services > Instances and Subscriptions > HANA Cloud
+   - Note: instance name, state (running/stopped), size, last activity
+   - Save as: inventory_hana.txt
+
+
+=== AI Core via API (optional, requires env vars) ===
+Fetching AI Core token...
+
+--- RG: ml-training ---
+[scenarios]
+[
+  {
+    "labels": [
+      {
+        "key": "scenarios.ai.sap.com/llm",
+        "value": "true"
+      }
+    ],
+    "createdAt": "2023-10-08T10:41:15+00:00",
+    "modifiedAt": "2025-10-16T11:01:57+00:00",
+    "id": "foundation-models",
+    "name": "foundation-models",
+    "description": "AI Core Global Scenario for LLM Access"
+  },
+  {
+    "createdAt": "2024-08-02T06:19:02+00:00",
+    "modifiedAt": "2026-04-28T03:05:46.975000+00:00",
+    "id": "orchestration",
+    "name": "orchestration",
+    "description": "AI Core Global Scenario for the Orchestration Service"
+  },
+  {
+    "createdAt": "2025-06-10T17:53:33+00:00",
+    "modifiedAt": "2025-08-29T07:54:25+00:00",
+    "id": "genai-evaluations",
+    "name": "genai-evaluations",
+    "description": "AI Core global scenario for the generative AI hub evaluation service"
+  },
+  {
+    "createdAt": "2025-10-29T13:12:16+00:00",
+    "modifiedAt": "2025-10-29T13:12:16+00:00",
+    "id": "genai-optimizations",
+    "name": "genai-optimizations",
+    "description": "AI Core global scenario for the generative AI hub prompt optimization service"
+  },
+  {
+    "createdAt": "2026-03-24T20:34:49+00:00",
+    "modifiedAt": "2026-04-25T19:43:44.689000+00:00",
+    "id": "hello-world",
+    "name": "hello-world",
+    "description": "My first AI Core pipeline"
+  },
+  {
+    "createdAt": "2026-03-25T00:13:38+00:00",
+    "modifiedAt": "2026-03-25T00:13:38+00:00",
+    "id": "data-pipeline",
+    "name": "data-pipeline",
+    "description": "Multi-step pipeline with S3 artifacts"
+  },
+  {
+    "createdAt": "2026-03-25T02:04:01+00:00",
+    "modifiedAt": "2026-03-25T02:04:01+00:00",
+    "id": "ml-training",
+    "name": "ml-training",
+    "description": "Train customer churn prediction model"
+  },
+  {
+    "createdAt": "2026-03-25T10:45:57.793000+00:00",
+    "modifiedAt": "2026-03-30T12:19:19.186000+00:00",
+    "id": "orchestration1",
+    "name": "orchestration1"
+  },
+  {
+    "createdAt": "2026-03-26T02:09:50+00:00",
+    "modifiedAt": "2026-03-26T02:09:50+00:00",
+    "id": "churn-serve-v3",
+    "name": "churn-serve-v3",
+    "description": "Churn model serving"
+  },
+  {
+    "createdAt": "2026-03-26T08:20:59+00:00",
+    "modifiedAt": "2026-03-26T08:20:59+00:00",
+    "id": "learning",
+    "name": "Tutorial Neil",
+    "description": "Introduction to SAP AI Core"
+  },
+  {
+    "createdAt": "2026-04-11T04:43:39+00:00",
+    "modifiedAt": "2026-04-11T04:43:39+00:00",
+    "id": "hello-metrics",
+    "name": "hello-metrics",
+    "description": "Pipeline with metrics tracking"
+  },
+  {
+    "createdAt": "2026-04-25T12:23:32+00:00",
+    "modifiedAt": "2026-05-03T00:35:16.383000+00:00",
+    "id": "cashflow-forecast",
+    "name": "cashflow-forecast",
+    "description": "Cashflow forecasting on financial time-series data"
+  },
+  {
+    "createdAt": "2026-04-26T09:26:01.849000+00:00",
+    "modifiedAt": "2026-04-26T10:50:54.347000+00:00",
+    "id": "feedback-analyzer-CERT1234",
+    "name": "feedback-analyzer-CERT1234"
+  },
+  {
+    "createdAt": "2026-04-30T02:44:25+00:00",
+    "modifiedAt": "2026-04-30T02:44:25+00:00",
+    "id": "Hello123",
+    "name": "Demo123",
+    "description": "Introduction to SAP AI Core"
+  },
+  {
+    "createdAt": "2026-04-30T05:02:09+00:00",
+    "modifiedAt": "2026-04-30T05:02:09+00:00",
+    "id": "learning-fugarte",
+    "name": "FU_Tutorial",
+    "description": "FUgarte: Introduction to SAP AI Core"
+  },
+  {
+    "createdAt": "2026-05-01T02:37:37+00:00",
+    "modifiedAt": "2026-05-01T02:37:37+00:00",
+    "id": "learning-code-fugarte",
+    "name": "FU_Code (Tutorial)",
+    "description": "FUgarte: Tutorial to add custom code to SAP AI Core"
+  },
+  {
+    "createdAt": "2026-05-01T02:48:47+00:00",
+    "modifiedAt": "2026-05-01T02:48:47+00:00",
+    "id": "learning-code",
+    "name": "Code (Tutorial)",
+    "description": "Tutorial to add custom code to SAP AI Core"
+  }
+]
+[configurations]
+[
+  {
+    "id": "eb550a83-fe5c-4a21-ba69-c4c371f77ca7",
+    "createdAt": "2026-05-02T23:28:33Z",
+    "name": "ail-auto-orchestration",
+    "executableId": "orchestration",
+    "scenarioId": "orchestration",
+    "parameterBindings": [],
+    "inputArtifactBindings": []
+  },
+  {
+    "id": "89de18f4-480d-4183-a376-a5837c3354af",
+    "createdAt": "2026-05-02T21:30:21Z",
+    "name": "cashflow-explain-config-v01",
+    "executableId": "cashflow-forecast-explain",
+    "scenarioId": "cashflow-forecast",
+    "parameterBindings": [
+      {
+        "key": "predict_url_1710",
+        "value": "https://api.ai.prod.us-east-1.aws.ml.hana.ondemand.com/v2/inference/deployments/d8ecefa36dd1b465"
+      },
+      {
+        "key": "predict_url_1010",
+        "value": "https://api.ai.prod.us-east-1.aws.ml.hana.ondemand.com/v2/inference/deployments/d50ff74ca07c9968"
+      },
+      {
+        "key": "gpt4o_deployment_id",
+        "value": "df9fcfa534c2131f"
+      },
+      {
+        "key": "predict_resource_group",
+        "value": "ml-training"
+      }
+    ],
+    "inputArtifactBindings": [
+      {
+        "key": "shapsummary",
+        "artifactId": "61087d43-23ee-449f-81c6-ab371cd30c10"
+      }
+    ]
+  },
+  {
+    "id": "b877260b-37aa-4989-b25a-79771feb0db5",
+    "createdAt": "2026-05-02T16:54:09Z",
+    "name": "bce21202-9af2-42f7-a338-759a7cf270b7",
+    "executableId": "cashflow-shap-train-srini",
+    "scenarioId": "cashflow-forecast",
+    "parameterBindings": [
+      {
+        "key": "company_codes",
+        "value": "1010,1710"
+      }
+    ],
+    "inputArtifactBindings": []
+  },
+  {
+    "id": "bce21202-9af2-42f7-a338-759a7cf270b7",
+    "createdAt": "2026-05-02T16:36:02Z",
+    "name": "cashflow-shap-train-1010-1710-config",
+    "executableId": "cashflow-shap-train-srini",
+    "scenarioId": "cashflow-forecast",
+    "parameterBindings": [
+      {
+        "key": "company_codes",
+        "value": "1010,1710"
+      }
+    ],
+    "inputArtifactBindings": []
+  },
+  {
+    "id": "ff7cf148-e364-4810-a3bf-f224a4e65378",
+    "createdAt": "2026-04-30T01:58:20Z",
+    "name": "cashflow-serve-1010-promoted-20260430-015820",
+    "executableId": "cashflow-forecast-serve",
+    "scenarioId": "cashflow-forecast",
+    "parameterBindings": [
+      {
+        "key": "model_filename",
+        "value": "model_1010.pkl"
+      }
+    ],
+    "inputArtifactBindings": [
+      {
+        "key": "cashflowmodel",
+        "artifactId": "b3aaf551-ff5e-4a7d-b2d2-ca2c11ab4658"
+      }
+    ]
+  },
+  {
+    "id": "95a4b3c2-217f-46bd-9d12-f828d40f63fa",
+    "createdAt": "2026-04-30T01:58:19Z",
+    "name": "cashflow-serve-1710-promoted-20260430-015819",
+    "executableId": "cashflow-forecast-serve",
+    "scenarioId": "cashflow-forecast",
+    "parameterBindings": [
+      {
+        "key": "model_filename",
+        "value": "model_1710.pkl"
+      }
+    ],
+    "inputArtifactBindings": [
+      {
+        "key": "cashflowmodel",
+        "artifactId": "b3aaf551-ff5e-4a7d-b2d2-ca2c11ab4658"
+      }
+    ]
+  },
+  {
+    "id": "aad3700e-cd04-4183-a7b7-18d0dcd1a0db",
+    "createdAt": "2026-04-29T21:08:13Z",
+    "name": "cashflow-promote-config",
+    "executableId": "cashflow-promote",
+    "scenarioId": "cashflow-forecast",
+    "parameterBindings": [],
+    "inputArtifactBindings": []
+  },
+  {
+    "id": "dbd3064f-aaac-4bf9-93fc-ed708798bd25",
+    "createdAt": "2026-04-29T02:00:04Z",
+    "name": "cashflow-train-recurring-config",
+    "executableId": "cashflow-train-recurring",
+    "scenarioId": "cashflow-forecast",
+    "parameterBindings": [
+      {
+        "key": "model_type",
+        "value": "autots"
+      }
+    ],
+    "inputArtifactBindings": []
+  },
+  {
+    "id": "623cf26c-f604-4d82-a60f-6917911dee87",
+    "createdAt": "2026-04-28T21:57:21Z",
+    "name": "cashflow-serve-1710-config-v2",
+    "executableId": "cashflow-forecast-serve",
+    "scenarioId": "cashflow-forecast",
+    "parameterBindings": [
+      {
+        "key": "model_filename",
+        "value": "model_1710.pkl"
+      }
+    ],
+    "inputArtifactBindings": [
+      {
+        "key": "cashflowmodel",
+        "artifactId": "ba777945-9209-40d8-bd71-dcef72fa33ab"
+      }
+    ]
+  },
+  {
+    "id": "18caa55d-9890-4427-8c6f-ee871bfb557f",
+    "createdAt": "2026-04-28T21:57:21Z",
+    "name": "cashflow-serve-1710-config-v2",
+    "executableId": "cashflow-forecast-serve",
+    "scenarioId": "cashflow-forecast",
+    "parameterBindings": [
+      {
+        "key": "model_filename",
+        "value": "model_1710.pkl"
+      }
+    ],
+    "inputArtifactBindings": [
+      {
+        "key": "cashflowmodel",
+        "artifactId": "ba777945-9209-40d8-bd71-dcef72fa33ab"
+      }
+    ]
+  },
+  {
+    "id": "70e8c18e-9922-47ec-8152-22d24f793fb0",
+    "createdAt": "2026-04-28T21:56:19Z",
+    "name": "cashflow-serve-1010-config-v2",
+    "executableId": "cashflow-forecast-serve",
+    "scenarioId": "cashflow-forecast",
+    "parameterBindings": [
+      {
+        "key": "model_filename",
+        "value": "model_1010.pkl"
+      }
+    ],
+    "inputArtifactBindings": [
+      {
+        "key": "cashflowmodel",
+        "artifactId": "ba777945-9209-40d8-bd71-dcef72fa33ab"
+      }
+    ]
+  },
+  {
+    "id": "b85976cd-6631-477d-a6f0-fdd196a45c24",
+    "createdAt": "2026-04-27T13:13:44Z",
+    "name": "cashflow-serve-1010-config",
+    "executableId": "cashflow-forecast-serve",
+    "scenarioId": "cashflow-forecast",
+    "parameterBindings": [
+      {
+        "key": "model_filename",
+        "value": "model_1010.pkl"
+      }
+    ],
+    "inputArtifactBindings": [
+      {
+        "key": "cashflowmodel",
+        "artifactId": "13606d81-337e-4217-a1fa-1c7b0133be23"
+      }
+    ]
+  },
+  {
+    "id": "7e7007d9-fd66-4cf9-a8fd-f4969e677488",
+    "createdAt": "2026-04-27T13:06:58Z",
+    "name": "cashflow-serve-1710-config",
+    "executableId": "cashflow-forecast-serve",
+    "scenarioId": "cashflow-forecast",
+    "parameterBindings": [
+      {
+        "key": "model_filename",
+        "value": "model_1710.pkl"
+      }
+    ],
+    "inputArtifactBindings": [
+      {
+        "key": "cashflowmodel",
+        "artifactId": "13606d81-337e-4217-a1fa-1c7b0133be23"
+      }
+    ]
+  },
+  {
+    "id": "ecdf162a-c24e-4240-b11e-e40115fcfbab",
+    "createdAt": "2026-04-26T11:15:55Z",
+    "name": "cashflow-train-config-v5",
+    "executableId": "cashflow-train-srini",
+    "scenarioId": "cashflow-forecast",
+    "parameterBindings": [
+      {
+        "key": "model_type",
+        "value": "autots"
+      }
+    ],
+    "inputArtifactBindings": []
+  },
+  {
+    "id": "adf43ced-1f8d-4d10-8080-1e66b928cbfa",
+    "createdAt": "2026-04-25T22:13:42Z",
+    "name": "cashflow-train-config-v4",
+    "executableId": "cashflow-train-srini",
+    "scenarioId": "cashflow-forecast",
+    "parameterBindings": [
+      {
+        "key": "model_type",
+        "value": "linear"
+      }
+    ],
+    "inputArtifactBindings": [
+      {
+        "key": "training_data",
+        "artifactId": "aec19de6-d311-4b6a-9d00-aa8d08aa980c"
+      }
+    ]
+  },
+  {
+    "id": "da0ede05-dca7-4bbe-970f-f671e065f117",
+    "createdAt": "2026-04-25T22:05:43Z",
+    "name": "cashflow-train-config-v3",
+    "executableId": "cashflow-train-srini",
+    "scenarioId": "cashflow-forecast",
+    "parameterBindings": [
+      {
+        "key": "model_type",
+        "value": "linear"
+      }
+    ],
+    "inputArtifactBindings": [
+      {
+        "key": "training_data",
+        "artifactId": "aec19de6-d311-4b6a-9d00-aa8d08aa980c"
+      }
+    ]
+  },
+  {
+    "id": "d6236b8f-b536-4ac4-a628-3f3352938e17",
+    "createdAt": "2026-04-25T12:55:56Z",
+    "name": "cashflow-train-config-v2",
+    "executableId": "cashflow-train-srini",
+    "scenarioId": "cashflow-forecast",
+    "parameterBindings": [
+      {
+        "key": "model_type",
+        "value": "linear"
+      }
+    ],
+    "inputArtifactBindings": [
+      {
+        "key": "training_data",
+        "artifactId": "aec19de6-d311-4b6a-9d00-aa8d08aa980c"
+      }
+    ]
+  },
+  {
+    "id": "6c47b4c9-3a63-4808-a4f8-8b60bb1dac76",
+    "createdAt": "2026-04-25T12:34:59Z",
+    "name": "cashflow-train-config-v1",
+    "executableId": "cashflow-train-srini",
+    "scenarioId": "cashflow-forecast",
+    "parameterBindings": [
+      {
+        "key": "model_type",
+        "value": "linear"
+      }
+    ],
+    "inputArtifactBindings": [
+      {
+        "key": "training_data",
+        "artifactId": "3075e565-6b29-46eb-8ade-821033391776"
+      }
+    ]
+  }
+]
+[deployments]
+[
+  {
+    "id": "d229fe0016204ea7",
+    "createdAt": "2026-05-03T10:18:52Z",
+    "modifiedAt": "2026-05-03T10:18:52Z",
+    "status": "RUNNING",
+    "details": {
+      "scaling": {
+        "backendDetails": {},
+        "backend_details": {}
+      },
+      "resources": {
+        "backendDetails": {},
+        "backend_details": {}
+      }
+    },
+    "scenarioId": "orchestration",
+    "configurationId": "eb550a83-fe5c-4a21-ba69-c4c371f77ca7",
+    "latestRunningConfigurationId": "eb550a83-fe5c-4a21-ba69-c4c371f77ca7",
+    "lastOperation": "CREATE",
+    "targetStatus": "RUNNING",
+    "submissionTime": "2026-05-03T10:19:13Z",
+    "startTime": "2026-05-03T10:20:29Z",
+    "configurationName": "ail-auto-orchestration",
+    "deploymentUrl": "https://api.ai.prod.us-east-1.aws.ml.hana.ondemand.com/v2/inference/deployments/d229fe0016204ea7"
+  },
+  {
+    "id": "d1b446a5919ee451",
+    "createdAt": "2026-05-02T23:28:33Z",
+    "modifiedAt": "2026-05-02T23:28:33Z",
+    "status": "RUNNING",
+    "details": {
+      "scaling": {
+        "backendDetails": {},
+        "backend_details": {}
+      },
+      "resources": {
+        "backendDetails": {},
+        "backend_details": {}
+      }
+    },
+    "scenarioId": "orchestration",
+    "configurationId": "eb550a83-fe5c-4a21-ba69-c4c371f77ca7",
+    "latestRunningConfigurationId": "eb550a83-fe5c-4a21-ba69-c4c371f77ca7",
+    "lastOperation": "CREATE",
+    "targetStatus": "RUNNING",
+    "submissionTime": "2026-05-02T23:28:56Z",
+    "startTime": "2026-05-02T23:30:13Z",
+    "configurationName": "ail-auto-orchestration",
+    "deploymentUrl": "https://api.ai.prod.us-east-1.aws.ml.hana.ondemand.com/v2/inference/deployments/d1b446a5919ee451"
+  },
+  {
+    "id": "d00c85f445274f70",
+    "createdAt": "2026-05-02T22:49:16Z",
+    "modifiedAt": "2026-05-02T22:49:16Z",
+    "status": "RUNNING",
+    "details": {
+      "scaling": {
+        "backendDetails": {
+          "predictor": {
+            "minReplicas": "1",
+            "maxReplicas": "1",
+            "runningReplicas": 1
+          }
+        },
+        "backend_details": {
+          "predictor": {
+            "min_replicas": "1",
+            "max_replicas": "1",
+            "running_replicas": 1
+          }
+        }
+      },
+      "resources": {
+        "backendDetails": {
+          "predictor": {
+            "resourcePlan": "starter"
+          }
+        },
+        "backend_details": {
+          "predictor": {
+            "resource_plan": "starter"
+          }
+        }
+      }
+    },
+    "scenarioId": "cashflow-forecast",
+    "configurationId": "89de18f4-480d-4183-a376-a5837c3354af",
+    "latestRunningConfigurationId": "89de18f4-480d-4183-a376-a5837c3354af",
+    "lastOperation": "CREATE",
+    "targetStatus": "RUNNING",
+    "submissionTime": "2026-05-02T22:49:44Z",
+    "startTime": "2026-05-02T22:51:29Z",
+    "configurationName": "cashflow-explain-config-v01",
+    "deploymentUrl": "https://api.ai.prod.us-east-1.aws.ml.hana.ondemand.com/v2/inference/deployments/d00c85f445274f70"
+  },
+  {
+    "id": "d745aa5d0cfcfa19",
+    "createdAt": "2026-05-02T21:31:42Z",
+    "modifiedAt": "2026-05-02T21:31:42Z",
+    "status": "STOPPED",
+    "details": {
+      "scaling": {
+        "backendDetails": {
+          "predictor": {
+            "minReplicas": "1",
+            "maxReplicas": "1",
+            "runningReplicas": 0
+          }
+        },
+        "backend_details": {
+          "predictor": {
+            "min_replicas": "1",
+            "max_replicas": "1",
+            "running_replicas": 0
+          }
+        }
+      },
+      "resources": {
+        "backendDetails": {
+          "predictor": {
+            "resourcePlan": "starter"
+          }
+        },
+        "backend_details": {
+          "predictor": {
+            "resource_plan": "starter"
+          }
+        }
+      }
+    },
+    "scenarioId": "cashflow-forecast",
+    "configurationId": "89de18f4-480d-4183-a376-a5837c3354af",
+    "targetStatus": "STOPPED",
+    "submissionTime": "2026-05-02T21:32:19Z",
+    "completionTime": "2026-05-02T22:47:05Z",
+    "configurationName": "cashflow-explain-config-v01",
+    "deploymentUrl": ""
+  },
+  {
+    "id": "d8ecefa36dd1b465",
+    "createdAt": "2026-04-28T22:07:32Z",
+    "modifiedAt": "2026-04-30T01:58:20Z",
+    "status": "RUNNING",
+    "details": {
+      "scaling": {
+        "backendDetails": {
+          "predictor": {
+            "minReplicas": "1",
+            "maxReplicas": "1",
+            "runningReplicas": 1
+          }
+        },
+        "backend_details": {
+          "predictor": {
+            "min_replicas": "1",
+            "max_replicas": "1",
+            "running_replicas": 1
+          }
+        }
+      },
+      "resources": {
+        "backendDetails": {
+          "predictor": {
+            "resourcePlan": "starter"
+          }
+        },
+        "backend_details": {
+          "predictor": {
+            "resource_plan": "starter"
+          }
+        }
+      }
+    },
+    "scenarioId": "cashflow-forecast",
+    "configurationId": "95a4b3c2-217f-46bd-9d12-f828d40f63fa",
+    "latestRunningConfigurationId": "95a4b3c2-217f-46bd-9d12-f828d40f63fa",
+    "lastOperation": "UPDATE",
+    "targetStatus": "RUNNING",
+    "submissionTime": "2026-04-30T01:58:30Z",
+    "startTime": "2026-04-30T02:00:21Z",
+    "configurationName": "cashflow-serve-1710-promoted-20260430-015819",
+    "deploymentUrl": "https://api.ai.prod.us-east-1.aws.ml.hana.ondemand.com/v2/inference/deployments/d8ecefa36dd1b465"
+  },
+  {
+    "id": "d50ff74ca07c9968",
+    "createdAt": "2026-04-28T22:01:46Z",
+    "modifiedAt": "2026-04-30T01:58:20Z",
+    "status": "RUNNING",
+    "details": {
+      "scaling": {
+        "backendDetails": {
+          "predictor": {
+            "minReplicas": "1",
+            "maxReplicas": "1",
+            "runningReplicas": 1
+          }
+        },
+        "backend_details": {
+          "predictor": {
+            "min_replicas": "1",
+            "max_replicas": "1",
+            "running_replicas": 1
+          }
+        }
+      },
+      "resources": {
+        "backendDetails": {
+          "predictor": {
+            "resourcePlan": "starter"
+          }
+        },
+        "backend_details": {
+          "predictor": {
+            "resource_plan": "starter"
+          }
+        }
+      }
+    },
+    "scenarioId": "cashflow-forecast",
+    "configurationId": "ff7cf148-e364-4810-a3bf-f224a4e65378",
+    "latestRunningConfigurationId": "ff7cf148-e364-4810-a3bf-f224a4e65378",
+    "lastOperation": "UPDATE",
+    "targetStatus": "RUNNING",
+    "submissionTime": "2026-04-30T01:58:43Z",
+    "startTime": "2026-04-30T02:00:44Z",
+    "configurationName": "cashflow-serve-1010-promoted-20260430-015820",
+    "deploymentUrl": "https://api.ai.prod.us-east-1.aws.ml.hana.ondemand.com/v2/inference/deployments/d50ff74ca07c9968"
+  }
+]
+[datasets]
+jq: parse error: Invalid numeric literal at line 1, column 5
+[executables]
+jq: parse error: Invalid numeric literal at line 1, column 5
+
+--- RG: ai-launchpad ---
+[scenarios]
+[
+  {
+    "labels": [
+      {
+        "key": "scenarios.ai.sap.com/llm",
+        "value": "true"
+      }
+    ],
+    "createdAt": "2023-10-08T10:41:15+00:00",
+    "modifiedAt": "2025-10-16T11:01:57+00:00",
+    "id": "foundation-models",
+    "name": "foundation-models",
+    "description": "AI Core Global Scenario for LLM Access"
+  },
+  {
+    "createdAt": "2024-08-02T06:19:02+00:00",
+    "modifiedAt": "2026-04-28T03:05:46.975000+00:00",
+    "id": "orchestration",
+    "name": "orchestration",
+    "description": "AI Core Global Scenario for the Orchestration Service"
+  },
+  {
+    "createdAt": "2025-06-10T17:53:33+00:00",
+    "modifiedAt": "2025-08-29T07:54:25+00:00",
+    "id": "genai-evaluations",
+    "name": "genai-evaluations",
+    "description": "AI Core global scenario for the generative AI hub evaluation service"
+  },
+  {
+    "createdAt": "2025-10-29T13:12:16+00:00",
+    "modifiedAt": "2025-10-29T13:12:16+00:00",
+    "id": "genai-optimizations",
+    "name": "genai-optimizations",
+    "description": "AI Core global scenario for the generative AI hub prompt optimization service"
+  },
+  {
+    "createdAt": "2026-03-24T20:34:49+00:00",
+    "modifiedAt": "2026-04-25T19:43:44.689000+00:00",
+    "id": "hello-world",
+    "name": "hello-world",
+    "description": "My first AI Core pipeline"
+  },
+  {
+    "createdAt": "2026-03-25T00:13:38+00:00",
+    "modifiedAt": "2026-03-25T00:13:38+00:00",
+    "id": "data-pipeline",
+    "name": "data-pipeline",
+    "description": "Multi-step pipeline with S3 artifacts"
+  },
+  {
+    "createdAt": "2026-03-25T02:04:01+00:00",
+    "modifiedAt": "2026-03-25T02:04:01+00:00",
+    "id": "ml-training",
+    "name": "ml-training",
+    "description": "Train customer churn prediction model"
+  },
+  {
+    "createdAt": "2026-03-25T10:45:57.793000+00:00",
+    "modifiedAt": "2026-03-30T12:19:19.186000+00:00",
+    "id": "orchestration1",
+    "name": "orchestration1"
+  },
+  {
+    "createdAt": "2026-03-26T02:09:50+00:00",
+    "modifiedAt": "2026-03-26T02:09:50+00:00",
+    "id": "churn-serve-v3",
+    "name": "churn-serve-v3",
+    "description": "Churn model serving"
+  },
+  {
+    "createdAt": "2026-03-26T08:20:59+00:00",
+    "modifiedAt": "2026-03-26T08:20:59+00:00",
+    "id": "learning",
+    "name": "Tutorial Neil",
+    "description": "Introduction to SAP AI Core"
+  },
+  {
+    "createdAt": "2026-04-11T04:43:39+00:00",
+    "modifiedAt": "2026-04-11T04:43:39+00:00",
+    "id": "hello-metrics",
+    "name": "hello-metrics",
+    "description": "Pipeline with metrics tracking"
+  },
+  {
+    "createdAt": "2026-04-25T12:23:32+00:00",
+    "modifiedAt": "2026-05-03T00:35:16.383000+00:00",
+    "id": "cashflow-forecast",
+    "name": "cashflow-forecast",
+    "description": "Cashflow forecasting on financial time-series data"
+  },
+  {
+    "createdAt": "2026-04-26T09:26:01.849000+00:00",
+    "modifiedAt": "2026-04-26T10:50:54.347000+00:00",
+    "id": "feedback-analyzer-CERT1234",
+    "name": "feedback-analyzer-CERT1234"
+  },
+  {
+    "createdAt": "2026-04-30T02:44:25+00:00",
+    "modifiedAt": "2026-04-30T02:44:25+00:00",
+    "id": "Hello123",
+    "name": "Demo123",
+    "description": "Introduction to SAP AI Core"
+  },
+  {
+    "createdAt": "2026-04-30T05:02:09+00:00",
+    "modifiedAt": "2026-04-30T05:02:09+00:00",
+    "id": "learning-fugarte",
+    "name": "FU_Tutorial",
+    "description": "FUgarte: Introduction to SAP AI Core"
+  },
+  {
+    "createdAt": "2026-05-01T02:37:37+00:00",
+    "modifiedAt": "2026-05-01T02:37:37+00:00",
+    "id": "learning-code-fugarte",
+    "name": "FU_Code (Tutorial)",
+    "description": "FUgarte: Tutorial to add custom code to SAP AI Core"
+  },
+  {
+    "createdAt": "2026-05-01T02:48:47+00:00",
+    "modifiedAt": "2026-05-01T02:48:47+00:00",
+    "id": "learning-code",
+    "name": "Code (Tutorial)",
+    "description": "Tutorial to add custom code to SAP AI Core"
+  }
+]
+[configurations]
+[
+  {
+    "id": "53fa5e5f-28bb-4ce1-aac1-99b49c197ebf",
+    "createdAt": "2026-05-01T02:51:45Z",
+    "name": "code-workflow=1",
+    "executableId": "code-pipeline",
+    "scenarioId": "learning-code",
+    "parameterBindings": [],
+    "inputArtifactBindings": []
+  },
+  {
+    "id": "b203ed54-d387-4445-b7fe-900ff4e99fb3",
+    "createdAt": "2026-04-30T02:46:34Z",
+    "name": "demo123",
+    "executableId": "first-pipeline",
+    "scenarioId": "Hello123",
+    "parameterBindings": [],
+    "inputArtifactBindings": []
+  },
+  {
+    "id": "994b78a8-b2ec-400e-9a8c-8803d2546824",
+    "createdAt": "2026-04-28T02:14:12Z",
+    "name": "Kay_Orchestration",
+    "executableId": "orchestration",
+    "scenarioId": "orchestration",
+    "parameterBindings": [
+      {
+        "key": "modelFilterList",
+        "value": "null"
+      },
+      {
+        "key": "modelFilterListType",
+        "value": "allow"
+      }
+    ],
+    "inputArtifactBindings": []
+  },
+  {
+    "id": "06d08615-295c-4c5c-a8ed-3b11ed67ed59",
+    "createdAt": "2026-04-25T11:34:28Z",
+    "name": "gpt-4o_autogenerated",
+    "executableId": "azure-openai",
+    "scenarioId": "foundation-models",
+    "parameterBindings": [
+      {
+        "key": "modelName",
+        "value": "gpt-4o"
+      },
+      {
+        "key": "modelVersion",
+        "value": "2024-08-06"
+      }
+    ],
+    "inputArtifactBindings": []
+  },
+  {
+    "id": "4aa61210-fb7c-4362-9490-af720d6f234c",
+    "createdAt": "2026-04-18T18:44:08Z",
+    "name": "text-embedding-3-small-config",
+    "executableId": "azure-openai",
+    "scenarioId": "foundation-models",
+    "parameterBindings": [
+      {
+        "key": "modelName",
+        "value": "text-embedding-3-small"
+      },
+      {
+        "key": "modelVersion",
+        "value": "latest"
+      }
+    ],
+    "inputArtifactBindings": []
+  },
+  {
+    "id": "c09df313-66d3-4b91-af47-121ff746ff36",
+    "createdAt": "2026-04-16T18:34:47Z",
+    "name": "orchestration_Zaran",
+    "executableId": "orchestration",
+    "scenarioId": "orchestration",
+    "parameterBindings": [
+      {
+        "key": "modelFilterList",
+        "value": "null"
+      },
+      {
+        "key": "modelFilterListType",
+        "value": "allow"
+      }
+    ],
+    "inputArtifactBindings": []
+  },
+  {
+    "id": "f9eb00eb-d521-4e08-8e4e-4c10f4dc7e86",
+    "createdAt": "2026-03-28T12:00:11Z",
+    "name": "ail-auto-orchestration",
+    "executableId": "orchestration",
+    "scenarioId": "orchestration",
+    "parameterBindings": [],
+    "inputArtifactBindings": []
+  },
+  {
+    "id": "0fa78f45-adea-47af-a723-54d8645683e8",
+    "createdAt": "2026-03-28T11:58:02Z",
+    "name": "gpt-4.1-mini_autogenerated",
+    "executableId": "azure-openai",
+    "scenarioId": "foundation-models",
+    "parameterBindings": [
+      {
+        "key": "modelName",
+        "value": "gpt-4.1-mini"
+      },
+      {
+        "key": "modelVersion",
+        "value": "2025-04-14"
+      }
+    ],
+    "inputArtifactBindings": []
+  }
+]
+[deployments]
+[
+  {
+    "id": "df9fcfa534c2131f",
+    "createdAt": "2026-05-02T01:12:33Z",
+    "modifiedAt": "2026-05-02T01:12:33Z",
+    "status": "RUNNING",
+    "details": {
+      "scaling": {
+        "backendDetails": {},
+        "backend_details": {}
+      },
+      "resources": {
+        "backendDetails": {
+          "model": {
+            "name": "gpt-4o",
+            "version": "2024-08-06"
+          }
+        },
+        "backend_details": {
+          "model": {
+            "name": "gpt-4o",
+            "version": "2024-08-06"
+          }
+        }
+      }
+    },
+    "scenarioId": "foundation-models",
+    "configurationId": "06d08615-295c-4c5c-a8ed-3b11ed67ed59",
+    "latestRunningConfigurationId": "06d08615-295c-4c5c-a8ed-3b11ed67ed59",
+    "lastOperation": "CREATE",
+    "targetStatus": "RUNNING",
+    "submissionTime": "2026-05-02T01:12:59Z",
+    "startTime": "2026-05-02T01:17:07Z",
+    "configurationName": "gpt-4o_autogenerated",
+    "deploymentUrl": "https://api.ai.prod.us-east-1.aws.ml.hana.ondemand.com/v2/inference/deployments/df9fcfa534c2131f"
+  },
+  {
+    "id": "dce31e2fc39f1ff0",
+    "createdAt": "2026-04-28T03:01:46Z",
+    "modifiedAt": "2026-04-28T03:01:46Z",
+    "status": "RUNNING",
+    "details": {
+      "scaling": {
+        "backendDetails": {},
+        "backend_details": {}
+      },
+      "resources": {
+        "backendDetails": {},
+        "backend_details": {}
+      }
+    },
+    "scenarioId": "orchestration",
+    "configurationId": "994b78a8-b2ec-400e-9a8c-8803d2546824",
+    "latestRunningConfigurationId": "994b78a8-b2ec-400e-9a8c-8803d2546824",
+    "lastOperation": "CREATE",
+    "targetStatus": "RUNNING",
+    "submissionTime": "2026-04-28T03:01:56Z",
+    "startTime": "2026-04-28T03:02:57Z",
+    "configurationName": "Kay_Orchestration",
+    "deploymentUrl": "https://api.ai.prod.us-east-1.aws.ml.hana.ondemand.com/v2/inference/deployments/dce31e2fc39f1ff0"
+  },
+  {
+    "id": "d0562363e8f52093",
+    "createdAt": "2026-04-28T02:14:45Z",
+    "modifiedAt": "2026-04-28T02:14:45Z",
+    "status": "RUNNING",
+    "details": {
+      "scaling": {
+        "backendDetails": {},
+        "backend_details": {}
+      },
+      "resources": {
+        "backendDetails": {},
+        "backend_details": {}
+      }
+    },
+    "scenarioId": "orchestration",
+    "configurationId": "994b78a8-b2ec-400e-9a8c-8803d2546824",
+    "latestRunningConfigurationId": "994b78a8-b2ec-400e-9a8c-8803d2546824",
+    "lastOperation": "CREATE",
+    "targetStatus": "RUNNING",
+    "submissionTime": "2026-04-28T02:15:18Z",
+    "startTime": "2026-04-28T02:16:20Z",
+    "configurationName": "Kay_Orchestration",
+    "deploymentUrl": "https://api.ai.prod.us-east-1.aws.ml.hana.ondemand.com/v2/inference/deployments/d0562363e8f52093"
+  },
+  {
+    "id": "d92b6e30fea5bf84",
+    "createdAt": "2026-04-25T11:34:29Z",
+    "modifiedAt": "2026-04-25T11:34:29Z",
+    "status": "RUNNING",
+    "details": {
+      "scaling": {
+        "backendDetails": {},
+        "backend_details": {}
+      },
+      "resources": {
+        "backendDetails": {
+          "model": {
+            "name": "gpt-4o",
+            "version": "2024-08-06"
+          }
+        },
+        "backend_details": {
+          "model": {
+            "name": "gpt-4o",
+            "version": "2024-08-06"
+          }
+        }
+      }
+    },
+    "scenarioId": "foundation-models",
+    "configurationId": "06d08615-295c-4c5c-a8ed-3b11ed67ed59",
+    "latestRunningConfigurationId": "06d08615-295c-4c5c-a8ed-3b11ed67ed59",
+    "lastOperation": "CREATE",
+    "targetStatus": "RUNNING",
+    "submissionTime": "2026-04-25T11:34:57Z",
+    "startTime": "2026-04-25T11:36:08Z",
+    "configurationName": "gpt-4o_autogenerated",
+    "deploymentUrl": "https://api.ai.prod.us-east-1.aws.ml.hana.ondemand.com/v2/inference/deployments/d92b6e30fea5bf84"
+  },
+  {
+    "id": "da94363cd9046ce4",
+    "createdAt": "2026-04-18T18:44:17Z",
+    "modifiedAt": "2026-04-18T18:44:17Z",
+    "status": "RUNNING",
+    "details": {
+      "scaling": {
+        "backendDetails": {},
+        "backend_details": {}
+      },
+      "resources": {
+        "backendDetails": {
+          "model": {
+            "name": "text-embedding-3-small",
+            "version": "latest"
+          }
+        },
+        "backend_details": {
+          "model": {
+            "name": "text-embedding-3-small",
+            "version": "latest"
+          }
+        }
+      }
+    },
+    "scenarioId": "foundation-models",
+    "configurationId": "4aa61210-fb7c-4362-9490-af720d6f234c",
+    "latestRunningConfigurationId": "4aa61210-fb7c-4362-9490-af720d6f234c",
+    "lastOperation": "CREATE",
+    "targetStatus": "RUNNING",
+    "submissionTime": "2026-04-18T18:44:56Z",
+    "startTime": "2026-04-18T18:48:34Z",
+    "configurationName": "text-embedding-3-small-config",
+    "deploymentUrl": "https://api.ai.prod.us-east-1.aws.ml.hana.ondemand.com/v2/inference/deployments/da94363cd9046ce4"
+  },
+  {
+    "id": "d957995fe4678081",
+    "createdAt": "2026-04-16T18:35:26Z",
+    "modifiedAt": "2026-04-16T18:35:26Z",
+    "status": "RUNNING",
+    "details": {
+      "scaling": {
+        "backendDetails": {},
+        "backend_details": {}
+      },
+      "resources": {
+        "backendDetails": {},
+        "backend_details": {}
+      }
+    },
+    "scenarioId": "orchestration",
+    "configurationId": "c09df313-66d3-4b91-af47-121ff746ff36",
+    "latestRunningConfigurationId": "c09df313-66d3-4b91-af47-121ff746ff36",
+    "lastOperation": "CREATE",
+    "targetStatus": "RUNNING",
+    "submissionTime": "2026-04-16T18:35:35Z",
+    "startTime": "2026-04-16T18:36:35Z",
+    "configurationName": "orchestration_Zaran",
+    "deploymentUrl": "https://api.ai.prod.us-east-1.aws.ml.hana.ondemand.com/v2/inference/deployments/d957995fe4678081"
+  },
+  {
+    "id": "d0630de3469c64eb",
+    "createdAt": "2026-03-30T12:25:26Z",
+    "modifiedAt": "2026-03-30T12:25:26Z",
+    "status": "RUNNING",
+    "details": {
+      "scaling": {
+        "backendDetails": {},
+        "backend_details": {}
+      },
+      "resources": {
+        "backendDetails": {
+          "model": {
+            "name": "gpt-4.1-mini",
+            "version": "2025-04-14"
+          }
+        },
+        "backend_details": {
+          "model": {
+            "name": "gpt-4.1-mini",
+            "version": "2025-04-14"
+          }
+        }
+      }
+    },
+    "scenarioId": "foundation-models",
+    "configurationId": "0fa78f45-adea-47af-a723-54d8645683e8",
+    "latestRunningConfigurationId": "0fa78f45-adea-47af-a723-54d8645683e8",
+    "lastOperation": "CREATE",
+    "targetStatus": "RUNNING",
+    "submissionTime": "2026-03-30T12:26:02Z",
+    "startTime": "2026-03-30T12:27:46Z",
+    "configurationName": "gpt-4.1-mini_autogenerated",
+    "deploymentUrl": "https://api.ai.prod.us-east-1.aws.ml.hana.ondemand.com/v2/inference/deployments/d0630de3469c64eb"
+  },
+  {
+    "id": "db1827e877a62fef",
+    "createdAt": "2026-03-28T12:00:12Z",
+    "modifiedAt": "2026-03-28T12:00:12Z",
+    "status": "RUNNING",
+    "details": {
+      "scaling": {
+        "backendDetails": {},
+        "backend_details": {}
+      },
+      "resources": {
+        "backendDetails": {},
+        "backend_details": {}
+      }
+    },
+    "scenarioId": "orchestration",
+    "configurationId": "f9eb00eb-d521-4e08-8e4e-4c10f4dc7e86",
+    "latestRunningConfigurationId": "f9eb00eb-d521-4e08-8e4e-4c10f4dc7e86",
+    "lastOperation": "CREATE",
+    "targetStatus": "RUNNING",
+    "submissionTime": "2026-03-28T12:00:41Z",
+    "startTime": "2026-03-28T12:01:54Z",
+    "configurationName": "ail-auto-orchestration",
+    "deploymentUrl": "https://api.ai.prod.us-east-1.aws.ml.hana.ondemand.com/v2/inference/deployments/db1827e877a62fef"
+  },
+  {
+    "id": "d12a7f308fd66774",
+    "createdAt": "2026-03-28T11:58:02Z",
+    "modifiedAt": "2026-03-28T11:58:02Z",
+    "status": "RUNNING",
+    "details": {
+      "scaling": {
+        "backendDetails": {},
+        "backend_details": {}
+      },
+      "resources": {
+        "backendDetails": {
+          "model": {
+            "name": "gpt-4.1-mini",
+            "version": "2025-04-14"
+          }
+        },
+        "backend_details": {
+          "model": {
+            "name": "gpt-4.1-mini",
+            "version": "2025-04-14"
+          }
+        }
+      }
+    },
+    "scenarioId": "foundation-models",
+    "configurationId": "0fa78f45-adea-47af-a723-54d8645683e8",
+    "latestRunningConfigurationId": "0fa78f45-adea-47af-a723-54d8645683e8",
+    "lastOperation": "CREATE",
+    "targetStatus": "RUNNING",
+    "submissionTime": "2026-03-28T11:58:12Z",
+    "startTime": "2026-03-28T11:59:27Z",
+    "configurationName": "gpt-4.1-mini_autogenerated",
+    "deploymentUrl": "https://api.ai.prod.us-east-1.aws.ml.hana.ondemand.com/v2/inference/deployments/d12a7f308fd66774"
+  }
+]
+[datasets]
+jq: parse error: Invalid numeric literal at line 1, column 5
+[executables]
+jq: parse error: Invalid numeric literal at line 1, column 5
+
+--- RG: default ---
+[scenarios]
+[
+  {
+    "labels": [
+      {
+        "key": "scenarios.ai.sap.com/llm",
+        "value": "true"
+      }
+    ],
+    "createdAt": "2023-10-08T10:41:15+00:00",
+    "modifiedAt": "2025-10-16T11:01:57+00:00",
+    "id": "foundation-models",
+    "name": "foundation-models",
+    "description": "AI Core Global Scenario for LLM Access"
+  },
+  {
+    "createdAt": "2024-08-02T06:19:02+00:00",
+    "modifiedAt": "2026-04-28T03:05:46.975000+00:00",
+    "id": "orchestration",
+    "name": "orchestration",
+    "description": "AI Core Global Scenario for the Orchestration Service"
+  },
+  {
+    "createdAt": "2025-06-10T17:53:33+00:00",
+    "modifiedAt": "2025-08-29T07:54:25+00:00",
+    "id": "genai-evaluations",
+    "name": "genai-evaluations",
+    "description": "AI Core global scenario for the generative AI hub evaluation service"
+  },
+  {
+    "createdAt": "2025-10-29T13:12:16+00:00",
+    "modifiedAt": "2025-10-29T13:12:16+00:00",
+    "id": "genai-optimizations",
+    "name": "genai-optimizations",
+    "description": "AI Core global scenario for the generative AI hub prompt optimization service"
+  },
+  {
+    "createdAt": "2026-03-24T20:34:49+00:00",
+    "modifiedAt": "2026-04-25T19:43:44.689000+00:00",
+    "id": "hello-world",
+    "name": "hello-world",
+    "description": "My first AI Core pipeline"
+  },
+  {
+    "createdAt": "2026-03-25T00:13:38+00:00",
+    "modifiedAt": "2026-03-25T00:13:38+00:00",
+    "id": "data-pipeline",
+    "name": "data-pipeline",
+    "description": "Multi-step pipeline with S3 artifacts"
+  },
+  {
+    "createdAt": "2026-03-25T02:04:01+00:00",
+    "modifiedAt": "2026-03-25T02:04:01+00:00",
+    "id": "ml-training",
+    "name": "ml-training",
+    "description": "Train customer churn prediction model"
+  },
+  {
+    "createdAt": "2026-03-25T10:45:57.793000+00:00",
+    "modifiedAt": "2026-03-30T12:19:19.186000+00:00",
+    "id": "orchestration1",
+    "name": "orchestration1"
+  },
+  {
+    "createdAt": "2026-03-26T02:09:50+00:00",
+    "modifiedAt": "2026-03-26T02:09:50+00:00",
+    "id": "churn-serve-v3",
+    "name": "churn-serve-v3",
+    "description": "Churn model serving"
+  },
+  {
+    "createdAt": "2026-03-26T08:20:59+00:00",
+    "modifiedAt": "2026-03-26T08:20:59+00:00",
+    "id": "learning",
+    "name": "Tutorial Neil",
+    "description": "Introduction to SAP AI Core"
+  },
+  {
+    "createdAt": "2026-04-11T04:43:39+00:00",
+    "modifiedAt": "2026-04-11T04:43:39+00:00",
+    "id": "hello-metrics",
+    "name": "hello-metrics",
+    "description": "Pipeline with metrics tracking"
+  },
+  {
+    "createdAt": "2026-04-25T12:23:32+00:00",
+    "modifiedAt": "2026-05-03T00:35:16.383000+00:00",
+    "id": "cashflow-forecast",
+    "name": "cashflow-forecast",
+    "description": "Cashflow forecasting on financial time-series data"
+  },
+  {
+    "createdAt": "2026-04-26T09:26:01.849000+00:00",
+    "modifiedAt": "2026-04-26T10:50:54.347000+00:00",
+    "id": "feedback-analyzer-CERT1234",
+    "name": "feedback-analyzer-CERT1234"
+  },
+  {
+    "createdAt": "2026-04-30T02:44:25+00:00",
+    "modifiedAt": "2026-04-30T02:44:25+00:00",
+    "id": "Hello123",
+    "name": "Demo123",
+    "description": "Introduction to SAP AI Core"
+  },
+  {
+    "createdAt": "2026-04-30T05:02:09+00:00",
+    "modifiedAt": "2026-04-30T05:02:09+00:00",
+    "id": "learning-fugarte",
+    "name": "FU_Tutorial",
+    "description": "FUgarte: Introduction to SAP AI Core"
+  },
+  {
+    "createdAt": "2026-05-01T02:37:37+00:00",
+    "modifiedAt": "2026-05-01T02:37:37+00:00",
+    "id": "learning-code-fugarte",
+    "name": "FU_Code (Tutorial)",
+    "description": "FUgarte: Tutorial to add custom code to SAP AI Core"
+  },
+  {
+    "createdAt": "2026-05-01T02:48:47+00:00",
+    "modifiedAt": "2026-05-01T02:48:47+00:00",
+    "id": "learning-code",
+    "name": "Code (Tutorial)",
+    "description": "Tutorial to add custom code to SAP AI Core"
+  }
+]
+[configurations]
+[
+  {
+    "id": "4e318e23-8cea-46f4-bff8-66f3e40a6aef",
+    "createdAt": "2026-05-01T02:51:41Z",
+    "name": "code-pipeline-fugarte",
+    "executableId": "code-pipeline-fugarte",
+    "scenarioId": "learning-code-fugarte",
+    "parameterBindings": [],
+    "inputArtifactBindings": []
+  },
+  {
+    "id": "792f8108-1a3d-4695-8ee3-0f7c19614d90",
+    "createdAt": "2026-04-30T05:25:46Z",
+    "name": "hello-pipeline-fugarte",
+    "executableId": "first-pipeline-fugarte",
+    "scenarioId": "learning-fugarte",
+    "parameterBindings": [],
+    "inputArtifactBindings": []
+  },
+  {
+    "id": "05dbe46e-5e9f-42b6-9917-24df4e5493dc",
+    "createdAt": "2026-04-15T15:17:34Z",
+    "name": "orchestration-demo",
+    "executableId": "orchestration",
+    "scenarioId": "orchestration",
+    "parameterBindings": [
+      {
+        "key": "modelFilterList",
+        "value": "null"
+      },
+      {
+        "key": "modelFilterListType",
+        "value": "allow"
+      }
+    ],
+    "inputArtifactBindings": []
+  },
+  {
+    "id": "0c4fc9f5-119f-494b-bb0c-71d389eb3fca",
+    "createdAt": "2026-04-15T14:54:11Z",
+    "name": "gemini-2.5-pro_autogenerated",
+    "executableId": "gcp-vertexai",
+    "scenarioId": "foundation-models",
+    "parameterBindings": [
+      {
+        "key": "modelName",
+        "value": "gemini-2.5-pro"
+      },
+      {
+        "key": "modelVersion",
+        "value": "001"
+      }
+    ],
+    "inputArtifactBindings": []
+  },
+  {
+    "id": "c600d31d-e3a0-482c-9b5a-e0198bdd5327",
+    "createdAt": "2026-04-14T10:21:48Z",
+    "name": "orchestration",
+    "executableId": "orchestration",
+    "scenarioId": "orchestration",
+    "parameterBindings": [
+      {
+        "key": "modelFilterList",
+        "value": "null"
+      },
+      {
+        "key": "modelFilterListType",
+        "value": "allow"
+      }
+    ],
+    "inputArtifactBindings": []
+  },
+  {
+    "id": "0aa66a67-9983-426d-8071-9026401f0f18",
+    "createdAt": "2026-04-11T04:51:19Z",
+    "name": "hello-metrics-config",
+    "executableId": "hello-metrics-pipeline",
+    "scenarioId": "hello-metrics",
+    "parameterBindings": [],
+    "inputArtifactBindings": []
+  },
+  {
+    "id": "fe8c388d-e5b9-4964-a125-bb838d135234",
+    "createdAt": "2026-04-08T07:43:25Z",
+    "name": "gpt-4.1-mini_autogenerated",
+    "executableId": "azure-openai",
+    "scenarioId": "foundation-models",
+    "parameterBindings": [
+      {
+        "key": "modelName",
+        "value": "gpt-4.1-mini"
+      },
+      {
+        "key": "modelVersion",
+        "value": "2025-04-14"
+      }
+    ],
+    "inputArtifactBindings": []
+  },
+  {
+    "id": "8b4b83cd-ce0a-4f77-9f4d-25bc580f3946",
+    "createdAt": "2026-03-30T11:43:44Z",
+    "name": "gpt-4o_autogenerated",
+    "executableId": "azure-openai",
+    "scenarioId": "foundation-models",
+    "parameterBindings": [
+      {
+        "key": "modelName",
+        "value": "gpt-4o"
+      },
+      {
+        "key": "modelVersion",
+        "value": "2024-11-20"
+      }
+    ],
+    "inputArtifactBindings": []
+  },
+  {
+    "id": "99bbcd39-c2a7-4b27-8180-6e7e9da1ed6b",
+    "createdAt": "2026-03-26T08:27:35Z",
+    "name": "test-config-neil1",
+    "executableId": "first-pipeline-neil1",
+    "scenarioId": "learning",
+    "parameterBindings": [],
+    "inputArtifactBindings": []
+  },
+  {
+    "id": "8f89f028-2680-43f5-9ba9-fadefdbcd063",
+    "createdAt": "2026-03-26T03:44:59Z",
+    "name": "sap-rpt-1-small_autogenerated",
+    "executableId": "aicore-sap",
+    "scenarioId": "foundation-models",
+    "parameterBindings": [
+      {
+        "key": "modelName",
+        "value": "sap-rpt-1-small"
+      },
+      {
+        "key": "modelVersion",
+        "value": "1"
+      }
+    ],
+    "inputArtifactBindings": []
+  },
+  {
+    "id": "cda06c45-ba3a-4b67-b7f0-82fb4f532312",
+    "createdAt": "2026-03-26T03:44:46Z",
+    "name": "sap-rpt-1-small_autogenerated",
+    "executableId": "aicore-sap",
+    "scenarioId": "foundation-models",
+    "parameterBindings": [
+      {
+        "key": "modelName",
+        "value": "sap-rpt-1-small"
+      },
+      {
+        "key": "modelVersion",
+        "value": "1"
+      }
+    ],
+    "inputArtifactBindings": []
+  },
+  {
+    "id": "697e38b6-e21c-45e0-9ec8-96961768e03e",
+    "createdAt": "2026-03-26T02:11:48Z",
+    "name": "churn-serve-v3-config",
+    "executableId": "churn-serve-v3",
+    "scenarioId": "churn-serve-v3",
+    "parameterBindings": [],
+    "inputArtifactBindings": []
+  },
+  {
+    "id": "411f3ac7-146e-44ea-bb6e-fbccfc322b05",
+    "createdAt": "2026-03-26T00:22:19Z",
+    "name": "chum-serving-config",
+    "executableId": "churn-model-serving",
+    "scenarioId": "churn-serving",
+    "parameterBindings": [
+      {
+        "key": "minReplicas",
+        "value": "1"
+      },
+      {
+        "key": "maxReplicas",
+        "value": "2"
+      }
+    ],
+    "inputArtifactBindings": [
+      {
+        "key": "churnmodel",
+        "artifactId": "a429eab3-3eae-4ed1-8641-f7668c976227"
+      }
+    ]
+  },
+  {
+    "id": "c822354b-3704-4ddb-85d9-6d4ad497e26e",
+    "createdAt": "2026-03-25T23:41:52Z",
+    "name": "churn-serving-config",
+    "executableId": "churn-model-serving",
+    "scenarioId": "churn-serving",
+    "parameterBindings": [
+      {
+        "key": "minReplicas",
+        "value": "1"
+      },
+      {
+        "key": "maxReplicas",
+        "value": "2"
+      }
+    ],
+    "inputArtifactBindings": [
+      {
+        "key": "churnmodel",
+        "artifactId": "a429eab3-3eae-4ed1-8641-f7668c976227"
+      }
+    ]
+  },
+  {
+    "id": "42a0f5ad-d4db-4663-a196-9750a66b31ad",
+    "createdAt": "2026-03-25T16:02:17Z",
+    "name": "RC6 _GTP_CONFIG",
+    "executableId": "azure-openai",
+    "scenarioId": "foundation-models",
+    "parameterBindings": [
+      {
+        "key": "modelName",
+        "value": "gpt-4o-mini"
+      },
+      {
+        "key": "modelVersion",
+        "value": "latest"
+      }
+    ],
+    "inputArtifactBindings": []
+  },
+  {
+    "id": "293371c9-359a-4c74-9ac4-22104554e053",
+    "createdAt": "2026-03-25T02:14:33Z",
+    "name": "ml-training-config",
+    "executableId": "churn-model-training",
+    "scenarioId": "ml-training",
+    "parameterBindings": [],
+    "inputArtifactBindings": [
+      {
+        "key": "trainingdata",
+        "artifactId": "e385fe13-8d79-41dd-b248-5a81b310f44f"
+      }
+    ]
+  },
+  {
+    "id": "0d1695db-e57f-45e6-9954-1ca1601ebad4",
+    "createdAt": "2026-03-25T00:29:04Z",
+    "name": "data-pipeline-config",
+    "executableId": "data-processing-pipeline",
+    "scenarioId": "data-pipeline",
+    "parameterBindings": [],
+    "inputArtifactBindings": [
+      {
+        "key": "inputdata",
+        "artifactId": "1dc01bea-effb-4e1d-b5f4-1cc2f44edfd5"
+      }
+    ]
+  },
+  {
+    "id": "2a7d079e-565f-42be-9509-cd962ec15af8",
+    "createdAt": "2026-03-24T21:11:53Z",
+    "name": "hello-world-config",
+    "executableId": "hello-world-pipeline",
+    "scenarioId": "hello-world",
+    "parameterBindings": [],
+    "inputArtifactBindings": []
+  },
+  {
+    "id": "714632c9-dc88-4410-9c19-5094054f1196",
+    "createdAt": "2026-03-23T15:58:55Z",
+    "name": "nvidia--llama-3.2-nv-embedqa-1b_autogenerated",
+    "executableId": "aicore-nvidia",
+    "scenarioId": "foundation-models",
+    "parameterBindings": [
+      {
+        "key": "modelName",
+        "value": "nvidia--llama-3.2-nv-embedqa-1b"
+      },
+      {
+        "key": "modelVersion",
+        "value": "2"
+      }
+    ],
+    "inputArtifactBindings": []
+  },
+  {
+    "id": "e56343e6-0d5c-4ba4-8397-875418ed267a",
+    "createdAt": "2026-03-12T11:42:29Z",
+    "name": "defaultOrchestrationConfig",
+    "executableId": "orchestration",
+    "scenarioId": "orchestration",
+    "parameterBindings": [],
+    "inputArtifactBindings": []
+  }
+]
+[deployments]
+[
+  {
+    "id": "d90fc3fa1717fce9",
+    "createdAt": "2026-04-15T15:18:15Z",
+    "modifiedAt": "2026-04-15T15:18:15Z",
+    "status": "RUNNING",
+    "details": {
+      "scaling": {
+        "backendDetails": {},
+        "backend_details": {}
+      },
+      "resources": {
+        "backendDetails": {},
+        "backend_details": {}
+      }
+    },
+    "scenarioId": "orchestration",
+    "configurationId": "05dbe46e-5e9f-42b6-9917-24df4e5493dc",
+    "latestRunningConfigurationId": "05dbe46e-5e9f-42b6-9917-24df4e5493dc",
+    "lastOperation": "CREATE",
+    "targetStatus": "RUNNING",
+    "submissionTime": "2026-04-15T15:18:58Z",
+    "startTime": "2026-04-15T15:20:20Z",
+    "configurationName": "orchestration-demo",
+    "deploymentUrl": "https://api.ai.prod.us-east-1.aws.ml.hana.ondemand.com/v2/inference/deployments/d90fc3fa1717fce9"
+  },
+  {
+    "id": "d22d683e933bf98d",
+    "createdAt": "2026-04-15T14:54:12Z",
+    "modifiedAt": "2026-04-15T14:54:12Z",
+    "status": "RUNNING",
+    "details": {
+      "scaling": {
+        "backendDetails": {},
+        "backend_details": {}
+      },
+      "resources": {
+        "backendDetails": {
+          "model": {
+            "name": "gemini-2.5-pro",
+            "version": "001"
+          }
+        },
+        "backend_details": {
+          "model": {
+            "name": "gemini-2.5-pro",
+            "version": "001"
+          }
+        }
+      }
+    },
+    "scenarioId": "foundation-models",
+    "configurationId": "0c4fc9f5-119f-494b-bb0c-71d389eb3fca",
+    "latestRunningConfigurationId": "0c4fc9f5-119f-494b-bb0c-71d389eb3fca",
+    "lastOperation": "CREATE",
+    "targetStatus": "RUNNING",
+    "submissionTime": "2026-04-15T14:54:32Z",
+    "startTime": "2026-04-15T14:55:42Z",
+    "configurationName": "gemini-2.5-pro_autogenerated",
+    "deploymentUrl": "https://api.ai.prod.us-east-1.aws.ml.hana.ondemand.com/v2/inference/deployments/d22d683e933bf98d"
+  },
+  {
+    "id": "d60cf02ca0acb64f",
+    "createdAt": "2026-04-14T10:22:05Z",
+    "modifiedAt": "2026-04-14T10:22:05Z",
+    "status": "RUNNING",
+    "details": {
+      "scaling": {
+        "backendDetails": {},
+        "backend_details": {}
+      },
+      "resources": {
+        "backendDetails": {},
+        "backend_details": {}
+      }
+    },
+    "scenarioId": "orchestration",
+    "configurationId": "c600d31d-e3a0-482c-9b5a-e0198bdd5327",
+    "latestRunningConfigurationId": "c600d31d-e3a0-482c-9b5a-e0198bdd5327",
+    "lastOperation": "CREATE",
+    "targetStatus": "RUNNING",
+    "submissionTime": "2026-04-14T10:22:44Z",
+    "startTime": "2026-04-14T10:24:03Z",
+    "configurationName": "orchestration",
+    "deploymentUrl": "https://api.ai.prod.us-east-1.aws.ml.hana.ondemand.com/v2/inference/deployments/d60cf02ca0acb64f"
+  },
+  {
+    "id": "d616bed950ce20e5",
+    "createdAt": "2026-04-08T07:43:26Z",
+    "modifiedAt": "2026-04-08T07:43:26Z",
+    "status": "RUNNING",
+    "details": {
+      "scaling": {
+        "backendDetails": {},
+        "backend_details": {}
+      },
+      "resources": {
+        "backendDetails": {
+          "model": {
+            "name": "gpt-4.1-mini",
+            "version": "2025-04-14"
+          }
+        },
+        "backend_details": {
+          "model": {
+            "name": "gpt-4.1-mini",
+            "version": "2025-04-14"
+          }
+        }
+      }
+    },
+    "scenarioId": "foundation-models",
+    "configurationId": "fe8c388d-e5b9-4964-a125-bb838d135234",
+    "latestRunningConfigurationId": "fe8c388d-e5b9-4964-a125-bb838d135234",
+    "lastOperation": "CREATE",
+    "targetStatus": "RUNNING",
+    "submissionTime": "2026-04-08T07:43:51Z",
+    "startTime": "2026-04-08T07:44:51Z",
+    "configurationName": "gpt-4.1-mini_autogenerated",
+    "deploymentUrl": "https://api.ai.prod.us-east-1.aws.ml.hana.ondemand.com/v2/inference/deployments/d616bed950ce20e5"
+  },
+  {
+    "id": "d5d2fb9ef172ca74",
+    "createdAt": "2026-03-30T11:43:44Z",
+    "modifiedAt": "2026-03-30T11:43:44Z",
+    "status": "RUNNING",
+    "details": {
+      "scaling": {
+        "backendDetails": {},
+        "backend_details": {}
+      },
+      "resources": {
+        "backendDetails": {
+          "model": {
+            "name": "gpt-4o",
+            "version": "2024-11-20"
+          }
+        },
+        "backend_details": {
+          "model": {
+            "name": "gpt-4o",
+            "version": "2024-11-20"
+          }
+        }
+      }
+    },
+    "scenarioId": "foundation-models",
+    "configurationId": "8b4b83cd-ce0a-4f77-9f4d-25bc580f3946",
+    "latestRunningConfigurationId": "8b4b83cd-ce0a-4f77-9f4d-25bc580f3946",
+    "lastOperation": "CREATE",
+    "targetStatus": "RUNNING",
+    "submissionTime": "2026-03-30T11:44:10Z",
+    "startTime": "2026-03-30T11:45:25Z",
+    "configurationName": "gpt-4o_autogenerated",
+    "deploymentUrl": "https://api.ai.prod.us-east-1.aws.ml.hana.ondemand.com/v2/inference/deployments/d5d2fb9ef172ca74"
+  },
+  {
+    "id": "d644f6635cb55986",
+    "createdAt": "2026-03-26T03:44:59Z",
+    "modifiedAt": "2026-03-26T03:44:59Z",
+    "status": "RUNNING",
+    "details": {
+      "scaling": {
+        "backendDetails": {},
+        "backend_details": {}
+      },
+      "resources": {
+        "backendDetails": {
+          "model": {
+            "name": "sap-rpt-1-small",
+            "version": "1"
+          }
+        },
+        "backend_details": {
+          "model": {
+            "name": "sap-rpt-1-small",
+            "version": "1"
+          }
+        }
+      }
+    },
+    "scenarioId": "foundation-models",
+    "configurationId": "8f89f028-2680-43f5-9ba9-fadefdbcd063",
+    "latestRunningConfigurationId": "8f89f028-2680-43f5-9ba9-fadefdbcd063",
+    "lastOperation": "CREATE",
+    "targetStatus": "RUNNING",
+    "submissionTime": "2026-03-26T03:45:39Z",
+    "startTime": "2026-03-26T03:46:58Z",
+    "configurationName": "sap-rpt-1-small_autogenerated",
+    "deploymentUrl": "https://api.ai.prod.us-east-1.aws.ml.hana.ondemand.com/v2/inference/deployments/d644f6635cb55986"
+  },
+  {
+    "id": "d74ee8a32f950025",
+    "createdAt": "2026-03-26T02:12:04Z",
+    "modifiedAt": "2026-03-26T02:12:04Z",
+    "status": "RUNNING",
+    "details": {
+      "scaling": {
+        "backendDetails": {
+          "predictor": {
+            "minReplicas": "1",
+            "maxReplicas": "1",
+            "runningReplicas": 1
+          }
+        },
+        "backend_details": {
+          "predictor": {
+            "min_replicas": "1",
+            "max_replicas": "1",
+            "running_replicas": 1
+          }
+        }
+      },
+      "resources": {
+        "backendDetails": {
+          "predictor": {
+            "resourcePlan": "starter"
+          }
+        },
+        "backend_details": {
+          "predictor": {
+            "resource_plan": "starter"
+          }
+        }
+      }
+    },
+    "scenarioId": "churn-serve-v3",
+    "configurationId": "697e38b6-e21c-45e0-9ec8-96961768e03e",
+    "latestRunningConfigurationId": "697e38b6-e21c-45e0-9ec8-96961768e03e",
+    "lastOperation": "CREATE",
+    "targetStatus": "RUNNING",
+    "submissionTime": "2026-03-26T02:12:38Z",
+    "startTime": "2026-03-28T14:42:43Z",
+    "configurationName": "churn-serve-v3-config",
+    "deploymentUrl": "https://api.ai.prod.us-east-1.aws.ml.hana.ondemand.com/v2/inference/deployments/d74ee8a32f950025"
+  },
+  {
+    "id": "de9912d621e0e92b",
+    "createdAt": "2026-03-26T01:09:56Z",
+    "modifiedAt": "2026-03-26T01:31:29Z",
+    "status": "STOPPED",
+    "details": {
+      "scaling": {
+        "backendDetails": {},
+        "backend_details": {}
+      },
+      "resources": {
+        "backendDetails": {},
+        "backend_details": {}
+      }
+    },
+    "scenarioId": "churn-serving",
+    "configurationId": "c822354b-3704-4ddb-85d9-6d4ad497e26e",
+    "targetStatus": "STOPPED",
+    "submissionTime": "2026-03-26T01:10:36Z",
+    "completionTime": "2026-03-26T01:32:38Z",
+    "configurationName": "churn-serving-config",
+    "deploymentUrl": ""
+  },
+  {
+    "id": "df0097025f3dd51d",
+    "createdAt": "2026-03-25T16:02:52Z",
+    "modifiedAt": "2026-03-25T16:02:52Z",
+    "status": "RUNNING",
+    "details": {
+      "scaling": {
+        "backendDetails": {},
+        "backend_details": {}
+      },
+      "resources": {
+        "backendDetails": {
+          "model": {
+            "name": "gpt-4o-mini",
+            "version": "latest"
+          }
+        },
+        "backend_details": {
+          "model": {
+            "name": "gpt-4o-mini",
+            "version": "latest"
+          }
+        }
+      }
+    },
+    "scenarioId": "foundation-models",
+    "configurationId": "42a0f5ad-d4db-4663-a196-9750a66b31ad",
+    "latestRunningConfigurationId": "42a0f5ad-d4db-4663-a196-9750a66b31ad",
+    "lastOperation": "CREATE",
+    "targetStatus": "RUNNING",
+    "submissionTime": "2026-03-25T16:03:27Z",
+    "startTime": "2026-03-25T16:04:37Z",
+    "configurationName": "RC6 _GTP_CONFIG",
+    "deploymentUrl": "https://api.ai.prod.us-east-1.aws.ml.hana.ondemand.com/v2/inference/deployments/df0097025f3dd51d"
+  },
+  {
+    "id": "db7925620b9f3360",
+    "createdAt": "2026-03-23T15:58:56Z",
+    "modifiedAt": "2026-03-26T01:01:49Z",
+    "status": "STOPPED",
+    "details": {
+      "scaling": {
+        "backendDetails": {},
+        "backend_details": {}
+      },
+      "resources": {
+        "backendDetails": {
+          "model": {
+            "name": "nvidia--llama-3.2-nv-embedqa-1b",
+            "version": "2"
+          }
+        },
+        "backend_details": {
+          "model": {
+            "name": "nvidia--llama-3.2-nv-embedqa-1b",
+            "version": "2"
+          }
+        }
+      }
+    },
+    "scenarioId": "foundation-models",
+    "configurationId": "714632c9-dc88-4410-9c19-5094054f1196",
+    "targetStatus": "STOPPED",
+    "submissionTime": "2026-03-23T15:59:31Z",
+    "startTime": "2026-03-23T16:00:48Z",
+    "completionTime": "2026-03-26T01:02:39Z",
+    "configurationName": "nvidia--llama-3.2-nv-embedqa-1b_autogenerated",
+    "deploymentUrl": "https://api.ai.prod.us-east-1.aws.ml.hana.ondemand.com/v2/inference/deployments/db7925620b9f3360"
+  },
+  {
+    "id": "deb03e6b331ed77b",
+    "createdAt": "2026-03-12T11:42:29Z",
+    "modifiedAt": "2026-03-12T11:42:29Z",
+    "status": "RUNNING",
+    "details": {
+      "scaling": {
+        "backendDetails": {},
+        "backend_details": {}
+      },
+      "resources": {
+        "backendDetails": {},
+        "backend_details": {}
+      }
+    },
+    "scenarioId": "orchestration",
+    "configurationId": "e56343e6-0d5c-4ba4-8397-875418ed267a",
+    "latestRunningConfigurationId": "e56343e6-0d5c-4ba4-8397-875418ed267a",
+    "lastOperation": "CREATE",
+    "targetStatus": "RUNNING",
+    "submissionTime": "2026-03-12T11:43:10Z",
+    "startTime": "2026-03-12T11:44:18Z",
+    "configurationName": "defaultOrchestrationConfig",
+    "deploymentUrl": "https://api.ai.prod.us-east-1.aws.ml.hana.ondemand.com/v2/inference/deployments/deb03e6b331ed77b"
+  }
+]
+[datasets]
+jq: parse error: Invalid numeric literal at line 1, column 5
+[executables]
+jq: parse error: Invalid numeric literal at line 1, column 5
+
+=== Git status (sap-ai-journey) ===
+Repo not at ~/repos/sap-ai-journey — adjust path and re-run
+
+=== Docker images (srini117us namespace) ===
+srini117us/cashflow-explain:0.1         09d1e449bc11       1.17GB          261MB        
+srini117us/cashflow-promote:0.1         3db45db663d0        208MB         50.6MB        
+srini117us/cashflow-promote:0.2         8ba2098e0bdd        208MB         50.6MB        
+srini117us/cashflow-promote:0.3         67b8ca645407        208MB         50.6MB        
+srini117us/cashflow-promote:0.4         67b8ca645407        208MB         50.6MB        
+srini117us/cashflow-serve:0.1           6195456c2e87       1.19GB          284MB        
+srini117us/cashflow-shap-train:0.1      5e5591a6266a       1.45GB          345MB        
+srini117us/cashflow-shap-train:0.2      2943e728a1d2       1.45GB          345MB        
+srini117us/cashflow-train:0.1           0661523bf532        690MB          158MB        
+srini117us/cashflow-train:0.2           5a4d776bb547        690MB          158MB        
+srini117us/cashflow-train:0.3           52a93f0d51bf       1.39GB          331MB        
+srini117us/cashflow-train:0.4           6bf69909ec2d       1.18GB          283MB        
+srini117us/cashflow-train:0.5           7a32302d2440       1.18GB          283MB        
+srini117us/churn-serving:v1             6f8599987bff        579MB          135MB        
+srini117us/churn-serving:v2             ece5c42ae062        579MB          135MB        
+srini117us/hello-metrics:1.0.0          a3fb526099ed        205MB         49.3MB        
+srini117us/sap-cashflow-mcp-server:v1   0e2a06fefb27        589MB          124MB        
+srini117us/sap-cashflow-mcp-server:v2   38df3a981435        589MB          124MB        
+srini117us/sap-mcp-server:latest        f3aa76d71adc        315MB         71.5MB   U    
+srini117us/sap-mcp-server:v2            4452e139b897        331MB         75.6MB        
+srini117us/sap-mcp-server:v3            4a59ffb4129a        331MB         75.6MB        
+srini117us/sap-mcp-server:v4            777f9cc46f7f        335MB         76.3MB        
+srini117us/sap-mcp-server:v5            ca1b639238f2        335MB         76.3MB        
+
+=======================================
+Inventory complete: 2026-05-03T15:33:52-04:00

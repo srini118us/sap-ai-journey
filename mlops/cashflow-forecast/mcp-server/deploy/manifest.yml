@@ -1,0 +1,27 @@
+---
+applications:
+  - name: sap-cashflow-mcp-server
+    memory: 512M
+    disk_quota: 1G
+    instances: 1
+    docker:
+      image: srini117us/sap-cashflow-mcp-server:v2
+    env:
+      # Non-secret runtime config — safe in version control
+      MCP_SERVER_NAME: cashflow-server
+      LOG_LEVEL: INFO
+      FASTMCP_STATELESS_HTTP: "true"
+      MCP_HOST: "0.0.0.0"
+      EXPLAIN_DEPLOYMENT_ID: d00c85f445274f70
+      EXPLAIN_RESOURCE_GROUP: ml-training
+      ORCHESTRATION_DEPLOYMENT_ID: d229fe0016204ea7
+      ORCHESTRATION_RESOURCE_GROUP: ml-training
+      PROMPT_TEMPLATE_REF: cashflow-forecast/cashflow-explainer-system/0.0.2
+      ORCHESTRATION_MODEL_NAME: gpt-4o
+      ORCHESTRATION_MODEL_VERSION: latest
+      ORCHESTRATION_MAX_TOKENS: "600"
+      ORCHESTRATION_TEMPERATURE: "0.1"
+      # AICORE_* secrets are NOT in this file. Set them after `cf push`
+      # using `cf set-env` (see deploy-cf.sh). Keeps secrets out of git.
+    health-check-type: port
+    timeout: 60

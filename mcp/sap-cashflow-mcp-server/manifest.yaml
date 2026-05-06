@@ -1,0 +1,126 @@
+# Kyma deployment for sap-cashflow-mcp-server
+# Mirrors the procurement-mcp pattern: Secret holds AICORE_* + deployment IDs,
+# Deployment runs the FastMCP container, Service exposes 8080, APIRule
+# publishes a public TLS endpoint that the BTP destination points to.
+#
+# Apply order (run from this directory):
+#   kubectl apply -n <namespace> -f manifest.yaml
+#
+# Replace REPLACE_* placeholders before apply.
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cashflow-mcp-secret
+  labels:
+    app: sap-cashflow-mcp-server
+type: Opaque
+stringData:
+  # AI Core auth (from AI Core service key in BTP)
+  AICORE_AUTH_URL: "REPLACE_AICORE_AUTH_URL"
+  AICORE_CLIENT_ID: "REPLACE_AICORE_CLIENT_ID"
+  AICORE_CLIENT_SECRET: "REPLACE_AICORE_CLIENT_SECRET"
+  AICORE_BASE_URL: "REPLACE_AICORE_BASE_URL"
+  # Tool 8 — UC2.6 Step 4 explain deployment
+  EXPLAIN_DEPLOYMENT_ID: "d00c85f445274f70"
+  EXPLAIN_RESOURCE_GROUP: "ml-training"
+  # Tool 9 — Orchestration + Prompt Template v0.0.2
+  ORCHESTRATION_DEPLOYMENT_ID: "REPLACE_ORCHESTRATION_DEPLOYMENT_ID"
+  ORCHESTRATION_RESOURCE_GROUP: "ai-launchpad"
+  PROMPT_TEMPLATE_REF: "cashflow-forecast/cashflow-explainer-system/0.0.2"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sap-cashflow-mcp-server
+  labels:
+    app: sap-cashflow-mcp-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sap-cashflow-mcp-server
+  template:
+    metadata:
+      labels:
+        app: sap-cashflow-mcp-server
+        # Istio sidecar required for inbound traffic in Kyma; matches
+        # the procurement deployment's working configuration.
+        sidecar.istio.io/inject: "true"
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      containers:
+        - name: mcp-server
+          image: docker.io/srini117us/sap-cashflow-mcp-server:v1
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: MCP_SERVER_NAME
+              value: "cashflow-server"
+            - name: LOG_LEVEL
+              value: "INFO"
+            - name: FASTMCP_STATELESS_HTTP
+              value: "true"
+            - name: PORT
+              value: "8080"
+          envFrom:
+            - secretRef:
+                name: cashflow-mcp-secret
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+      imagePullSecrets:
+        - name: docker-hub-srini117us
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sap-cashflow-mcp-server
+  labels:
+    app: sap-cashflow-mcp-server
+spec:
+  type: ClusterIP
+  selector:
+    app: sap-cashflow-mcp-server
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+      protocol: TCP
+---
+apiVersion: gateway.kyma-project.io/v1beta1
+kind: APIRule
+metadata:
+  name: sap-cashflow-mcp-server
+  labels:
+    app: sap-cashflow-mcp-server
+spec:
+  host: sap-cashflow-mcp-server
+  gateway: kyma-system/kyma-gateway
+  service:
+    name: sap-cashflow-mcp-server
+    port: 80
+  rules:
+    - path: /.*
+      methods: ["GET", "POST", "OPTIONS"]
+      accessStrategies:
+        - handler: noop

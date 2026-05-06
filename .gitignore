@@ -40,3 +40,5 @@ service-key*.json
 mlops/cashflow-forecast/UC2_*_Documentation.docx
 
 *.swp
+.adk/
+*.tar.gz
