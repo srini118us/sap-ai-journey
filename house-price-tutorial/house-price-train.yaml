@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: house-price-train-srini
+  annotations:
+    scenarios.ai.sap.com/description: "Tutorial: train sklearn DecisionTreeRegressor on California housing"
+    scenarios.ai.sap.com/name: "House Price (Tutorial)"
+    executables.ai.sap.com/description: "Train decision tree regressor on California housing"
+    executables.ai.sap.com/name: "house-price-train"
+  labels:
+    scenarios.ai.sap.com/id: "house-price-tutorial"
+    ai.sap.com/version: "1.0"
+spec:
+  imagePullSecrets:
+    - name: docker-hub-srini117us
+  entrypoint: house-price-pipeline
+  templates:
+    - name: house-price-pipeline
+      steps:
+        - - name: trainstep
+            template: train-template
+    - name: train-template
+      container:
+        image: docker.io/srini117us/house-price:01
+        command: ["/bin/sh", "-c"]
+        args:
+          - "python /app/src/main.py"
