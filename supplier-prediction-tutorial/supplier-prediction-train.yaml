@@ -3,12 +3,10 @@ kind: WorkflowTemplate
 metadata:
   name: supplier-prediction-train-srini
   annotations:
-    scenarios.ai.sap.com/description: "Train XGBoost classifier for supplier on-time delivery prediction"
+    scenarios.ai.sap.com/description: "Train XGBoost classifier for supplier on-time delivery"
     scenarios.ai.sap.com/name: "Supplier Prediction (Tutorial)"
     executables.ai.sap.com/description: "Train XGBoost on synthetic procurement data"
     executables.ai.sap.com/name: "supplier-prediction-train"
-    artifacts.ai.sap.com/supplierdataset.kind: "dataset"
-    artifacts.ai.sap.com/suppliermodel.kind: "model"
   labels:
     scenarios.ai.sap.com/id: "supplier-prediction-tutorial"
     ai.sap.com/version: "1.0"
@@ -16,44 +14,14 @@ spec:
   imagePullSecrets:
     - name: docker-hub-srini117us
   entrypoint: supplier-pipeline
-  arguments:
-    parameters:
-      - name: N_ESTIMATORS
-        value: "200"
-      - name: MAX_DEPTH
-        value: "6"
-      - name: LEARNING_RATE
-        value: "0.1"
   templates:
     - name: supplier-pipeline
       steps:
         - - name: trainstep
-            template: trainer
-    - name: trainer
-      inputs:
-        artifacts:
-          - name: supplierdataset
-            path: /app/data/
-      outputs:
-        artifacts:
-          - name: suppliermodelartifact
-            globalName: suppliermodel
-            path: /app/model/
-            archive:
-              none: {}
+            template: train-template
+    - name: train-template
       container:
         image: docker.io/srini117us/supplier-prediction-train:01
         command: ["/bin/sh", "-c"]
         args:
           - "python /app/src/train.py"
-        env:
-          - name: N_ESTIMATORS
-            value: "{{workflow.parameters.N_ESTIMATORS}}"
-          - name: MAX_DEPTH
-            value: "{{workflow.parameters.MAX_DEPTH}}"
-          - name: LEARNING_RATE
-            value: "{{workflow.parameters.LEARNING_RATE}}"
-          - name: DATA_PATH
-            value: "/app/data/training_data.csv"
-          - name: MODEL_OUTPUT_DIR
-            value: "/app/model"
