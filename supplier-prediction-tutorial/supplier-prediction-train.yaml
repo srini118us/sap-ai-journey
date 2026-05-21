@@ -7,6 +7,7 @@ metadata:
     scenarios.ai.sap.com/name: "Supplier Prediction (Tutorial)"
     executables.ai.sap.com/description: "Train XGBoost on synthetic procurement data"
     executables.ai.sap.com/name: "supplier-prediction-train"
+    artifacts.ai.sap.com/supplierdataset.kind: "dataset"
     artifacts.ai.sap.com/suppliermodel.kind: "model"
   labels:
     scenarios.ai.sap.com/id: "supplier-prediction-tutorial"
@@ -31,13 +32,13 @@ spec:
     - name: trainer
       inputs:
         artifacts:
-          - name: dataset
-            path: /app/data
+          - name: supplierdataset
+            path: /app/data/
       outputs:
         artifacts:
-          - name: suppliermodel
+          - name: suppliermodelartifact
             globalName: suppliermodel
-            path: /app/model
+            path: /app/model/
             archive:
               none: {}
       container:
