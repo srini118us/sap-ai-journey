@@ -7,14 +7,14 @@ metadata:
     scenarios.ai.sap.com/name: "Supplier Prediction (Tutorial)"
     executables.ai.sap.com/description: "FastAPI inference endpoint for supplier prediction"
     executables.ai.sap.com/name: "supplier-prediction-serve"
-    artifacts.ai.sap.com/supplier_model.kind: "model"
+    artifacts.ai.sap.com/suppliermodel.kind: "model"
   labels:
     scenarios.ai.sap.com/id: "supplier-prediction-tutorial"
     ai.sap.com/version: "1.0"
 spec:
   inputs:
     artifacts:
-      - name: supplier_model
+      - name: suppliermodel
   template:
     apiVersion: "serving.kserve.io/v1beta1"
     metadata:
@@ -34,7 +34,7 @@ spec:
               protocol: TCP
           env:
             - name: STORAGE_URI
-              value: "{{inputs.artifacts.supplier_model}}"
+              value: "{{inputs.artifacts.suppliermodel}}"
             - name: MODEL_DIR
               value: /mnt/models
             - name: MODEL_NAME
