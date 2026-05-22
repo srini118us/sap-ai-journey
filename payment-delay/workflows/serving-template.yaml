@@ -17,22 +17,21 @@ spec:
   template:
     apiVersion: "serving.kserve.io/v1beta1"
     metadata:
-      labels: |
-        ai.sap.com/resourcePlan: infer.s
       annotations: |
         autoscaling.knative.dev/metric: concurrency
-        autoscaling.knative.dev/target: "1"
-        autoscaling.knative.dev/minScale: "0"
-        autoscaling.knative.dev/maxScale: "2"
+        autoscaling.knative.dev/target: 1
+        autoscaling.knative.dev/targetBurstCapacity: 0
+      labels: |
+        ai.sap.com/resourcePlan: infer.s
     spec: |
       predictor:
         imagePullSecrets:
           - name: docker-hub-srini117us
-        minReplicas: 0
-        maxReplicas: 2
+        minReplicas: 1
+        maxReplicas: 1
         containers:
           - name: kserve-container
-            image: "srini117us/payment-delay-serve:1.0"
+            image: docker.io/srini117us/payment-delay-serve:1.0
             ports:
               - containerPort: 9001
                 protocol: TCP
