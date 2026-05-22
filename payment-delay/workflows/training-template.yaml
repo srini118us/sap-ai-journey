@@ -21,7 +21,7 @@ spec:
         labels:
           ai.sap.com/resourcePlan: train.l
       container:
-        image: "docker.io/srini117us/payment-delay-train:1.0"
+        image: "docker.io/srini117us/payment-delay-train:1.1"
         command: ["/bin/sh", "-c"]
         args:
           - "python /app/train.py"
