@@ -12,8 +12,7 @@ metadata:
     scenarios.ai.sap.com/id: "payment-delay-prediction"
     ai.sap.com/version: "1.0"
 spec:
-  imagePullSecrets:
-    - name: docker-hub-srini117us
+  
   entrypoint: trainstep
   templates:
     - name: trainstep

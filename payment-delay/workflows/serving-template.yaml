@@ -28,8 +28,7 @@ spec:
         ai.sap.com/resourcePlan: infer.s
     spec: |
       predictor:
-        imagePullSecrets:
-          - name: docker-hub-srini117us
+        
         minReplicas: 1
         maxReplicas: 1
         containers:
