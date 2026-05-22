@@ -10,7 +10,7 @@ conn = dbapi.connect(
     user=os.environ["HANA_USER"],
     password=os.environ["HANA_PASSWORD"],
     encrypt=True,
-    sslValidateCertificate=True,
+    sslValidateCertificate=False,
 )
 
 df = pd.read_sql('SELECT * FROM ML_PAYMENT.VENDOR_PAYMENTS', conn)
