@@ -1,0 +1,41 @@
+apiVersion: ai.sap.com/v1alpha1
+kind: ServingTemplate
+metadata:
+  name: pd-serve-tmpl
+  annotations:
+    scenarios.ai.sap.com/description: "Payment Delay Prediction"
+    scenarios.ai.sap.com/name: "payment-delay-prediction"
+    executables.ai.sap.com/description: "XGBoost serving endpoint"
+    executables.ai.sap.com/name: "pd-serve"
+  labels:
+    scenarios.ai.sap.com/id: "payment-delay-prediction"
+    ai.sap.com/version: "1.0"
+spec:
+  inputs:
+    artifacts:
+      - name: paymentmodel
+  template:
+    apiVersion: "serving.kserve.io/v1beta1"
+    metadata:
+      labels:
+        ai.sap.com/resourcePlan: infer.s
+      annotations:
+        autoscaling.knative.dev/metric: concurrency
+        autoscaling.knative.dev/target: "1"
+        autoscaling.knative.dev/minScale: "0"
+        autoscaling.knative.dev/maxScale: "2"
+    spec:
+      predictor:
+        imagePullSecrets:
+          - name: docker-hub-srini117us
+        minReplicas: 0
+        maxReplicas: 2
+        containers:
+          - name: kserve-container
+            image: "srini117us/payment-delay-serve:1.0"
+            ports:
+              - containerPort: 9001
+                protocol: TCP
+            env:
+              - name: STORAGE_URI
+                value: "{{inputs.artifacts.paymentmodel}}"

@@ -1,0 +1,44 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: pd-train-tmpl
+  annotations:
+    scenarios.ai.sap.com/description: "Payment Delay Prediction"
+    scenarios.ai.sap.com/name: "payment-delay-prediction"
+    executables.ai.sap.com/description: "XGBoost training on HANA vendor data"
+    executables.ai.sap.com/name: "pd-train"
+    artifacts.ai.sap.com/paymentmodel.kind: "model"
+  labels:
+    scenarios.ai.sap.com/id: "payment-delay-prediction"
+    ai.sap.com/version: "1.0"
+spec:
+  imagePullSecrets:
+    - name: docker-hub-srini117us
+  entrypoint: trainstep
+  templates:
+    - name: trainstep
+      metadata:
+        labels:
+          ai.sap.com/resourcePlan: train.l
+      container:
+        image: "srini117us/payment-delay-train:1.0"
+        env:
+          - name: HANA_HOST
+            valueFrom:
+              secretKeyRef: { name: hana-payment-creds, key: HANA_HOST }
+          - name: HANA_PORT
+            valueFrom:
+              secretKeyRef: { name: hana-payment-creds, key: HANA_PORT }
+          - name: HANA_USER
+            valueFrom:
+              secretKeyRef: { name: hana-payment-creds, key: HANA_USER }
+          - name: HANA_PASSWORD
+            valueFrom:
+              secretKeyRef: { name: hana-payment-creds, key: HANA_PASSWORD }
+      outputs:
+        artifacts:
+          - name: paymentmodel
+            globalName: paymentmodel
+            path: /app/model
+            archive:
+              none: {}
