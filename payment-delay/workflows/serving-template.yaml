@@ -12,6 +12,9 @@ metadata:
     ai.sap.com/version: "1.0"
 spec:
   inputs:
+    parameters:
+      - name: greetmessage
+        type: string
     artifacts:
       - name: paymentmodel
   template:
