@@ -209,3 +209,81 @@ client_ai = genai.Client(vertexai=True, project='sap-basis-copilot', location='g
 response = client_ai.models.generate_content(model='gemini-3.5-flash', contents=[{'role':'user','parts':[{'inline_data':{'mime_type':'image/jpeg','data':image_b64}},{'text':'SAP DBACOCKPIT Memory chart. Extract Max Memory MB, Avg Memory MB, Current Memory MB, Total Physical MB. Calculate utilization %. Status GREEN<70% YELLOW 70-85% RED>85%.'}]}])
 print(response.text)
 '''], capture_output=True, text=True)
+
+def check_sost_failed_emails() -> str:
+    """SOST equivalent - finds failed and stuck outbound email/fax/message entries.
+    Groups by error reason and send type. Does NOT resend anything -
+    resending requires explicit human confirmation via resend_sost_email()."""
+    import paramiko as _paramiko
+    client = _paramiko.SSHClient()
+    client.set_missing_host_key_policy(_paramiko.AutoAddPolicy())
+    client.connect(SAP_HOST, username=SAP_USER, key_filename=SAP_KEY)
+    sql = """SELECT SNDART, MSGID, MSGNO, MSGV1, COUNT(*) AS CNT,
+    MIN(ENTRY_DATE) AS OLDEST, MAX(ENTRY_DATE) AS NEWEST
+    FROM SAPA4H.SOST
+    WHERE STA_ORDER NOT IN ('S', 'E')
+    OR (STA_ORDER = 'E' AND ENTRY_DATE >= TO_VARCHAR(ADD_DAYS(NOW(),-1),'YYYYMMDD'))
+    GROUP BY SNDART, MSGID, MSGNO, MSGV1
+    ORDER BY CNT DESC"""
+    sftp = client.open_sftp()
+    with sftp.open('/tmp/sost_check.sql', 'w') as f:
+        f.write(sql)
+    sftp.close()
+    stdin, stdout, stderr = client.exec_command(
+        "su - a4hadm -c 'hdbsql -U DEFAULT -d HDB -I /tmp/sost_check.sql'"
+    )
+    result = stdout.read().decode()
+    client.close()
+    return result if result.strip() else "No failed or stuck SOST entries found in last 24h."
+
+def get_sost_failed_details() -> str:
+    """Get full details of failed SOST entries including recipient and sender
+    for human review before deciding to resend."""
+    import paramiko as _paramiko
+    client = _paramiko.SSHClient()
+    client.set_missing_host_key_policy(_paramiko.AutoAddPolicy())
+    client.connect(SAP_HOST, username=SAP_USER, key_filename=SAP_KEY)
+    sql = """SELECT OBJTP, OBJYR, OBJNO, SNDART, CREATOR, SENDER,
+    ENTRY_DATE, ENTRY_TIME, STA_ORDER, MSGID, MSGNO, MSGV1
+    FROM SAPA4H.SOST
+    WHERE STA_ORDER NOT IN ('S', 'E')
+    OR (STA_ORDER = 'E' AND ENTRY_DATE >= TO_VARCHAR(ADD_DAYS(NOW(),-1),'YYYYMMDD'))
+    ORDER BY ENTRY_DATE DESC, ENTRY_TIME DESC"""
+    sftp = client.open_sftp()
+    with sftp.open('/tmp/sost_details.sql', 'w') as f:
+        f.write(sql)
+    sftp.close()
+    stdin, stdout, stderr = client.exec_command(
+        "su - a4hadm -c 'hdbsql -U DEFAULT -d HDB -I /tmp/sost_details.sql'"
+    )
+    result = stdout.read().decode()
+    client.close()
+    return result if result.strip() else "No failed SOST entries found."
+
+def resend_sost_email(object_type: str, object_year: str, object_number: str) -> str:
+    """Resend a specific failed SOST entry by object key (OBJTP/OBJYR/OBJNO).
+    ONLY call this after explicit human confirmation that the entry is safe to resend.
+    NEVER call automatically - duplicate emails to customers/vendors are a serious risk.
+    The human must confirm: recipient is valid, content is correct, resend is safe."""
+    confirmation_log = f"SOST resend requested for: Type={object_type} Year={object_year} Number={object_number}"
+    cmd = f"echo '{confirmation_log}' >> /tmp/sost_audit.log && echo 'SOST resend prepared for object {object_type}/{object_year}/{object_number}. To complete: in SAP GUI go to SOST, find this entry and click Resend, OR run report RSOSTSND via SE38 with the object key. Audit log entry created at /tmp/sost_audit.log'"
+    return run_ssh_command(cmd)
+
+def check_sost_whitelist_status() -> str:
+    """Check current SOST email whitelist/restriction status.
+    In non-production systems, whitelisting prevents accidental emails to real recipients."""
+    sql = "SELECT * FROM SAPA4H.SCOT_BCSAP WHERE MANDT = '001'"
+    import paramiko as _paramiko
+    client = _paramiko.SSHClient()
+    client.set_missing_host_key_policy(_paramiko.AutoAddPolicy())
+    client.connect(SAP_HOST, username=SAP_USER, key_filename=SAP_KEY)
+    sftp = client.open_sftp()
+    with sftp.open('/tmp/sost_whitelist.sql', 'w') as f:
+        f.write(sql)
+    sftp.close()
+    stdin, stdout, stderr = client.exec_command(
+        "su - a4hadm -c 'hdbsql -U DEFAULT -d HDB -I /tmp/sost_whitelist.sql'"
+    )
+    result = stdout.read().decode()
+    client.close()
+    return result if result.strip() else "Could not read whitelist config - check SCOT transaction manually."

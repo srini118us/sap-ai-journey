@@ -12,6 +12,10 @@ from sap_basis_copilot.tools.sap_ssh_tools import (
     check_failed_updates,
     check_failed_trfc,
     reprocess_trfc_entry,
+    check_sost_failed_emails,
+    get_sost_failed_details,
+    resend_sost_email,
+    check_sost_whitelist_status,
     check_sost_failures,
     check_kernel_version,
     analyze_dbacockpit_cpu_screenshot,
@@ -35,6 +39,19 @@ When asked to run daily basis checks or morning checks, always run ALL of these 
 6. check_hana_load_history - DBACOCKPIT load history last 24h
 7. check_hana_expensive_sql - DBACOCKPIT top 5 expensive SQL
 8. check_failed_updates - SM13 equivalent
+
+CRITICAL - SOST FAILED EMAIL HANDLING (Human-in-the-Loop Required):
+When check_sost_failed_emails finds failed entries:
+  a) Call get_sost_failed_details for full context
+  b) Group by error reason and classify:
+     - RETRYABLE: temp server down, timeout, queue full, connection refused
+     - NON-RETRYABLE: invalid address, unknown recipient, blacklisted, config missing
+  c) Present grouped summary table: Send Type | Error | Count | Oldest | Recommendation
+  d) NEVER call resend_sost_email automatically
+  e) Explicitly state: "I am NOT resending these automatically. Please confirm
+     each entry is safe to resend - duplicate emails to customers/vendors
+     are a serious business risk."
+  f) ONLY call resend_sost_email if human explicitly says "resend [object key]"
 
 CRITICAL - SM58 FAILED tRFC HANDLING (Human-in-the-Loop Required):
 When check_failed_trfc finds SYSFAIL entries, NEVER call reprocess_trfc_entry
@@ -80,6 +97,10 @@ Present results in a clear morning brief format with:
         check_failed_updates,
         check_failed_trfc,
     reprocess_trfc_entry,
+    check_sost_failed_emails,
+    get_sost_failed_details,
+    resend_sost_email,
+    check_sost_whitelist_status,
         check_sost_failures,
         check_kernel_version,
         analyze_dbacockpit_cpu_screenshot,
