@@ -177,8 +177,9 @@ def check_long_running_jobs() -> str:
     return result if result else "No long running jobs found" 
 
 def analyze_dbacockpit_cpu_screenshot() -> str:
-    import subprocess
-    result = subprocess.run(['python3', '-c', '''
+    try:
+        import subprocess
+        result = subprocess.run(['python3', '-c', '''
 import os, base64
 from google import genai
 from google.cloud import storage
@@ -191,12 +192,17 @@ client_ai = genai.Client(vertexai=True, project='sap-basis-copilot', location='g
 response = client_ai.models.generate_content(model='gemini-3.5-flash', contents=[{'role':'user','parts':[{'inline_data':{'mime_type':'image/jpeg','data':image_b64}},{'text':'SAP DBACOCKPIT CPU chart. Extract Max CPU%, Avg CPU%, Current CPU%. Status GREEN<70% YELLOW 70-90% RED>90%.'}]}])
 print('CHART_URL: https://storage.googleapis.com/sap-basis-copilot-screenshots/CHART_CPU.JPG')
 print(response.text)
-'''], capture_output=True, text=True)
-    return result.stdout if result.stdout else result.stderr
+'''], capture_output=True, text=True, timeout=60)
+        if result.stdout and result.stdout.strip():
+            return result.stdout
+        return 'CPU chart analysis unavailable - upload fresh screenshot to GCS bucket'
+    except Exception as e:
+        return f'CPU chart analysis skipped - error: {str(e)[:100]}'
 
 def analyze_dbacockpit_memory_screenshot() -> str:
-    import subprocess
-    result = subprocess.run(['python3', '-c', '''
+    try:
+        import subprocess
+        result = subprocess.run(['python3', '-c', '''
 import os, base64
 from google import genai
 from google.cloud import storage
@@ -206,84 +212,147 @@ client_gcs = storage.Client(project='sap-basis-copilot')
 image_bytes = client_gcs.bucket('sap-basis-copilot-screenshots').blob('CHART_usedmemory.JPG').download_as_bytes()
 image_b64 = base64.b64encode(image_bytes).decode('utf-8')
 client_ai = genai.Client(vertexai=True, project='sap-basis-copilot', location='global')
-response = client_ai.models.generate_content(model='gemini-3.5-flash', contents=[{'role':'user','parts':[{'inline_data':{'mime_type':'image/jpeg','data':image_b64}},{'text':'SAP DBACOCKPIT Memory chart. Extract Max Memory MB, Avg Memory MB, Current Memory MB, Total Physical MB. Calculate utilization %. Status GREEN<70% YELLOW 70-85% RED>85%.'}]}])
+response = client_ai.models.generate_content(model='gemini-3.5-flash', contents=[{'role':'user','parts':[{'inline_data':{'mime_type':'image/jpeg','data':image_b64}},{'text':'SAP DBACOCKPIT Memory chart. Extract Max Memory MB, Avg Memory MB, Current Memory MB. Calculate utilization %. Status GREEN<70% YELLOW 70-85% RED>85%.'}]}])
 print(response.text)
-'''], capture_output=True, text=True)
+'''], capture_output=True, text=True, timeout=60)
+        if result.stdout and result.stdout.strip():
+            return result.stdout
+        return 'Memory chart analysis unavailable - upload fresh screenshot to GCS bucket'
+    except Exception as e:
+        return f'Memory chart analysis skipped - error: {str(e)[:100]}'
 
-def check_sost_failed_emails() -> str:
-    """SOST equivalent - finds failed and stuck outbound email/fax/message entries.
-    Groups by error reason and send type. Does NOT resend anything -
-    resending requires explicit human confirmation via resend_sost_email()."""
+def check_sarfc() -> str:
+    """SARFC equivalent - checks RFC server group resources from RZLLITAB.
+    Shows available work process quota and users per server group and AS instance.
+    Status GREEN if WP_QUOTA > 0, YELLOW if WP_QUOTA = 0 (needs RZ12 config check)."""
     import paramiko as _paramiko
     client = _paramiko.SSHClient()
     client.set_missing_host_key_policy(_paramiko.AutoAddPolicy())
     client.connect(SAP_HOST, username=SAP_USER, key_filename=SAP_KEY)
-    sql = """SELECT SNDART, MSGID, MSGNO, MSGV1, COUNT(*) AS CNT,
-    MIN(ENTRY_DATE) AS OLDEST, MAX(ENTRY_DATE) AS NEWEST
-    FROM SAPA4H.SOST
-    WHERE STA_ORDER NOT IN ('S', 'E')
-    OR (STA_ORDER = 'E' AND ENTRY_DATE >= TO_VARCHAR(ADD_DAYS(NOW(),-1),'YYYYMMDD'))
-    GROUP BY SNDART, MSGID, MSGNO, MSGV1
+    sql = """SELECT CLASSNAME, APPLSERVER, WP_QUOTA, USERS, GROUPTYPE
+    FROM SAPA4H.RZLLITAB
+    ORDER BY CLASSNAME, APPLSERVER"""
+    sftp = client.open_sftp()
+    with sftp.open('/tmp/sarfc_check.sql', 'w') as f:
+        f.write(sql)
+    sftp.close()
+    stdin, stdout, stderr = client.exec_command(
+        "su - a4hadm -c 'hdbsql -U DEFAULT -d HDB -I /tmp/sarfc_check.sql'"
+    )
+    result = stdout.read().decode()
+    client.close()
+    if not result.strip():
+        return "No RFC server groups found in RZLLITAB. Check RZ12 configuration."
+    return result
+
+def check_failed_idocs() -> str:
+    """BD87 equivalent - finds failed IDocs grouped by message type and status.
+    Technical errors (status 51, 56, 64) may be reprocessable.
+    Business errors (status 52, 69) need application team review.
+    Does NOT reprocess anything automatically."""
+    import paramiko as _paramiko
+    client = _paramiko.SSHClient()
+    client.set_missing_host_key_policy(_paramiko.AutoAddPolicy())
+    client.connect(SAP_HOST, username=SAP_USER, key_filename=SAP_KEY)
+    sql = """SELECT MESTYP, STATUS, DIRECT, COUNT(*) AS CNT,
+    MIN(CREDAT) AS OLDEST, MAX(CREDAT) AS NEWEST
+    FROM SAPA4H.EDIDC
+    WHERE STATUS NOT IN ('03','06','12','16','18','30','53')
+    AND UPDDAT >= TO_VARCHAR(ADD_DAYS(NOW(),-7),'YYYYMMDD')
+    GROUP BY MESTYP, STATUS, DIRECT
     ORDER BY CNT DESC"""
     sftp = client.open_sftp()
-    with sftp.open('/tmp/sost_check.sql', 'w') as f:
+    with sftp.open('/tmp/idoc_check.sql', 'w') as f:
         f.write(sql)
     sftp.close()
     stdin, stdout, stderr = client.exec_command(
-        "su - a4hadm -c 'hdbsql -U DEFAULT -d HDB -I /tmp/sost_check.sql'"
+        "su - a4hadm -c 'hdbsql -U DEFAULT -d HDB -I /tmp/idoc_check.sql'"
     )
     result = stdout.read().decode()
     client.close()
-    return result if result.strip() else "No failed or stuck SOST entries found in last 24h."
+    return result if result.strip() else "No failed IDocs found in last 7 days."
 
-def get_sost_failed_details() -> str:
-    """Get full details of failed SOST entries including recipient and sender
-    for human review before deciding to resend."""
+def get_idoc_details(mestyp: str, status: str) -> str:
+    """Get details of failed IDocs for a specific message type and status.
+    Used to provide context for human review before reprocessing decision."""
     import paramiko as _paramiko
     client = _paramiko.SSHClient()
     client.set_missing_host_key_policy(_paramiko.AutoAddPolicy())
     client.connect(SAP_HOST, username=SAP_USER, key_filename=SAP_KEY)
-    sql = """SELECT OBJTP, OBJYR, OBJNO, SNDART, CREATOR, SENDER,
-    ENTRY_DATE, ENTRY_TIME, STA_ORDER, MSGID, MSGNO, MSGV1
-    FROM SAPA4H.SOST
-    WHERE STA_ORDER NOT IN ('S', 'E')
-    OR (STA_ORDER = 'E' AND ENTRY_DATE >= TO_VARCHAR(ADD_DAYS(NOW(),-1),'YYYYMMDD'))
-    ORDER BY ENTRY_DATE DESC, ENTRY_TIME DESC"""
+    sql = f"""SELECT DOCNUM, MESTYP, STATUS, DIRECT, RCVPRT, RCVPRN,
+    SNDPRT, SNDPRN, CREDAT, CRETIM, UPDDAT, UPDTIM
+    FROM SAPA4H.EDIDC
+    WHERE MESTYP = '{mestyp}' AND STATUS = '{status}'
+    AND UPDDAT >= TO_VARCHAR(ADD_DAYS(NOW(),-7),'YYYYMMDD')
+    ORDER BY CREDAT DESC, CRETIM DESC"""
     sftp = client.open_sftp()
-    with sftp.open('/tmp/sost_details.sql', 'w') as f:
+    with sftp.open('/tmp/idoc_detail.sql', 'w') as f:
         f.write(sql)
     sftp.close()
     stdin, stdout, stderr = client.exec_command(
-        "su - a4hadm -c 'hdbsql -U DEFAULT -d HDB -I /tmp/sost_details.sql'"
+        "su - a4hadm -c 'hdbsql -U DEFAULT -d HDB -I /tmp/idoc_detail.sql'"
     )
     result = stdout.read().decode()
     client.close()
-    return result if result.strip() else "No failed SOST entries found."
+    return result if result.strip() else f"No IDocs found for MESTYP={mestyp} STATUS={status}."
 
-def resend_sost_email(object_type: str, object_year: str, object_number: str) -> str:
-    """Resend a specific failed SOST entry by object key (OBJTP/OBJYR/OBJNO).
-    ONLY call this after explicit human confirmation that the entry is safe to resend.
-    NEVER call automatically - duplicate emails to customers/vendors are a serious risk.
-    The human must confirm: recipient is valid, content is correct, resend is safe."""
-    confirmation_log = f"SOST resend requested for: Type={object_type} Year={object_year} Number={object_number}"
-    cmd = f"echo '{confirmation_log}' >> /tmp/sost_audit.log && echo 'SOST resend prepared for object {object_type}/{object_year}/{object_number}. To complete: in SAP GUI go to SOST, find this entry and click Resend, OR run report RSOSTSND via SE38 with the object key. Audit log entry created at /tmp/sost_audit.log'"
+def reprocess_idoc(docnum: str) -> str:
+    """Reprocess a specific failed IDoc by document number.
+    ONLY call this after explicit human confirmation that:
+    1. The IDoc is a TECHNICAL error (not a business data error)
+    2. The application team has confirmed reprocessing is safe
+    3. Root cause has been investigated
+    NEVER call automatically - duplicate postings are a serious business risk."""
+    audit_entry = f"IDoc reprocess requested: DOCNUM={docnum}"
+    cmd = f"echo '{audit_entry}' >> /tmp/idoc_audit.log && echo 'IDoc {docnum} reprocess prepared. To execute: in SAP GUI go to BD87, enter IDoc number {docnum}, select and click Reprocess. Or run report RBDMANI2 via SE38 with IDoc number. Audit log entry created.'"
     return run_ssh_command(cmd)
 
-def check_sost_whitelist_status() -> str:
-    """Check current SOST email whitelist/restriction status.
-    In non-production systems, whitelisting prevents accidental emails to real recipients."""
-    sql = "SELECT * FROM SAPA4H.SCOT_BCSAP WHERE MANDT = '001'"
+def check_smq1_outbound() -> str:
+    """SMQ1 equivalent - checks outbound qRFC queues for stuck or failed entries.
+    Joins QRFC_N_QOUT with QRFC_I_ERR_STATE to identify queues with errors."""
     import paramiko as _paramiko
     client = _paramiko.SSHClient()
     client.set_missing_host_key_policy(_paramiko.AutoAddPolicy())
     client.connect(SAP_HOST, username=SAP_USER, key_filename=SAP_KEY)
+    sql = """SELECT Q.QUEUE_NAME, Q.DEST_NAME, Q.CLIENT,
+    COUNT(Q.UNIT_ID) AS QUEUE_DEPTH,
+    E.MESSAGE
+    FROM SAPA4H.QRFC_N_QOUT Q
+    LEFT JOIN SAPA4H.QRFC_I_ERR_STATE E ON Q.UNIT_ID = E.UNIT_ID
+    GROUP BY Q.QUEUE_NAME, Q.DEST_NAME, Q.CLIENT, E.MESSAGE
+    ORDER BY QUEUE_DEPTH DESC"""
     sftp = client.open_sftp()
-    with sftp.open('/tmp/sost_whitelist.sql', 'w') as f:
+    with sftp.open('/tmp/smq1.sql', 'w') as f:
         f.write(sql)
     sftp.close()
     stdin, stdout, stderr = client.exec_command(
-        "su - a4hadm -c 'hdbsql -U DEFAULT -d HDB -I /tmp/sost_whitelist.sql'"
+        "su - a4hadm -c 'hdbsql -U DEFAULT -d HDB -I /tmp/smq1.sql'"
     )
     result = stdout.read().decode()
     client.close()
-    return result if result.strip() else "Could not read whitelist config - check SCOT transaction manually."
+    return result if result.strip() else "No outbound qRFC queue entries found (SMQ1 is clean)."
+
+def check_smq2_inbound() -> str:
+    """SMQ2 equivalent - checks inbound qRFC queues for stuck or failed entries.
+    Joins QRFC_I_QIN with QRFC_I_ERR_STATE to identify queues with errors."""
+    import paramiko as _paramiko
+    client = _paramiko.SSHClient()
+    client.set_missing_host_key_policy(_paramiko.AutoAddPolicy())
+    client.connect(SAP_HOST, username=SAP_USER, key_filename=SAP_KEY)
+    sql = """SELECT Q.QUEUE_NAME, Q.DEST_NAME, Q.CLIENT,
+    COUNT(Q.UNIT_ID) AS QUEUE_DEPTH,
+    E.MESSAGE
+    FROM SAPA4H.QRFC_I_QIN Q
+    LEFT JOIN SAPA4H.QRFC_I_ERR_STATE E ON Q.UNIT_ID = E.UNIT_ID
+    GROUP BY Q.QUEUE_NAME, Q.DEST_NAME, Q.CLIENT, E.MESSAGE
+    ORDER BY QUEUE_DEPTH DESC"""
+    sftp = client.open_sftp()
+    with sftp.open('/tmp/smq2.sql', 'w') as f:
+        f.write(sql)
+    sftp.close()
+    stdin, stdout, stderr = client.exec_command(
+        "su - a4hadm -c 'hdbsql -U DEFAULT -d HDB -I /tmp/smq2.sql'"
+    )
+    result = stdout.read().decode()
+    client.close()
+    return result if result.strip() else "No inbound qRFC queue entries found (SMQ2 is clean)."

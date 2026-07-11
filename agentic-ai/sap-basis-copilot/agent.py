@@ -12,16 +12,18 @@ from sap_basis_copilot.tools.sap_ssh_tools import (
     check_failed_updates,
     check_failed_trfc,
     reprocess_trfc_entry,
-    check_sost_failed_emails,
-    get_sost_failed_details,
-    resend_sost_email,
-    check_sost_whitelist_status,
     check_sost_failures,
     check_kernel_version,
     analyze_dbacockpit_cpu_screenshot,
     analyze_dbacockpit_memory_screenshot,
     check_cancelled_jobs,
-    check_long_running_jobs
+    check_long_running_jobs,
+    check_sarfc,
+    check_failed_idocs,
+    get_idoc_details,
+    reprocess_idoc,
+    check_smq1_outbound,
+    check_smq2_inbound
 )
 
 root_agent = Agent(
@@ -41,17 +43,13 @@ When asked to run daily basis checks or morning checks, always run ALL of these 
 8. check_failed_updates - SM13 equivalent
 
 CRITICAL - SOST FAILED EMAIL HANDLING (Human-in-the-Loop Required):
-When check_sost_failed_emails finds failed entries:
-  a) Call get_sost_failed_details for full context
   b) Group by error reason and classify:
      - RETRYABLE: temp server down, timeout, queue full, connection refused
      - NON-RETRYABLE: invalid address, unknown recipient, blacklisted, config missing
   c) Present grouped summary table: Send Type | Error | Count | Oldest | Recommendation
-  d) NEVER call resend_sost_email automatically
   e) Explicitly state: "I am NOT resending these automatically. Please confirm
      each entry is safe to resend - duplicate emails to customers/vendors
      are a serious business risk."
-  f) ONLY call resend_sost_email if human explicitly says "resend [object key]"
 
 CRITICAL - SM58 FAILED tRFC HANDLING (Human-in-the-Loop Required):
 When check_failed_trfc finds SYSFAIL entries, NEVER call reprocess_trfc_entry
@@ -79,6 +77,26 @@ automatically. Instead:
 14. analyze_dbacockpit_memory_screenshot - DBACOCKPIT Memory chart via Gemini Vision. After this, include the chart image inline using markdown: ![Memory Chart](https://storage.googleapis.com/sap-basis-copilot-screenshots/CHART_usedmemory.JPG)
 15. check_cancelled_jobs - SM37 cancelled jobs last 24h
 16. check_long_running_jobs - SM37 long running jobs over 30 minutes
+17. check_sarfc - RFC server group resources (SARFC equivalent) from RZLLITAB
+18. check_failed_idocs - BD87 equivalent - failed IDocs grouped by message type and status
+19. get_idoc_details - get full details for a specific message type and status
+20. reprocess_idoc - reprocess a specific IDoc (ONLY with explicit human confirmation)
+21. check_smq1_outbound - SMQ1 equivalent - outbound qRFC queue status
+22. check_smq2_inbound - SMQ2 equivalent - inbound qRFC queue status
+
+CRITICAL - IDOC REPROCESSING (Human-in-the-Loop Required):
+When check_failed_idocs finds failed IDocs:
+  a) Classify each status code:
+     - TECHNICAL errors (safe to reprocess if root cause fixed):
+       51=Application document not posted, 56=IDoc with errors added,
+       64=IDoc ready to be transferred, 68=Error no message sent
+     - BUSINESS errors (route to application team, do NOT reprocess):
+       52=Application document not fully posted, 69=IDoc was edited
+  b) Present grouped table: Message Type | Status | Direction | Count | Classification
+  c) For technical errors: ask if root cause is fixed before reprocessing
+  d) For business errors: recommend routing to the application/functional team
+  e) NEVER call reprocess_idoc automatically
+  f) ONLY call reprocess_idoc if human explicitly confirms with the IDoc number
 
 Present results in a clear morning brief format with:
 - Traffic light status GREEN/YELLOW/RED for each check
@@ -97,15 +115,17 @@ Present results in a clear morning brief format with:
         check_failed_updates,
         check_failed_trfc,
     reprocess_trfc_entry,
-    check_sost_failed_emails,
-    get_sost_failed_details,
-    resend_sost_email,
-    check_sost_whitelist_status,
         check_sost_failures,
         check_kernel_version,
         analyze_dbacockpit_cpu_screenshot,
         analyze_dbacockpit_memory_screenshot,
         check_cancelled_jobs,
-        check_long_running_jobs
+        check_long_running_jobs,
+    check_sarfc,
+    check_failed_idocs,
+    get_idoc_details,
+    reprocess_idoc,
+    check_smq1_outbound,
+    check_smq2_inbound
     ]
 )
