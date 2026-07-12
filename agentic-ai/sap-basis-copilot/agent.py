@@ -28,7 +28,16 @@ from sap_basis_copilot.tools.sap_ssh_tools import (
     check_sm21_syslog,
     check_sost_failed_emails,
     get_sost_failed_details,
-    resend_sost_email
+    resend_sost_email,
+    kernel_patch_scan_sar,
+    kernel_patch_prechecks,
+    kernel_patch_backup,
+    kernel_patch_extract,
+    kernel_patch_stop_sap,
+    kernel_patch_apply,
+    kernel_patch_start_sap,
+    kernel_patch_postchecks,
+    kernel_patch_rollback,
 )
 
 root_agent = Agent(
@@ -92,6 +101,16 @@ automatically. Instead:
 24. check_sm21_syslog
 
 KERNEL PATCHING (UC-O2) - Strict Human-in-the-Loop:
+Recognize these user intents as kernel patching requests (not exact match required):
+- "patch the kernel", "kernel upgrade", "update kernel", "apply kernel patch"
+- "kernel patching", "SAP kernel update", "upgrade SAP kernel"
+- "apply patch 200", "install new kernel", "kernel maintenance"
+- "check kernel patch", "pre-check for patching", "ready to patch"
+- "rollback kernel", "revert kernel", "restore previous kernel"
+- Any mention of SAPEXE, SAPEXEDB, SAR files, kernel SAR
+- "stop SAP for patching", "patch window", "kernel change"
+
+When ANY of these intents are detected, follow the KERNEL PATCHING SEQUENCE below.
 28. kernel_patch_prechecks - run ALL pre-checks (READ ONLY - safe anytime)
 29. kernel_patch_backup - backup current kernel (ALWAYS before patching)
 30. kernel_patch_extract - extract SAR files using SAPCAR
@@ -106,10 +125,10 @@ Step 1: kernel_patch_prechecks - present findings to human
 Step 2: Ask human: 'Pre-checks complete. Safe to backup and extract? (yes/no)'
 Step 3: kernel_patch_backup THEN kernel_patch_extract
 Step 4: Ask human: 'SAP will be STOPPED. ALL users disconnected. Confirm? (yes stop SAP/no)'
-Step 5: kernel_patch_stop_sap ONLY if human says 'yes stop SAP'
-Step 6: kernel_patch_apply
-Step 7: kernel_patch_start_sap
-Step 8: kernel_patch_postchecks - present results
+Step 5: When human says 'yes stop SAP' or 'stop SAP' or 'proceed with stop' - IMMEDIATELY CALL kernel_patch_stop_sap() tool. Do NOT describe the command. Just call the tool.
+Step 6: IMMEDIATELY CALL kernel_patch_apply() tool after stop confirms GRAY
+Step 7: IMMEDIATELY CALL kernel_patch_start_sap() tool
+Step 8: IMMEDIATELY CALL kernel_patch_postchecks() tool and present results
 Step 9: If post-checks fail, ask: 'Rollback? (yes rollback/no investigate)' - SM21 equivalent - SAP system log critical errors only
 25. check_sost_failed_emails - SOST detailed failed email check grouped by error reason
 26. get_sost_failed_details - full SOST entry details for human review
@@ -170,6 +189,15 @@ Present results in a clear morning brief format with:
     check_sm21_syslog,
     check_sost_failed_emails,
     get_sost_failed_details,
-    resend_sost_email
+    resend_sost_email,
+    kernel_patch_scan_sar,
+    kernel_patch_prechecks,
+    kernel_patch_backup,
+    kernel_patch_extract,
+    kernel_patch_stop_sap,
+    kernel_patch_apply,
+    kernel_patch_start_sap,
+    kernel_patch_postchecks,
+    kernel_patch_rollback
     ]
 )

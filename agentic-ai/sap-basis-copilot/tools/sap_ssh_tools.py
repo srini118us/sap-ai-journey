@@ -463,68 +463,7 @@ def resend_sost_email(object_type: str, object_year: str, object_number: str) ->
     return run_ssh_command(cmd)
 
 
-def kernel_patch_start_sap() -> str:
-    """Step 7: Start SAP and WAIT until ALL key processes are GREEN.
-    Keeps waiting indefinitely in intervals - does NOT timeout and exit.
-    If RED process detected: pauses and reports for human decision."""
-    cmd = '''
-echo "=== STARTING SAP WITH NEW KERNEL ==="
-su - a4hadm -c 'sapcontrol -nr 00 -function Start'
-echo ""
-echo "Waiting for all processes to reach GREEN status..."
-echo ""
-
-elapsed=0
-interval=20
-
-while true; do
-    sleep $interval
-    elapsed=$((elapsed + interval))
-
-    status=$(su - a4hadm -c 'sapcontrol -nr 00 -function GetProcessList' 2>/dev/null)
-    green=$(echo "$status" | grep -c "GREEN" || true)
-    red=$(echo "$status" | grep -c "RED" || true)
-    gray=$(echo "$status" | grep -c "GRAY" || true)
-    yellow=$(echo "$status" | grep -c "YELLOW" || true)
-
-    echo "[${elapsed}s] GREEN: $green | RED: $red | YELLOW: $yellow | GRAY: $gray"
-
-    if [ "$red" -gt 0 ]; then
-        echo ""
-        echo "=== WARNING: RED PROCESS DETECTED ==="
-        echo "$status"
-        echo ""
-        echo "Check these logs:"
-        echo "  /usr/sap/A4H/D00/work/dev_disp"
-        echo "  /usr/sap/A4H/D00/work/dev_w0"
-        echo ""
-        echo "Options: wait for recovery OR run kernel_patch_rollback()"
-        break
-    fi
-
-    if [ "$green" -ge 4 ] && [ "$gray" -eq 0 ] && [ "$red" -eq 0 ]; then
-        echo ""
-        echo "=== SAP STARTED SUCCESSFULLY ==="
-        echo "All processes GREEN after ${elapsed} seconds."
-        echo ""
-        echo "Final process status:"
-        echo "$status"
-        break
-    fi
-
-    if [ "$elapsed" -ge 600 ]; then
-        echo ""
-        echo "=== TAKING LONGER THAN EXPECTED (${elapsed}s) ==="
-        echo "Current status:"
-        echo "$status"
-        echo "Continuing to wait... (press Ctrl+C to abort)"
-        echo ""
-    fi
-done
-'''
-    return run_ssh_command(cmd)
-
-def kernel_patch_scan_sar(staging_dir='/tmp/kernel_patch') -> str:
+def kernel_patch_scan_sar(staging_dir='/usr/sap/basis/kernel') -> str:
     """Scan staging directory for SAR files and validate integrity."""
     cmd = f'''
 STAGING="{staging_dir}"
@@ -564,108 +503,7 @@ fi
 '''
     return run_ssh_command(cmd)
 
-def kernel_patch_start_sap() -> str:
-    """Step 7: Start SAP and WAIT until ALL key processes are GREEN.
-    Keeps waiting indefinitely in intervals - does NOT timeout and exit.
-    If RED process detected: pauses and reports for human decision."""
-    cmd = '''
-echo "=== STARTING SAP WITH NEW KERNEL ==="
-su - a4hadm -c 'sapcontrol -nr 00 -function Start'
-echo ""
-echo "Waiting for all processes to reach GREEN status..."
-echo ""
-
-elapsed=0
-interval=20
-
-while true; do
-    sleep $interval
-    elapsed=$((elapsed + interval))
-
-    status=$(su - a4hadm -c 'sapcontrol -nr 00 -function GetProcessList' 2>/dev/null)
-    green=$(echo "$status" | grep -c "GREEN" || true)
-    red=$(echo "$status" | grep -c "RED" || true)
-    gray=$(echo "$status" | grep -c "GRAY" || true)
-    yellow=$(echo "$status" | grep -c "YELLOW" || true)
-
-    echo "[${elapsed}s] GREEN: $green | RED: $red | YELLOW: $yellow | GRAY: $gray"
-
-    if [ "$red" -gt 0 ]; then
-        echo ""
-        echo "=== WARNING: RED PROCESS DETECTED ==="
-        echo "$status"
-        echo ""
-        echo "Check these logs:"
-        echo "  /usr/sap/A4H/D00/work/dev_disp"
-        echo "  /usr/sap/A4H/D00/work/dev_w0"
-        echo ""
-        echo "Options: wait for recovery OR run kernel_patch_rollback()"
-        break
-    fi
-
-    if [ "$green" -ge 4 ] && [ "$gray" -eq 0 ] && [ "$red" -eq 0 ]; then
-        echo ""
-        echo "=== SAP STARTED SUCCESSFULLY ==="
-        echo "All processes GREEN after ${elapsed} seconds."
-        echo ""
-        echo "Final process status:"
-        echo "$status"
-        break
-    fi
-
-    if [ "$elapsed" -ge 600 ]; then
-        echo ""
-        echo "=== TAKING LONGER THAN EXPECTED (${elapsed}s) ==="
-        echo "Current status:"
-        echo "$status"
-        echo "Continuing to wait... (press Ctrl+C to abort)"
-        echo ""
-    fi
-done
-'''
-    return run_ssh_command(cmd)
-
-def kernel_patch_scan_sar(staging_dir='/tmp/kernel_patch') -> str:
-    """Scan staging directory for SAR files and validate integrity."""
-    cmd = f'''
-STAGING="{staging_dir}"
-echo "=== SAR FILE SCAN ==="
-if [ ! -d "$STAGING" ]; then
-    echo "ERROR: Staging directory $STAGING does not exist."
-    echo "Please create it and upload SAR files:"
-    echo "  mkdir -p $STAGING"
-    exit 1
-fi
-SAR_FILES=$(find $STAGING -name "*.SAR" -o -name "*.sar" 2>/dev/null)
-if [ -z "$SAR_FILES" ]; then
-    echo "ERROR: No SAR files found in $STAGING"
-    echo "Please upload kernel patch SAR files and try again."
-    exit 1
-fi
-echo "Found SAR files:"
-echo "$SAR_FILES" | while read f; do
-    size=$(ls -lh "$f" | awk "{{print $5}}")
-    echo "  $(basename $f) [$size]"
-done
-echo ""
-echo "Validating integrity..."
-ALL_OK=true
-echo "$SAR_FILES" | while read f; do
-    echo -n "  $(basename $f): "
-    /usr/sap/A4H/D00/exe/SAPCAR -t -f "$f" > /dev/null 2>&1
-    if [ $? -eq 0 ]; then echo "OK"
-    else echo "FAILED - corrupted!"; ALL_OK=false; fi
-done
-echo ""
-if [ "$ALL_OK" = "true" ]; then
-    echo "All $(echo "$SAR_FILES" | wc -l) SAR files valid and ready."
-else
-    echo "WARNING: Some files failed validation. Re-download before patching."
-fi
-'''
-    return run_ssh_command(cmd)
-
-def kernel_patch_prechecks(staging_dir='/tmp/kernel_patch') -> str:
+def kernel_patch_prechecks(staging_dir='/usr/sap/basis/kernel') -> str:
     """Run all pre-checks: kernel version, exe locations, health, jobs, disk space."""
     import paramiko as _p
     client = _p.SSHClient()
@@ -760,11 +598,11 @@ echo "Size: $(du -sh ${backup_root} | cut -f1)"
 '''
     return run_ssh_command(cmd)
 
-def kernel_patch_extract(staging_dir='/tmp/kernel_patch') -> str:
+def kernel_patch_extract(staging_dir='/usr/sap/basis/kernel') -> str:
     """Extract all SAR files from staging directory to /tmp/kernel_extract/."""
     cmd = f'''
 echo "=== EXTRACTING SAR FILES ==="
-EXTRACT_DIR="/tmp/kernel_extract"
+EXTRACT_DIR="/usr/sap/basis/kernel/extract"
 mkdir -p ${{EXTRACT_DIR}}
 SAR_FILES=$(find {staging_dir} -name "*.SAR" -o -name "*.sar" 2>/dev/null)
 if [ -z "$SAR_FILES" ]; then
@@ -783,6 +621,48 @@ if [ -f "${{EXTRACT_DIR}}/disp+work" ]; then
     echo "Patch level in extract:"
     strings "${{EXTRACT_DIR}}/disp+work" | grep SAPProductVersion
 fi
+'''
+    return run_ssh_command(cmd)
+
+def kernel_patch_start_sap() -> str:
+    """Step 7: Start SAP and WAIT until ALL key processes are GREEN.
+    Keeps waiting in intervals - does NOT timeout and exit.
+    If RED process detected: reports for human decision."""
+    cmd = '''
+echo "=== STARTING SAP WITH NEW KERNEL ==="
+su - a4hadm -c 'sapcontrol -nr 00 -function Start'
+echo "Waiting for all processes to reach GREEN status..."
+elapsed=0
+interval=20
+while true; do
+    sleep $interval
+    elapsed=$((elapsed + interval))
+    status=$(su - a4hadm -c 'sapcontrol -nr 00 -function GetProcessList' 2>/dev/null)
+    green=$(echo "$status" | grep -c "GREEN" || true)
+    red=$(echo "$status" | grep -c "RED" || true)
+    gray=$(echo "$status" | grep -c "GRAY" || true)
+    yellow=$(echo "$status" | grep -c "YELLOW" || true)
+    echo "[${elapsed}s] GREEN: $green | RED: $red | YELLOW: $yellow | GRAY: $gray"
+    if [ "$red" -gt 0 ]; then
+        echo ""
+        echo "=== WARNING: RED PROCESS DETECTED ==="
+        echo "$status"
+        echo "Check: /usr/sap/A4H/D00/work/dev_disp"
+        echo "Check: /usr/sap/A4H/D00/work/dev_w0"
+        echo "Run kernel_patch_rollback() if needed."
+        break
+    fi
+    if [ "$green" -ge 4 ] && [ "$gray" -eq 0 ] && [ "$red" -eq 0 ]; then
+        echo ""
+        echo "=== SAP STARTED SUCCESSFULLY after ${elapsed}s ==="
+        echo "$status"
+        break
+    fi
+    if [ "$elapsed" -ge 600 ]; then
+        echo "Taking longer than expected (${elapsed}s) - continuing to wait..."
+        echo "$status"
+    fi
+done
 '''
     return run_ssh_command(cmd)
 
@@ -828,7 +708,7 @@ def kernel_patch_apply() -> str:
     """Apply extracted kernel to ALL exe directories found dynamically."""
     cmd = '''
 echo "=== APPLYING KERNEL PATCH ==="
-EXTRACT_DIR="/tmp/kernel_extract"
+EXTRACT_DIR="/usr/sap/basis/kernel/extract"
 if [ ! -d "$EXTRACT_DIR" ] || [ -z "$(ls $EXTRACT_DIR 2>/dev/null)" ]; then
     echo "ERROR: /tmp/kernel_extract is empty. Run kernel_patch_extract() first."
     exit 1
