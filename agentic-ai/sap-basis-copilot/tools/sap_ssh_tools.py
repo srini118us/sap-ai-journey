@@ -1,4 +1,5 @@
 import paramiko
+from sap_basis_copilot.tools.sap_connection import SAPConnection, get_available_systems, PILLAR_TOOLS
 import os
 import tempfile
 
@@ -37,17 +38,61 @@ def run_ssh_command(command: str) -> str:
     finally:
         client.close()
 
-def check_sap_process_health() -> str:
-    return run_ssh_command("su - a4hadm -c 'sapcontrol -nr 00 -function GetProcessList'")
+def check_sap_process_health(system_id: str = "A4H") -> str:
+    """Check SAP process health (SM50 equivalent) on specified system.
+    system_id: SAP System ID (e.g. A4H, BDD, BDP). Default: A4H"""
+    try:
+        conn = SAPConnection(system_id)
+        blocked = conn.is_allowed("operations")
+        if blocked: return blocked
+        client = conn.get_ssh_client()
+        sid_lower = conn.sid.lower()
+        stdin, stdout, stderr = client.exec_command(
+            f"su - {sid_lower}adm -c 'sapcontrol -nr {conn.instance_nr} -function GetProcessList'"
+        )
+        result = stdout.read().decode()
+        client.close()
+        return f"[{system_id}] Process Health:\n{result}"
+    except Exception as e:
+        return f"[{system_id}] ERROR: {str(e)}"
 
-def check_hana_health() -> str:
-    return run_ssh_command("su - hdbadm -c 'sapcontrol -nr 02 -function GetProcessList'")
+def check_hana_health(system_id: str = "A4H") -> str:
+    """Check HANA database health on specified system.
+    system_id: SAP System ID (e.g. A4H, BDD, BDP). Default: A4H"""
+    try:
+        conn = SAPConnection(system_id)
+        blocked = conn.is_allowed("operations")
+        if blocked: return blocked
+        client = conn.get_ssh_client()
+        stdin, stdout, stderr = client.exec_command(
+            "su - hdbadm -c 'sapcontrol -nr 02 -function GetProcessList'"
+        )
+        result = stdout.read().decode()
+        client.close()
+        return f"[{system_id}] HANA Health:\n{result}"
+    except Exception as e:
+        return f"[{system_id}] ERROR: {str(e)}"
 
 def check_disk_space() -> str:
     return run_ssh_command('df -h')
 
-def check_system_instances() -> str:
-    return run_ssh_command("su - a4hadm -c 'sapcontrol -nr 00 -function GetSystemInstanceList'")
+def check_system_instances(system_id: str = "A4H") -> str:
+    """Check SAP system instances (SM51 equivalent) on specified system.
+    system_id: SAP System ID (e.g. A4H, BDD, BDP). Default: A4H"""
+    try:
+        conn = SAPConnection(system_id)
+        blocked = conn.is_allowed("infrastructure")
+        if blocked: return blocked
+        client = conn.get_ssh_client()
+        sid_lower = conn.sid.lower()
+        stdin, stdout, stderr = client.exec_command(
+            f"su - {sid_lower}adm -c 'sapcontrol -nr {conn.instance_nr} -function GetSystemInstanceList'"
+        )
+        result = stdout.read().decode()
+        client.close()
+        return f"[{system_id}] System Instances:\n{result}"
+    except Exception as e:
+        return f"[{system_id}] ERROR: {str(e)}"
 
 def check_long_running_work_processes() -> str:
     """SM66 equivalent - Global Work Process Overview.
@@ -143,8 +188,23 @@ def check_sost_failures() -> str:
     cmd = "su - a4hadm -c 'hdbsql -U DEFAULT -d HDB -o /tmp/sost_out.txt \"SELECT STA_ORDER, COUNT(*) AS CNT FROM SAPA4H.SOST GROUP BY STA_ORDER\" && cat /tmp/sost_out.txt'"
     return run_ssh_command(cmd)
 
-def check_kernel_version() -> str:
-    return run_ssh_command("su - a4hadm -c 'disp+work -version'")
+def check_kernel_version(system_id: str = "A4H") -> str:
+    """Check SAP kernel version and patch level on specified system.
+    system_id: SAP System ID (e.g. A4H, BDD, BDP). Default: A4H"""
+    try:
+        conn = SAPConnection(system_id)
+        blocked = conn.is_allowed("infrastructure")
+        if blocked: return blocked
+        client = conn.get_ssh_client()
+        sid_lower = conn.sid.lower()
+        stdin, stdout, stderr = client.exec_command(
+            f"su - {sid_lower}adm -c 'disp+work -version'"
+        )
+        result = stdout.read().decode()
+        client.close()
+        return f"[{system_id}] Kernel Version:\n{result}"
+    except Exception as e:
+        return f"[{system_id}] ERROR: {str(e)}"
 
 def check_cancelled_jobs() -> str:
     import paramiko as _paramiko
@@ -245,32 +305,35 @@ def check_sarfc() -> str:
         return "No RFC server groups found in RZLLITAB. Check RZ12 configuration."
     return result
 
-def check_failed_idocs() -> str:
+def check_failed_idocs(system_id: str = "A4H") -> str:
     """BD87 equivalent - finds failed IDocs grouped by message type and status.
-    Technical errors (status 51, 56, 64) may be reprocessable.
-    Business errors (status 52, 69) need application team review.
-    Does NOT reprocess anything automatically."""
-    import paramiko as _paramiko
-    client = _paramiko.SSHClient()
-    client.set_missing_host_key_policy(_paramiko.AutoAddPolicy())
-    client.connect(SAP_HOST, username=SAP_USER, key_filename=SAP_KEY)
-    sql = """SELECT MESTYP, STATUS, DIRECT, COUNT(*) AS CNT,
-    MIN(CREDAT) AS OLDEST, MAX(CREDAT) AS NEWEST
-    FROM SAPA4H.EDIDC
-    WHERE STATUS NOT IN ('03','06','12','16','18','30','53')
-    AND UPDDAT >= TO_VARCHAR(ADD_DAYS(NOW(),-7),'YYYYMMDD')
-    GROUP BY MESTYP, STATUS, DIRECT
-    ORDER BY CNT DESC"""
-    sftp = client.open_sftp()
-    with sftp.open('/tmp/idoc_check.sql', 'w') as f:
-        f.write(sql)
-    sftp.close()
-    stdin, stdout, stderr = client.exec_command(
-        "su - a4hadm -c 'hdbsql -U DEFAULT -d HDB -I /tmp/idoc_check.sql'"
-    )
-    result = stdout.read().decode()
-    client.close()
-    return result if result.strip() else "No failed IDocs found in last 7 days."
+    APPLICATION pillar required - blocked on PRD systems by default.
+    system_id: SAP System ID (e.g. A4H, BDD). Default: A4H"""
+    try:
+        conn = SAPConnection(system_id)
+        blocked = conn.is_allowed("application")
+        if blocked: return f"[{system_id}] {blocked}"
+        import paramiko as _p
+        client = conn.get_ssh_client()
+        sid_lower = conn.sid.lower()
+        sql = ("SELECT MESTYP, STATUS, DIRECT, COUNT(*) AS CNT, "
+               "MIN(CREDAT) AS OLDEST, MAX(CREDAT) AS NEWEST "
+               f"FROM {conn.hana_schema}.EDIDC "
+               "WHERE STATUS NOT IN ('03','06','12','16','18','30','53') "
+               "AND UPDDAT >= TO_VARCHAR(ADD_DAYS(NOW(),-7),'YYYYMMDD') "
+               "GROUP BY MESTYP, STATUS, DIRECT ORDER BY CNT DESC")
+        sftp = client.open_sftp()
+        with sftp.open("/tmp/idoc_check.sql", "w") as f:
+            f.write(sql)
+        sftp.close()
+        stdin, stdout, stderr = client.exec_command(
+            f"su - {sid_lower}adm -c 'hdbsql -U {conn.hana_userstore} -d HDB -I /tmp/idoc_check.sql'"
+        )
+        result = stdout.read().decode()
+        client.close()
+        return f"[{system_id}] " + (result if result.strip() else "No failed IDocs found in last 7 days.")
+    except Exception as e:
+        return f"[{system_id}] ERROR: {str(e)}"
 
 def get_idoc_details(mestyp: str, status: str) -> str:
     """Get details of failed IDocs for a specific message type and status.

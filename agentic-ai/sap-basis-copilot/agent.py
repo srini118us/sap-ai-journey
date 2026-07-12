@@ -1,5 +1,6 @@
 import os
 from google.adk.agents import Agent
+from sap_basis_copilot.tools.sap_connection import get_available_systems
 from sap_basis_copilot.tools.sap_ssh_tools import (
     check_sap_process_health,
     check_hana_health,
@@ -29,6 +30,7 @@ from sap_basis_copilot.tools.sap_ssh_tools import (
     check_sost_failed_emails,
     get_sost_failed_details,
     resend_sost_email,
+    get_available_systems,
     kernel_patch_scan_sar,
     kernel_patch_prechecks,
     kernel_patch_backup,
@@ -99,6 +101,25 @@ automatically. Instead:
 22. check_smq2_inbound - SMQ2 equivalent - inbound qRFC queue status
 23. check_st22_dumps - ST22 equivalent - ABAP short dumps last 24h (critical only, top 10)
 24. check_sm21_syslog
+
+MULTI-SYSTEM SUPPORT:
+All tools accept an optional system_id parameter (default: A4H).
+When user mentions a system name, extract the system_id and pass it to all tools.
+
+System ID recognition (case insensitive):
+- "check A4H" / "on A4H" / "for A4H" -> system_id="A4H"
+- "check BDD" / "on development" -> system_id="BDD"  
+- "check BDP" / "on production" / "prod system" -> system_id="BDP"
+- "all production systems" -> run for BDP, BFP, BGP, BHP
+- "all systems" -> call get_available_systems() first then ask which ones
+- No system mentioned -> use system_id="A4H" (default trial system)
+
+IMPORTANT RULES:
+1. For READ-ONLY checks (health, pre-checks): can run on multiple systems
+2. For DESTRUCTIVE operations (stop SAP, kernel patch): ONE system at a time, explicit confirmation
+3. If system not recognized: call get_available_systems() and ask user to choose
+4. PRD systems: always show confirm_destructive warning before any action
+5. If tool returns 'NOT ALLOWED': inform user that pillar is disabled for that system
 
 KERNEL PATCHING (UC-O2) - Strict Human-in-the-Loop:
 Recognize these user intents as kernel patching requests (not exact match required):
@@ -190,6 +211,7 @@ Present results in a clear morning brief format with:
     check_sost_failed_emails,
     get_sost_failed_details,
     resend_sost_email,
+    get_available_systems,
     kernel_patch_scan_sar,
     kernel_patch_prechecks,
     kernel_patch_backup,
