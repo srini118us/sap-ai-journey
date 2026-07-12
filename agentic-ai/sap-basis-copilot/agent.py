@@ -23,7 +23,12 @@ from sap_basis_copilot.tools.sap_ssh_tools import (
     get_idoc_details,
     reprocess_idoc,
     check_smq1_outbound,
-    check_smq2_inbound
+    check_smq2_inbound,
+    check_st22_dumps,
+    check_sm21_syslog,
+    check_sost_failed_emails,
+    get_sost_failed_details,
+    resend_sost_email
 )
 
 root_agent = Agent(
@@ -83,6 +88,40 @@ automatically. Instead:
 20. reprocess_idoc - reprocess a specific IDoc (ONLY with explicit human confirmation)
 21. check_smq1_outbound - SMQ1 equivalent - outbound qRFC queue status
 22. check_smq2_inbound - SMQ2 equivalent - inbound qRFC queue status
+23. check_st22_dumps - ST22 equivalent - ABAP short dumps last 24h (critical only, top 10)
+24. check_sm21_syslog
+
+KERNEL PATCHING (UC-O2) - Strict Human-in-the-Loop:
+28. kernel_patch_prechecks - run ALL pre-checks (READ ONLY - safe anytime)
+29. kernel_patch_backup - backup current kernel (ALWAYS before patching)
+30. kernel_patch_extract - extract SAR files using SAPCAR
+31. kernel_patch_stop_sap - stop SAP (ONLY after human says 'yes stop SAP')
+32. kernel_patch_apply - apply kernel files (ONLY after SAP confirmed stopped)
+33. kernel_patch_start_sap - start SAP after patching
+34. kernel_patch_postchecks - verify new kernel and system health
+35. kernel_patch_rollback - rollback to backup (ONLY if human confirms needed)
+
+CRITICAL - KERNEL PATCHING SEQUENCE (NEVER skip steps or reorder):
+Step 1: kernel_patch_prechecks - present findings to human
+Step 2: Ask human: 'Pre-checks complete. Safe to backup and extract? (yes/no)'
+Step 3: kernel_patch_backup THEN kernel_patch_extract
+Step 4: Ask human: 'SAP will be STOPPED. ALL users disconnected. Confirm? (yes stop SAP/no)'
+Step 5: kernel_patch_stop_sap ONLY if human says 'yes stop SAP'
+Step 6: kernel_patch_apply
+Step 7: kernel_patch_start_sap
+Step 8: kernel_patch_postchecks - present results
+Step 9: If post-checks fail, ask: 'Rollback? (yes rollback/no investigate)' - SM21 equivalent - SAP system log critical errors only
+25. check_sost_failed_emails - SOST detailed failed email check grouped by error reason
+26. get_sost_failed_details - full SOST entry details for human review
+27. resend_sost_email - resend specific SOST entry (ONLY with explicit human confirmation)
+
+CRITICAL - SOST RESEND (Human-in-the-Loop Required):
+When check_sost_failed_emails finds failed entries:
+  a) Call get_sost_failed_details for full context
+  b) Classify: RETRYABLE (temp server, timeout) vs NON-RETRYABLE (invalid address, blacklist)
+  c) NEVER call resend_sost_email automatically
+  d) State: I am NOT resending automatically - duplicate emails are a serious business risk
+  e) ONLY call resend_sost_email if human explicitly confirms with the object key
 
 CRITICAL - IDOC REPROCESSING (Human-in-the-Loop Required):
 When check_failed_idocs finds failed IDocs:
@@ -126,6 +165,11 @@ Present results in a clear morning brief format with:
     get_idoc_details,
     reprocess_idoc,
     check_smq1_outbound,
-    check_smq2_inbound
+    check_smq2_inbound,
+    check_st22_dumps,
+    check_sm21_syslog,
+    check_sost_failed_emails,
+    get_sost_failed_details,
+    resend_sost_email
     ]
 )

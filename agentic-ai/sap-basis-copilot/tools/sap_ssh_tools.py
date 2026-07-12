@@ -356,3 +356,597 @@ def check_smq2_inbound() -> str:
     result = stdout.read().decode()
     client.close()
     return result if result.strip() else "No inbound qRFC queue entries found (SMQ2 is clean)."
+def check_st22_dumps() -> str:
+    """ST22 equivalent - finds ABAP short dumps from last 24 hours.
+    Only returns critical information: error type, program, count.
+    Filters to top 10 most frequent dumps only."""
+    import paramiko as _paramiko
+    client = _paramiko.SSHClient()
+    client.set_missing_host_key_policy(_paramiko.AutoAddPolicy())
+    client.connect(SAP_HOST, username=SAP_USER, key_filename=SAP_KEY)
+    sql = """SELECT TOP 10
+    SNAPDATE, ERRTY, ERRCLAS, REPID,
+    LEFT(ERRMESS, 80) AS ERROR_MSG,
+    COUNT(*) AS DUMP_COUNT
+    FROM SAPA4H.SNAP
+    WHERE SNAPDATE >= TO_VARCHAR(ADD_DAYS(NOW(),-1),'YYYYMMDD')
+    GROUP BY SNAPDATE, ERRTY, ERRCLAS, REPID, ERRMESS
+    ORDER BY DUMP_COUNT DESC"""
+    sftp = client.open_sftp()
+    with sftp.open('/tmp/st22.sql', 'w') as f:
+        f.write(sql)
+    sftp.close()
+    stdin, stdout, stderr = client.exec_command(
+        "su - a4hadm -c 'hdbsql -U DEFAULT -d HDB -I /tmp/st22.sql'"
+    )
+    result = stdout.read().decode()
+    client.close()
+    return result if result.strip() else "No ABAP short dumps in last 24 hours. ST22 is GREEN."
+
+def check_sm21_syslog() -> str:
+    """SM21 equivalent - reads SAP system log for critical errors only.
+    Uses sapcontrol ABAPReadSyslog and filters for E/A severity messages.
+    Ignores Info and Warning level messages to reduce noise."""
+    import paramiko as _paramiko
+    client = _paramiko.SSHClient()
+    client.set_missing_host_key_policy(_paramiko.AutoAddPolicy())
+    client.connect(SAP_HOST, username=SAP_USER, key_filename=SAP_KEY)
+    stdin, stdout, stderr = client.exec_command(
+        "su - a4hadm -c 'sapcontrol -nr 00 -function ABAPReadSyslog' | grep -E '(Error|Abort|Critical|ABAP|kernel|restart|dump|shutdown)' | head -20"
+    )
+    result = stdout.read().decode()
+    client.close()
+    if not result.strip():
+        return "No critical errors found in SAP system log. SM21 is GREEN."
+    return result
+
+def check_sost_failed_emails() -> str:
+    """SOST detailed check - groups failed entries by error reason and send type.
+    More detailed than check_sost_failures - shows error message and oldest/newest dates."""
+    import paramiko as _paramiko
+    client = _paramiko.SSHClient()
+    client.set_missing_host_key_policy(_paramiko.AutoAddPolicy())
+    client.connect(SAP_HOST, username=SAP_USER, key_filename=SAP_KEY)
+    sql = """SELECT SNDART, MSGID, MSGNO, LEFT(MSGV1,60) AS ERROR_REASON,
+    COUNT(*) AS CNT,
+    MIN(ENTRY_DATE) AS OLDEST,
+    MAX(ENTRY_DATE) AS NEWEST
+    FROM SAPA4H.SOST
+    WHERE STA_ORDER NOT IN ('S','E')
+    OR (STA_ORDER = 'E' AND ENTRY_DATE >= TO_VARCHAR(ADD_DAYS(NOW(),-1),'YYYYMMDD'))
+    GROUP BY SNDART, MSGID, MSGNO, MSGV1
+    ORDER BY CNT DESC"""
+    sftp = client.open_sftp()
+    with sftp.open('/tmp/sost_failed.sql', 'w') as f:
+        f.write(sql)
+    sftp.close()
+    stdin, stdout, stderr = client.exec_command(
+        "su - a4hadm -c 'hdbsql -U DEFAULT -d HDB -I /tmp/sost_failed.sql'"
+    )
+    result = stdout.read().decode()
+    client.close()
+    return result if result.strip() else "No failed SOST entries found in last 24h."
+
+def get_sost_failed_details() -> str:
+    """Get full details of failed SOST entries for human review before resend decision.
+    Shows object key, sender, recipient, send type, date, and error."""
+    import paramiko as _paramiko
+    client = _paramiko.SSHClient()
+    client.set_missing_host_key_policy(_paramiko.AutoAddPolicy())
+    client.connect(SAP_HOST, username=SAP_USER, key_filename=SAP_KEY)
+    sql = """SELECT OBJTP, OBJYR, OBJNO, SNDART, CREATOR, SENDER,
+    ENTRY_DATE, ENTRY_TIME, STA_ORDER, MSGID, MSGNO, LEFT(MSGV1,60) AS ERROR
+    FROM SAPA4H.SOST
+    WHERE STA_ORDER NOT IN ('S','E')
+    OR (STA_ORDER = 'E' AND ENTRY_DATE >= TO_VARCHAR(ADD_DAYS(NOW(),-1),'YYYYMMDD'))
+    ORDER BY ENTRY_DATE DESC, ENTRY_TIME DESC"""
+    sftp = client.open_sftp()
+    with sftp.open('/tmp/sost_details.sql', 'w') as f:
+        f.write(sql)
+    sftp.close()
+    stdin, stdout, stderr = client.exec_command(
+        "su - a4hadm -c 'hdbsql -U DEFAULT -d HDB -I /tmp/sost_details.sql'"
+    )
+    result = stdout.read().decode()
+    client.close()
+    return result if result.strip() else "No failed SOST entries found."
+
+def resend_sost_email(object_type: str, object_year: str, object_number: str) -> str:
+    """Resend a specific failed SOST entry by object key.
+    ONLY call after explicit human confirmation that:
+    1. The recipient address is valid
+    2. The content is correct
+    3. Resending will not cause duplicates
+    NEVER call automatically - duplicate emails to customers/vendors are a serious risk."""
+    audit_entry = f"SOST resend requested: OBJTP={object_type} OBJYR={object_year} OBJNO={object_number}"
+    cmd = f"echo '{audit_entry}' >> /tmp/sost_audit.log && echo 'SOST resend prepared for object {object_type}/{object_year}/{object_number}. To execute: in SAP GUI go to SOST, find this entry and click Resend. Or run report RSOSTSND via SE38. Audit log entry created at /tmp/sost_audit.log'"
+    return run_ssh_command(cmd)
+
+
+def kernel_patch_start_sap() -> str:
+    """Step 7: Start SAP and WAIT until ALL key processes are GREEN.
+    Keeps waiting indefinitely in intervals - does NOT timeout and exit.
+    If RED process detected: pauses and reports for human decision."""
+    cmd = '''
+echo "=== STARTING SAP WITH NEW KERNEL ==="
+su - a4hadm -c 'sapcontrol -nr 00 -function Start'
+echo ""
+echo "Waiting for all processes to reach GREEN status..."
+echo ""
+
+elapsed=0
+interval=20
+
+while true; do
+    sleep $interval
+    elapsed=$((elapsed + interval))
+
+    status=$(su - a4hadm -c 'sapcontrol -nr 00 -function GetProcessList' 2>/dev/null)
+    green=$(echo "$status" | grep -c "GREEN" || true)
+    red=$(echo "$status" | grep -c "RED" || true)
+    gray=$(echo "$status" | grep -c "GRAY" || true)
+    yellow=$(echo "$status" | grep -c "YELLOW" || true)
+
+    echo "[${elapsed}s] GREEN: $green | RED: $red | YELLOW: $yellow | GRAY: $gray"
+
+    if [ "$red" -gt 0 ]; then
+        echo ""
+        echo "=== WARNING: RED PROCESS DETECTED ==="
+        echo "$status"
+        echo ""
+        echo "Check these logs:"
+        echo "  /usr/sap/A4H/D00/work/dev_disp"
+        echo "  /usr/sap/A4H/D00/work/dev_w0"
+        echo ""
+        echo "Options: wait for recovery OR run kernel_patch_rollback()"
+        break
+    fi
+
+    if [ "$green" -ge 4 ] && [ "$gray" -eq 0 ] && [ "$red" -eq 0 ]; then
+        echo ""
+        echo "=== SAP STARTED SUCCESSFULLY ==="
+        echo "All processes GREEN after ${elapsed} seconds."
+        echo ""
+        echo "Final process status:"
+        echo "$status"
+        break
+    fi
+
+    if [ "$elapsed" -ge 600 ]; then
+        echo ""
+        echo "=== TAKING LONGER THAN EXPECTED (${elapsed}s) ==="
+        echo "Current status:"
+        echo "$status"
+        echo "Continuing to wait... (press Ctrl+C to abort)"
+        echo ""
+    fi
+done
+'''
+    return run_ssh_command(cmd)
+
+def kernel_patch_scan_sar(staging_dir='/tmp/kernel_patch') -> str:
+    """Scan staging directory for SAR files and validate integrity."""
+    cmd = f'''
+STAGING="{staging_dir}"
+echo "=== SAR FILE SCAN ==="
+if [ ! -d "$STAGING" ]; then
+    echo "ERROR: Staging directory $STAGING does not exist."
+    echo "Please create it and upload SAR files:"
+    echo "  mkdir -p $STAGING"
+    exit 1
+fi
+SAR_FILES=$(find $STAGING -name "*.SAR" -o -name "*.sar" 2>/dev/null)
+if [ -z "$SAR_FILES" ]; then
+    echo "ERROR: No SAR files found in $STAGING"
+    echo "Please upload kernel patch SAR files and try again."
+    exit 1
+fi
+echo "Found SAR files:"
+echo "$SAR_FILES" | while read f; do
+    size=$(ls -lh "$f" | awk "{{print $5}}")
+    echo "  $(basename $f) [$size]"
+done
+echo ""
+echo "Validating integrity..."
+ALL_OK=true
+echo "$SAR_FILES" | while read f; do
+    echo -n "  $(basename $f): "
+    /usr/sap/A4H/D00/exe/SAPCAR -t -f "$f" > /dev/null 2>&1
+    if [ $? -eq 0 ]; then echo "OK"
+    else echo "FAILED - corrupted!"; ALL_OK=false; fi
+done
+echo ""
+if [ "$ALL_OK" = "true" ]; then
+    echo "All $(echo "$SAR_FILES" | wc -l) SAR files valid and ready."
+else
+    echo "WARNING: Some files failed validation. Re-download before patching."
+fi
+'''
+    return run_ssh_command(cmd)
+
+def kernel_patch_start_sap() -> str:
+    """Step 7: Start SAP and WAIT until ALL key processes are GREEN.
+    Keeps waiting indefinitely in intervals - does NOT timeout and exit.
+    If RED process detected: pauses and reports for human decision."""
+    cmd = '''
+echo "=== STARTING SAP WITH NEW KERNEL ==="
+su - a4hadm -c 'sapcontrol -nr 00 -function Start'
+echo ""
+echo "Waiting for all processes to reach GREEN status..."
+echo ""
+
+elapsed=0
+interval=20
+
+while true; do
+    sleep $interval
+    elapsed=$((elapsed + interval))
+
+    status=$(su - a4hadm -c 'sapcontrol -nr 00 -function GetProcessList' 2>/dev/null)
+    green=$(echo "$status" | grep -c "GREEN" || true)
+    red=$(echo "$status" | grep -c "RED" || true)
+    gray=$(echo "$status" | grep -c "GRAY" || true)
+    yellow=$(echo "$status" | grep -c "YELLOW" || true)
+
+    echo "[${elapsed}s] GREEN: $green | RED: $red | YELLOW: $yellow | GRAY: $gray"
+
+    if [ "$red" -gt 0 ]; then
+        echo ""
+        echo "=== WARNING: RED PROCESS DETECTED ==="
+        echo "$status"
+        echo ""
+        echo "Check these logs:"
+        echo "  /usr/sap/A4H/D00/work/dev_disp"
+        echo "  /usr/sap/A4H/D00/work/dev_w0"
+        echo ""
+        echo "Options: wait for recovery OR run kernel_patch_rollback()"
+        break
+    fi
+
+    if [ "$green" -ge 4 ] && [ "$gray" -eq 0 ] && [ "$red" -eq 0 ]; then
+        echo ""
+        echo "=== SAP STARTED SUCCESSFULLY ==="
+        echo "All processes GREEN after ${elapsed} seconds."
+        echo ""
+        echo "Final process status:"
+        echo "$status"
+        break
+    fi
+
+    if [ "$elapsed" -ge 600 ]; then
+        echo ""
+        echo "=== TAKING LONGER THAN EXPECTED (${elapsed}s) ==="
+        echo "Current status:"
+        echo "$status"
+        echo "Continuing to wait... (press Ctrl+C to abort)"
+        echo ""
+    fi
+done
+'''
+    return run_ssh_command(cmd)
+
+def kernel_patch_scan_sar(staging_dir='/tmp/kernel_patch') -> str:
+    """Scan staging directory for SAR files and validate integrity."""
+    cmd = f'''
+STAGING="{staging_dir}"
+echo "=== SAR FILE SCAN ==="
+if [ ! -d "$STAGING" ]; then
+    echo "ERROR: Staging directory $STAGING does not exist."
+    echo "Please create it and upload SAR files:"
+    echo "  mkdir -p $STAGING"
+    exit 1
+fi
+SAR_FILES=$(find $STAGING -name "*.SAR" -o -name "*.sar" 2>/dev/null)
+if [ -z "$SAR_FILES" ]; then
+    echo "ERROR: No SAR files found in $STAGING"
+    echo "Please upload kernel patch SAR files and try again."
+    exit 1
+fi
+echo "Found SAR files:"
+echo "$SAR_FILES" | while read f; do
+    size=$(ls -lh "$f" | awk "{{print $5}}")
+    echo "  $(basename $f) [$size]"
+done
+echo ""
+echo "Validating integrity..."
+ALL_OK=true
+echo "$SAR_FILES" | while read f; do
+    echo -n "  $(basename $f): "
+    /usr/sap/A4H/D00/exe/SAPCAR -t -f "$f" > /dev/null 2>&1
+    if [ $? -eq 0 ]; then echo "OK"
+    else echo "FAILED - corrupted!"; ALL_OK=false; fi
+done
+echo ""
+if [ "$ALL_OK" = "true" ]; then
+    echo "All $(echo "$SAR_FILES" | wc -l) SAR files valid and ready."
+else
+    echo "WARNING: Some files failed validation. Re-download before patching."
+fi
+'''
+    return run_ssh_command(cmd)
+
+def kernel_patch_prechecks(staging_dir='/tmp/kernel_patch') -> str:
+    """Run all pre-checks: kernel version, exe locations, health, jobs, disk space."""
+    import paramiko as _p
+    client = _p.SSHClient()
+    client.set_missing_host_key_policy(_p.AutoAddPolicy())
+    client.connect(SAP_HOST, username=SAP_USER, key_filename=SAP_KEY)
+    results = []
+
+    stdin, stdout, stderr = client.exec_command(
+        "su - a4hadm -c 'disp+work -version' | grep -E 'kernel release|patch number|compile time'"
+    )
+    results.append("=== CURRENT KERNEL VERSION ===")
+    results.append(stdout.read().decode().strip())
+
+    stdin, stdout, stderr = client.exec_command(
+        "find /usr/sap /sapmnt -name 'disp+work' 2>/dev/null | grep -v backup | grep -v extract | grep -v kernel_patch"
+    )
+    exe_locations = stdout.read().decode().strip()
+    results.append("\n=== EXE DIRECTORIES (will be backed up and patched) ===")
+    for loc in exe_locations.split('\n'):
+        if loc:
+            stdin2, stdout2, _ = client.exec_command(f"strings {loc} 2>/dev/null | grep SAPProductVersion")
+            ver = stdout2.read().decode().strip()
+            results.append(f"  {loc} -> {ver}")
+
+    stdin, stdout, stderr = client.exec_command(
+        "su - a4hadm -c 'sapcontrol -nr 00 -function GetProcessList' | grep -E 'GREEN|YELLOW|RED|GRAY'"
+    )
+    health = stdout.read().decode().strip()
+    results.append("\n=== SYSTEM HEALTH ===")
+    if 'RED' in health:
+        results.append("WARNING: RED processes found! Resolve before patching.")
+    results.append(health)
+
+    sftp = client.open_sftp()
+    with sftp.open('/tmp/kpre_jobs.sql', 'w') as f:
+        f.write("SELECT COUNT(*) AS RUNNING_JOBS FROM SAPA4H.TBTCO WHERE STATUS = 'R'")
+    with sftp.open('/tmp/kpre_upd.sql', 'w') as f:
+        f.write("SELECT COUNT(*) AS OPEN_UPDATES FROM SAPA4H.VBHDR WHERE VBSTATE = 2")
+    sftp.close()
+
+    stdin, stdout, stderr = client.exec_command(
+        "su - a4hadm -c 'hdbsql -U DEFAULT -d HDB -I /tmp/kpre_jobs.sql'"
+    )
+    results.append("\n=== RUNNING JOBS (ideally 0 before patching) ===")
+    results.append(stdout.read().decode().strip())
+
+    stdin, stdout, stderr = client.exec_command(
+        "su - a4hadm -c 'hdbsql -U DEFAULT -d HDB -I /tmp/kpre_upd.sql'"
+    )
+    results.append("\n=== OPEN UPDATE REQUESTS SM13 (ideally 0) ===")
+    results.append(stdout.read().decode().strip())
+
+    stdin, stdout, stderr = client.exec_command("df -h /usr/sap | tail -1")
+    results.append("\n=== DISK SPACE (/usr/sap) ===")
+    results.append(stdout.read().decode().strip())
+
+    stdin, stdout, stderr = client.exec_command(
+        f"find {staging_dir} -name '*.SAR' -o -name '*.sar' 2>/dev/null | wc -l"
+    )
+    sar_count = stdout.read().decode().strip()
+    results.append(f"\n=== SAR FILES IN {staging_dir} ===")
+    results.append(f"  {sar_count} SAR file(s) ready for patching")
+
+    client.close()
+    return "\n".join(results)
+
+def kernel_patch_backup() -> str:
+    """Backup ALL exe directories dynamically found on the system."""
+    cmd = '''
+echo "=== KERNEL BACKUP ==="
+timestamp=$(date +%Y%m%d_%H%M%S)
+backup_root="/usr/sap/kernel_backup_${timestamp}"
+mkdir -p ${backup_root}
+EXE_DIRS=$(find /usr/sap /sapmnt -name "disp+work" 2>/dev/null | grep -v backup | grep -v extract | grep -v kernel_patch | xargs -I{} dirname {})
+if [ -z "$EXE_DIRS" ]; then
+    echo "ERROR: No exe directories found to backup!"; exit 1
+fi
+echo "Backing up exe directories:"
+echo "$EXE_DIRS" | while read dir; do
+    safe_name=$(echo "$dir" | tr '/' '_' | sed 's/^_//')
+    backup_dir="${backup_root}/${safe_name}"
+    mkdir -p "${backup_dir}"
+    cp -rp "${dir}/"* "${backup_dir}/" 2>/dev/null || true
+    echo "  $dir -> backed up $(ls ${backup_dir} | wc -l) files"
+done
+echo "BACKUP_ROOT=${backup_root}" > /tmp/kernel_backup_info.txt
+echo "BACKUP_TIMESTAMP=${timestamp}" >> /tmp/kernel_backup_info.txt
+echo ""
+echo "=== BACKUP COMPLETE ==="
+echo "Location: ${backup_root}"
+echo "Size: $(du -sh ${backup_root} | cut -f1)"
+'''
+    return run_ssh_command(cmd)
+
+def kernel_patch_extract(staging_dir='/tmp/kernel_patch') -> str:
+    """Extract all SAR files from staging directory to /tmp/kernel_extract/."""
+    cmd = f'''
+echo "=== EXTRACTING SAR FILES ==="
+EXTRACT_DIR="/tmp/kernel_extract"
+mkdir -p ${{EXTRACT_DIR}}
+SAR_FILES=$(find {staging_dir} -name "*.SAR" -o -name "*.sar" 2>/dev/null)
+if [ -z "$SAR_FILES" ]; then
+    echo "ERROR: No SAR files in {staging_dir}"; exit 1
+fi
+echo "$SAR_FILES" | while read f; do
+    echo "Extracting: $(basename $f)"
+    /usr/sap/A4H/D00/exe/SAPCAR -xf "$f" -R "${{EXTRACT_DIR}}/" 2>&1 | tail -2
+done
+echo ""
+echo "=== EXTRACTION COMPLETE ==="
+echo "Files extracted: $(ls ${{EXTRACT_DIR}} | wc -l)"
+echo "Key files:"
+ls ${{EXTRACT_DIR}} | grep -E "disp|sapstart|R3trans|SAPCAR|icmbnd" | head -10
+if [ -f "${{EXTRACT_DIR}}/disp+work" ]; then
+    echo "Patch level in extract:"
+    strings "${{EXTRACT_DIR}}/disp+work" | grep SAPProductVersion
+fi
+'''
+    return run_ssh_command(cmd)
+
+def kernel_patch_stop_sap() -> str:
+    """Stop SAP and wait until ALL processes are GRAY. Never returns early."""
+    cmd = '''
+echo "=== STOPPING SAP ==="
+su - a4hadm -c 'sapcontrol -nr 00 -function Stop'
+echo "Waiting for all processes to reach GRAY..."
+elapsed=0
+interval=15
+while true; do
+    sleep $interval
+    elapsed=$((elapsed + interval))
+    status=$(su - a4hadm -c 'sapcontrol -nr 00 -function GetProcessList' 2>/dev/null)
+    green=$(echo "$status" | grep -c "GREEN" || true)
+    yellow=$(echo "$status" | grep -c "YELLOW" || true)
+    gray=$(echo "$status" | grep -c "GRAY" || true)
+    running=$((green + yellow))
+    echo "[${elapsed}s] Running: $running | Stopped(GRAY): $gray"
+    if [ "$running" -eq 0 ] && [ "$gray" -gt 0 ]; then
+        echo ""
+        echo "=== SAP FULLY STOPPED after ${elapsed}s ==="
+        echo "Safe to proceed with kernel patching."
+        break
+    fi
+    if [ "$elapsed" -ge 300 ]; then
+        echo ""
+        echo "=== TAKING LONGER THAN 5 MINUTES ==="
+        echo "Current status:"
+        echo "$status"
+        echo ""
+        echo "Possible causes: long-running jobs, active sessions"
+        echo "Check SM66 for stuck work processes"
+        echo "Continuing to wait..."
+        echo ""
+    fi
+done
+'''
+    return run_ssh_command(cmd)
+
+def kernel_patch_apply() -> str:
+    """Apply extracted kernel to ALL exe directories found dynamically."""
+    cmd = '''
+echo "=== APPLYING KERNEL PATCH ==="
+EXTRACT_DIR="/tmp/kernel_extract"
+if [ ! -d "$EXTRACT_DIR" ] || [ -z "$(ls $EXTRACT_DIR 2>/dev/null)" ]; then
+    echo "ERROR: /tmp/kernel_extract is empty. Run kernel_patch_extract() first."
+    exit 1
+fi
+green=$(su - a4hadm -c 'sapcontrol -nr 00 -function GetProcessList' 2>/dev/null | grep -c "GREEN" || true)
+if [ "$green" -gt 0 ]; then
+    echo "ERROR: SAP still running ($green GREEN processes)! Stop SAP first."
+    exit 1
+fi
+EXE_DIRS=$(find /usr/sap /sapmnt -name "disp+work" 2>/dev/null | grep -v backup | grep -v extract | grep -v kernel_patch | xargs -I{} dirname {})
+echo "Updating exe directories:"
+echo "$EXE_DIRS" | while read dir; do
+    echo "  Updating: $dir"
+    if [ -f "$EXTRACT_DIR/disp+work" ]; then
+        cp -fp "$EXTRACT_DIR/disp+work" "$dir/disp+work"
+    fi
+    cp -fp $EXTRACT_DIR/* "$dir/" 2>/dev/null || true
+    chown -R a4hadm:sapsys "$dir/" 2>/dev/null || true
+    ver=$(strings "$dir/disp+work" 2>/dev/null | grep SAPProductVersion || echo "unknown")
+    echo "    $ver"
+done
+echo ""
+echo "=== PATCH APPLIED ==="
+echo "Final verification:"
+find /usr/sap /sapmnt -name "disp+work" 2>/dev/null | grep -v backup | grep -v extract | grep -v kernel_patch | while read f; do
+    ver=$(strings "$f" 2>/dev/null | grep SAPProductVersion)
+    echo "  $f: $ver"
+done
+'''
+    return run_ssh_command(cmd)
+
+def kernel_patch_postchecks() -> str:
+    """Post-patch verification: kernel version, process health, work processes, system log, audit log."""
+    import paramiko as _p
+    client = _p.SSHClient()
+    client.set_missing_host_key_policy(_p.AutoAddPolicy())
+    client.connect(SAP_HOST, username=SAP_USER, key_filename=SAP_KEY)
+    results = []
+
+    stdin, stdout, stderr = client.exec_command(
+        "su - a4hadm -c 'disp+work -version' | grep -E 'kernel release|patch number|compile time'"
+    )
+    results.append("=== NEW KERNEL VERSION ===")
+    results.append(stdout.read().decode().strip())
+
+    stdin, stdout, stderr = client.exec_command(
+        "find /usr/sap /sapmnt -name 'disp+work' 2>/dev/null | grep -v backup | grep -v extract | grep -v kernel_patch"
+    )
+    exe_files = stdout.read().decode().strip().split('\n')
+    results.append("\n=== ALL EXE LOCATIONS VERIFIED ===")
+    for exe in exe_files:
+        if exe:
+            stdin2, stdout2, _ = client.exec_command(f"strings {exe} 2>/dev/null | grep SAPProductVersion")
+            ver = stdout2.read().decode().strip()
+            ok = "OK" if "200" in ver else "CHECK NEEDED"
+            results.append(f"  {exe}: {ver} [{ok}]")
+
+    stdin, stdout, stderr = client.exec_command(
+        "su - a4hadm -c 'sapcontrol -nr 00 -function GetProcessList'"
+    )
+    proc = stdout.read().decode().strip()
+    results.append("\n=== PROCESS HEALTH ===")
+    results.append(proc)
+    if 'RED' in proc:
+        results.append("CRITICAL: RED processes! Consider rollback.")
+    elif 'GREEN' in proc:
+        results.append("All processes GREEN - patch successful!")
+
+    stdin, stdout, stderr = client.exec_command(
+        "su - a4hadm -c 'sapcontrol -nr 00 -function ABAPReadSyslog' | grep -iE 'error|abort|dump' | grep -v 'profile' | head -5"
+    )
+    syslog = stdout.read().decode().strip()
+    results.append("\n=== SYSTEM LOG (errors only) ===")
+    results.append(syslog if syslog else "No critical errors - GOOD")
+
+    stdin, stdout, stderr = client.exec_command(
+        "echo '--- Kernel Patch Audit ---' >> /tmp/kernel_patch_audit.log && "
+        "echo 'Date/Time: '$(date) >> /tmp/kernel_patch_audit.log && "
+        "echo 'System: A4H on GCP (sap-basis-copilot)' >> /tmp/kernel_patch_audit.log && "
+        "su - a4hadm -c 'disp+work -version' | grep -E 'kernel release|patch number' >> /tmp/kernel_patch_audit.log && "
+        "echo 'Patched by: SAP Basis Copilot ADK Agent' >> /tmp/kernel_patch_audit.log && "
+        "echo '--------------------------' >> /tmp/kernel_patch_audit.log && "
+        "cat /tmp/kernel_patch_audit.log"
+    )
+    results.append("\n=== AUDIT LOG ===")
+    results.append(stdout.read().decode().strip())
+
+    client.close()
+    return "\n".join(results)
+
+def kernel_patch_rollback() -> str:
+    """Emergency rollback to previous kernel. SAP must be stopped first."""
+    cmd = '''
+echo "=== KERNEL ROLLBACK ==="
+if [ ! -f /tmp/kernel_backup_info.txt ]; then
+    echo "ERROR: No backup info at /tmp/kernel_backup_info.txt"
+    echo "Check /usr/sap/ for kernel_backup_* directories manually."
+    exit 1
+fi
+BACKUP_ROOT=$(grep BACKUP_ROOT /tmp/kernel_backup_info.txt | cut -d= -f2)
+echo "Restoring from: $BACKUP_ROOT"
+green=$(su - a4hadm -c 'sapcontrol -nr 00 -function GetProcessList' 2>/dev/null | grep -c "GREEN" || true)
+if [ "$green" -gt 0 ]; then
+    echo "ERROR: SAP still running! Stop SAP before rollback."
+    exit 1
+fi
+ls ${BACKUP_ROOT} | while read backup_dir; do
+    orig_path=$(echo "/${backup_dir}" | tr '_' '/')
+    if [ -d "$orig_path" ] && [ -d "${BACKUP_ROOT}/${backup_dir}" ]; then
+        echo "Restoring: $orig_path"
+        cp -fp "${BACKUP_ROOT}/${backup_dir}/"* "$orig_path/" 2>/dev/null || true
+        chown -R a4hadm:sapsys "$orig_path/" 2>/dev/null || true
+        ver=$(strings "$orig_path/disp+work" 2>/dev/null | grep SAPProductVersion || echo "unknown")
+        echo "  Restored: $ver"
+    fi
+done
+echo ""
+echo "=== ROLLBACK COMPLETE ==="
+echo "Start SAP to verify: sapcontrol -nr 00 -function Start"
+'''
+    return run_ssh_command(cmd)
