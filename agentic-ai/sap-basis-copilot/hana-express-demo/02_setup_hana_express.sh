@@ -1,41 +1,57 @@
 #!/bin/bash
-# Run this script ON the HANA Express VM after it is created
-# Usage: bash setup_hana_express.sh
+# Parameterized HANA Express Setup Script
+# Usage: bash 02_setup_hana_express.sh [SID] [HOSTNAME] [VM_IP] [PASSWORD]
+# Example: bash 02_setup_hana_express.sh HXE hxehost 34.48.207.206 HanaExpr2026#
 
 set -e
-echo "=== Setting up HANA Express on GCP VM ==="
 
-# 1. Install Docker
-echo "Installing Docker..."
-zypper install -y docker
-systemctl enable docker
-systemctl start docker
+SID=${1:-HXE}
+HOSTNAME=${2:-hxehost}
+VM_IP=${3:-34.48.207.206}
+PASSWORD=${4:-HanaExpr2026#}
+PROJECT=${5:-sap-basis-copilot}
+ZONE=${6:-us-east4-b}
+SID_LOWER=$(echo $SID | tr '[:upper:]' '[:lower:]')
+VM_NAME="${SID_LOWER}-hana-demo"
+DATA_DIR="/data/${SID_LOWER}"
 
-# 2. Set kernel parameters required for HANA
-echo "Setting kernel parameters..."
-cat >> /etc/sysctl.conf << SYSCTL
+echo "=== HANA Express Setup ==="
+echo "SID       : $SID"
+echo "Hostname  : $HOSTNAME"
+echo "VM IP     : $VM_IP"
+echo "Data Dir  : $DATA_DIR"
+echo ""
+
+gcloud compute ssh $VM_NAME \
+  --zone=$ZONE \
+  --project=$PROJECT \
+  --command="
+set -e
+echo '=== Installing Docker ==='
+sudo zypper install -y docker 2>/dev/null || true
+sudo systemctl enable docker
+sudo systemctl start docker
+
+echo '=== Setting Kernel Parameters ==='
+sudo tee -a /etc/sysctl.conf << SYSCTL
 fs.file-max=20000000
 vm.max_map_count=135217728
 kernel.shmmax=1073741824
-kernel.shmmni=524288
 kernel.shmall=8388608
 SYSCTL
-sysctl -p
+sudo sysctl -p 2>/dev/null || true
 
-# 3. Create data directory for HANA mounts
-echo "Creating HANA data directory..."
-mkdir -p /data/hxe
-chmod 777 /data/hxe
+echo '=== Creating HANA Data Directory ==='
+sudo mkdir -p $DATA_DIR
+sudo chmod 777 $DATA_DIR
 
-# 4. Create password file
-echo "Creating HANA password file..."
-cat > /data/hxe/hxepasswd.json << PASS
-{"master_password": "HanaExpr2026#"}
+echo '=== Creating Password File ==='
+sudo tee $DATA_DIR/${SID_LOWER}passwd.json << PASS
+{"master_password": "$PASSWORD"}
 PASS
-chmod 600 /data/hxe/hxepasswd.json
-chown 12000:79 /data/hxe/hxepasswd.json
+sudo chmod 600 $DATA_DIR/${SID_LOWER}passwd.json
+sudo chown 12000:79 $DATA_DIR/${SID_LOWER}passwd.json
 
-echo "=== Setup complete! Now run: ==="
-echo "1. docker login   (use your Docker Hub credentials)"
-echo "2. docker pull saplabs/hanaexpress:2.00.061.00.20220519.1"
-echo "3. bash run_hana_express.sh"
+echo '=== Setup Complete! ==='
+echo 'Next: docker login, then bash 03_run_hana_express.sh'
+"

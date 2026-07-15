@@ -28,7 +28,7 @@ resource "google_compute_instance" "hana_express" {
   }
 
   metadata = {
-    ssh-keys        = "root:REPLACE_WITH_PUBLIC_KEY"
+    ssh-keys        = "root:ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGaTgUxfD9EwGF5jeVLyPoh1W/RULPQo/45aIBKlSrep sap-basis-copilot-agent"
     enable-osconfig = "TRUE"
   }
 
