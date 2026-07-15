@@ -893,3 +893,240 @@ echo "=== ROLLBACK COMPLETE ==="
 echo "Start SAP to verify: sapcontrol -nr 00 -function Start"
 '''
     return run_ssh_command(cmd)
+
+def deploy_hana_vm(sid: str = "HXE", hostname: str = "hxehost",
+                   machine_type: str = "e2-highmem-8", zone: str = "us-east4-b") -> str:
+    """Deploy a new GCP VM for HANA Express installation.
+    Infrastructure pillar tool — creates VM, validates zone capacity first.
+    ONLY call after explicit human confirmation with cost estimate."""
+    import subprocess
+    sid_lower = sid.lower()
+    vm_name = f"{sid_lower}-hana-demo"
+    project = "sap-basis-copilot"
+    script = f"""
+set -e
+PROJECT={project}
+ZONE={zone}
+VM_NAME={vm_name}
+SSH_KEY=$(cat ~/.ssh/sap-basis-agent-key.pub)
+
+echo "=== Pre-checks ==="
+EXISTING=$(gcloud compute instances list --project=$PROJECT --filter="name=$VM_NAME" --format="get(name)" 2>/dev/null)
+if [ -n "$EXISTING" ]; then
+    echo "ERROR: VM $VM_NAME already exists in project $PROJECT"
+    exit 1
+fi
+
+echo "=== Creating VM: $VM_NAME ==="
+gcloud compute instances create $VM_NAME \
+  --project=$PROJECT \
+  --zone=$ZONE \
+  --machine-type={machine_type} \
+  --image-family=sles-15-sp5 \
+  --image-project=suse-cloud \
+  --boot-disk-size=200GB \
+  --boot-disk-type=pd-ssd \
+  --metadata="enable-osconfig=TRUE,ssh-keys=saps101226:$SSH_KEY" \
+  --tags=hana-express,sap-demo \
+  --scopes=cloud-platform \
+  --labels="sid={sid_lower},type=hana-express,env=dev"
+
+VM_IP=$(gcloud compute instances describe $VM_NAME \
+  --zone=$ZONE --project=$PROJECT \
+  --format="get(networkInterfaces[0].accessConfigs[0].natIP)" 2>/dev/null)
+
+echo "VM_NAME=$VM_NAME"
+echo "VM_IP=$VM_IP"
+echo "SID={sid}"
+echo "VM created successfully!"
+"""
+    result = subprocess.run(['bash', '-c', script], capture_output=True, text=True, timeout=300)
+    if result.returncode != 0:
+        return f"VM deployment failed:\n{result.stderr[:500]}"
+    return result.stdout
+
+def setup_hana_express(sid: str = "HXE", hostname: str = "hxehost", vm_ip: str = "") -> str:
+    """Setup Docker and HANA prerequisites on the deployed VM.
+    Run after deploy_hana_vm() — installs Docker, sets kernel params, creates data directories."""
+    import subprocess
+    sid_lower = sid.lower()
+    vm_name = f"{sid_lower}-hana-demo"
+    project = "sap-basis-copilot"
+    zone = "us-east4-b"
+    data_dir = f"/data/{sid_lower}"
+    script = f"""
+gcloud compute ssh {vm_name} \
+  --zone={zone} --project={project} \
+  --command="
+sudo zypper install -y docker 2>/dev/null || true
+sudo systemctl enable docker && sudo systemctl start docker
+echo 'fs.file-max=20000000' | sudo tee -a /etc/sysctl.conf
+echo 'vm.max_map_count=135217728' | sudo tee -a /etc/sysctl.conf
+echo 'kernel.shmmax=1073741824' | sudo tee -a /etc/sysctl.conf
+echo 'kernel.shmall=8388608' | sudo tee -a /etc/sysctl.conf
+sudo sysctl -p 2>/dev/null || true
+sudo mkdir -p {data_dir} && sudo chmod 777 {data_dir}
+echo '{{"master_password": "HanaExpr2026#"}}' | sudo tee {data_dir}/{sid_lower}passwd.json
+sudo chmod 600 {data_dir}/{sid_lower}passwd.json
+sudo chown 12000:79 {data_dir}/{sid_lower}passwd.json
+echo 'Setup complete!'
+"
+"""
+    result = subprocess.run(['bash', '-c', script], capture_output=True, text=True, timeout=300)
+    if result.returncode != 0:
+        return f"Setup failed:\n{result.stderr[:500]}"
+    return result.stdout
+
+def run_hana_express(sid: str = "HXE", hostname: str = "hxehost") -> str:
+    """Pull and start HANA Express Docker container on the VM.
+    Run after setup_hana_express() — pulls image and starts HANA DB.
+    HANA initialization takes 5-10 minutes."""
+    import subprocess
+    sid_lower = sid.lower()
+    vm_name = f"{sid_lower}-hana-demo"
+    project = "sap-basis-copilot"
+    zone = "us-east4-b"
+    data_dir = f"/data/{sid_lower}"
+    script = f"""
+gcloud compute ssh {vm_name} \
+  --zone={zone} --project={project} \
+  --command="
+sudo docker rm {sid_lower} 2>/dev/null || true
+sudo docker pull saplabs/hanaexpress:latest
+sudo docker run \
+  --stop-timeout 3600 -d \
+  --name {sid_lower} -h {hostname} \
+  -p 39013:39013 -p 39017:39017 \
+  -p 39041-39045:39041-39045 \
+  -p 1128-1129:1128-1129 \
+  -p 59013-59014:59013-59014 \
+  -v {data_dir}:/hana/mounts \
+  --ulimit nofile=1048576:1048576 \
+  --sysctl kernel.shmmax=1073741824 \
+  --sysctl 'net.ipv4.ip_local_port_range=40000 60999' \
+  --sysctl kernel.shmall=8388608 \
+  saplabs/hanaexpress:latest \
+  --passwords-url file:///hana/mounts/{sid_lower}passwd.json \
+  --agree-to-sap-license --dont-check-system
+echo 'HANA container started in background!'
+echo 'Wait 5-8 minutes then verify with verify_hana_running()'
+"
+"""
+    result = subprocess.run(['bash', '-c', script], capture_output=True, text=True, timeout=600)
+    if result.returncode != 0:
+        return f"HANA start failed:\n{result.stderr[:500]}"
+    return result.stdout
+
+def verify_hana_running(sid: str = "HXE") -> str:
+    """Verify HANA Express is running and accepting SQL connections.
+    Run after run_hana_express() waits 5-8 minutes for initialization."""
+    import subprocess
+    sid_lower = sid.lower()
+    vm_name = f"{sid_lower}-hana-demo"
+    project = "sap-basis-copilot"
+    zone = "us-east4-b"
+    script = f"""
+gcloud compute ssh {vm_name} \
+  --zone={zone} --project={project} \
+  --command="
+echo '=== Container Status ==='
+sudo docker ps --filter name={sid_lower} --format 'table {{{{.Names}}}}\t{{{{.Status}}}}\t{{{{.Ports}}}}'
+echo '=== HANA SQL Test ==='
+HDBSQL=\$(sudo docker exec {sid_lower} find /hana/shared -name hdbsql 2>/dev/null | head -1)
+sudo docker exec {sid_lower} \$HDBSQL -i 90 -d {sid} -u SYSTEM -p HanaExpr2026# 'SELECT * FROM DUMMY'
+echo '=== HANA {sid} is ready! ==='
+VM_IP=\$(hostname -I | awk '{{print \$1}}')
+echo "Connect: hdbsql -n \$VM_IP:39015 -u SYSTEM -p HanaExpr2026#"
+"
+"""
+    result = subprocess.run(['bash', '-c', script], capture_output=True, text=True, timeout=120)
+    if result.returncode != 0:
+        return f"[{sid}] Verification failed - HANA may still be starting:\n{result.stderr[:300]}"
+    return result.stdout
+
+def upgrade_hana_express(current_version: str = "2.00.082", 
+                          target_tag: str = "latest",
+                          vm_name: str = "hana-express-demo",
+                          zone: str = "us-east4-b") -> str:
+    """Upgrade HANA Express Docker container on existing GCP VM.
+    Does NOT create a new VM - upgrades in-place by swapping Docker image.
+    Data is preserved in /data/hxe mount across upgrade.
+    Steps: backup → stop → pull new image → start → verify
+    
+    current_version: e.g. 2.00.076, 2.00.082
+    target_tag: Docker image tag e.g. latest, 2.00.088.00.1760424921
+    vm_name: GCP VM name (default: hana-express-demo)
+    zone: GCP zone (default: us-east4-b)"""
+    import subprocess
+    timestamp = __import__('datetime').datetime.now().strftime('%Y%m%d_%H%M%S')
+    
+    script = f"""
+PROJECT=sap-basis-copilot
+VM={vm_name}
+ZONE={zone}
+TIMESTAMP={timestamp}
+
+echo "=== HANA EXPRESS UPGRADE ==="
+echo "Current: {current_version}"
+echo "Target : {target_tag}"
+echo "VM     : {vm_name}"
+echo ""
+
+gcloud compute ssh $VM --zone=$ZONE --project=$PROJECT --command="
+echo '=== STEP 1: VERIFY CURRENT VERSION ==='
+sudo docker ps --filter name=hxe
+HDBSQL=\$(sudo docker exec hxe find /hana/shared -name hdbsql 2>/dev/null | head -1)
+sudo docker exec hxe \$HDBSQL -i 90 -d HXE -u SYSTEM -p HanaExpr2026# 'SELECT VERSION FROM SYS.M_DATABASE' 2>/dev/null || echo 'Cannot connect to HANA'
+
+echo ''
+echo '=== STEP 2: BACKUP ==='
+sudo cp -rp /data/hxe /data/hxe_backup_$TIMESTAMP
+echo 'Backup created: /data/hxe_backup_$TIMESTAMP'
+
+echo ''
+echo '=== STEP 3: STOP CURRENT HANA ==='
+sudo docker stop hxe && sudo docker rm hxe
+echo 'HANA stopped'
+
+echo ''
+echo '=== STEP 4: PULL NEW IMAGE ==='
+sudo docker pull saplabs/hanaexpress:{target_tag}
+echo 'New image pulled'
+
+echo ''
+echo '=== STEP 5: START UPGRADED HANA ==='
+sudo docker run --stop-timeout 3600 -d --name hxe -h hxehost \
+  -p 39013:39013 -p 39017:39017 \
+  -p 39041-39045:39041-39045 \
+  -p 1128-1129:1128-1129 \
+  -p 59013-59014:59013-59014 \
+  -v /data/hxe:/hana/mounts \
+  --ulimit nofile=1048576:1048576 \
+  --sysctl kernel.shmmax=1073741824 \
+  --sysctl 'net.ipv4.ip_local_port_range=40000 60999' \
+  --sysctl kernel.shmall=8388608 \
+  saplabs/hanaexpress:{target_tag} \
+  --passwords-url file:///hana/mounts/hxepasswd.json \
+  --agree-to-sap-license --dont-check-system
+echo 'New container started - waiting 8 minutes...'
+sleep 480
+
+echo ''
+echo '=== STEP 6: POST-CHECKS ==='
+sudo docker ps --filter name=hxe
+HDBSQL=\$(sudo docker exec hxe find /hana/shared -name hdbsql 2>/dev/null | head -1)
+echo 'New version:'
+sudo docker exec hxe \$HDBSQL -i 90 -d HXE -u SYSTEM -p HanaExpr2026# 'SELECT VERSION FROM SYS.M_DATABASE'
+echo 'SQL test:'
+sudo docker exec hxe \$HDBSQL -i 90 -d HXE -u SYSTEM -p HanaExpr2026# 'SELECT * FROM DUMMY'
+echo 'Services:'
+sudo docker exec hxe \$HDBSQL -i 90 -d HXE -u SYSTEM -p HanaExpr2026# 'SELECT SERVICE_NAME, ACTIVE_STATUS FROM SYS.M_SERVICES'
+echo '=== UPGRADE COMPLETE ==='
+echo 'Backup available at: /data/hxe_backup_$TIMESTAMP'
+"
+"""
+    result = subprocess.run(['bash', '-c', script], 
+                          capture_output=True, text=True, timeout=900)
+    if result.stdout:
+        return result.stdout
+    return f"Upgrade output:\n{result.stderr[:500]}"
