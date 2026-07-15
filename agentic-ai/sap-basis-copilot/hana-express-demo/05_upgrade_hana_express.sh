@@ -9,6 +9,7 @@ FROM_VERSION=${1:-2.00.076}
 TO_TAG=${2:-latest}
 ZONE=${3:-us-east4-b}
 PROJECT=${4:-sap-basis-copilot}
+SYSTEM_PASSWORD=${5:-HanaExpr2026#}
 VM_NAME="hana-express-demo"
 CONTAINER_NAME="hxe"
 DATA_DIR="/data/hxe"
@@ -27,12 +28,12 @@ gcloud compute ssh $VM_NAME \
   --command="
 echo '=== STEP 1: PRE-CHECKS ==='
 echo 'Current container status:'
-sudo docker ps --filter name=$CONTAINER_NAME --format 'table {{.Names}}\t{{.Status}}\t{{.Image}}'
+sudo docker ps --filter name=$CONTAINER_NAME 
 
 echo ''
 echo 'Current HANA version:'
 HDBSQL=\$(sudo docker exec $CONTAINER_NAME find /hana/shared -name hdbsql 2>/dev/null | head -1)
-sudo docker exec $CONTAINER_NAME \$HDBSQL -i 90 -d HXE -u SYSTEM -p HanaExpr2026# 'SELECT VERSION FROM SYS.M_DATABASE' 2>/dev/null || echo 'HANA not responding yet'
+sudo docker exec $CONTAINER_NAME \$HDBSQL -i 90 -d HXE -u SYSTEM -p $SYSTEM_PASSWORD 'SELECT VERSION FROM SYS.M_DATABASE' 2>/dev/null || echo 'HANA not responding yet'
 
 echo ''
 echo 'Disk space check:'
@@ -43,7 +44,7 @@ echo '=== STEP 2: BACKUP ==='
 echo 'Creating backup of HANA data directory...'
 sudo cp -rp $DATA_DIR $BACKUP_DIR
 echo "Backup created: \$BACKUP_DIR"
-echo "Backup size: \$(du -sh $BACKUP_DIR | cut -f1)"
+echo "Backup size check complete"
 echo 'BACKUP COMPLETE - safe to proceed with upgrade'
 
 echo ''
@@ -88,29 +89,29 @@ sleep 480
 echo ''
 echo '=== STEP 6: POST-CHECKS ==='
 echo 'New container status:'
-sudo docker ps --filter name=$CONTAINER_NAME --format 'table {{.Names}}\t{{.Status}}\t{{.Image}}'
+sudo docker ps --filter name=$CONTAINER_NAME 
 
 echo ''
 echo 'New HANA version:'
 HDBSQL=\$(sudo docker exec $CONTAINER_NAME find /hana/shared -name hdbsql 2>/dev/null | head -1)
-NEW_VER=\$(sudo docker exec $CONTAINER_NAME \$HDBSQL -i 90 -d HXE -u SYSTEM -p HanaExpr2026# 'SELECT VERSION FROM SYS.M_DATABASE' 2>/dev/null)
+NEW_VER=\$(sudo docker exec $CONTAINER_NAME \$HDBSQL -i 90 -d HXE -u SYSTEM -p $SYSTEM_PASSWORD 'SELECT VERSION FROM SYS.M_DATABASE' 2>/dev/null)
 echo "\$NEW_VER"
 
 echo ''
 echo 'SQL connectivity test:'
-sudo docker exec $CONTAINER_NAME \$HDBSQL -i 90 -d HXE -u SYSTEM -p HanaExpr2026# 'SELECT * FROM DUMMY'
+sudo docker exec $CONTAINER_NAME \$HDBSQL -i 90 -d HXE -u SYSTEM -p $SYSTEM_PASSWORD 'SELECT * FROM DUMMY'
 
 echo ''
 echo 'All HANA services status:'
-sudo docker exec $CONTAINER_NAME \$HDBSQL -i 90 -d HXE -u SYSTEM -p HanaExpr2026# 'SELECT SERVICE_NAME, PORT, ACTIVE_STATUS FROM SYS.M_SERVICES ORDER BY SERVICE_NAME'
+sudo docker exec $CONTAINER_NAME \$HDBSQL -i 90 -d HXE -u SYSTEM -p $SYSTEM_PASSWORD 'SELECT SERVICE_NAME, PORT, ACTIVE_STATUS FROM SYS.M_SERVICES ORDER BY SERVICE_NAME'
 
 echo ''
 echo 'Database active status:'
-sudo docker exec $CONTAINER_NAME \$HDBSQL -i 90 -d HXE -u SYSTEM -p HanaExpr2026# 'SELECT DATABASE_NAME, ACTIVE_STATUS, VERSION FROM SYS.M_DATABASE'
+sudo docker exec $CONTAINER_NAME \$HDBSQL -i 90 -d HXE -u SYSTEM -p $SYSTEM_PASSWORD 'SELECT DATABASE_NAME, ACTIVE_STATUS, VERSION FROM SYS.M_DATABASE'
 
 echo ''
 echo 'Memory utilization:'
-sudo docker exec $CONTAINER_NAME \$HDBSQL -i 90 -d HXE -u SYSTEM -p HanaExpr2026# 'SELECT HOST, ROUND(USED_PHYSICAL_MEMORY/1024/1024/1024,2) AS USED_GB, ROUND(TOTAL_MEMORY_SIZE/1024/1024/1024,2) AS TOTAL_GB FROM SYS.M_HOST_RESOURCE_UTILIZATION'
+sudo docker exec $CONTAINER_NAME \$HDBSQL -i 90 -d HXE -u SYSTEM -p $SYSTEM_PASSWORD 'SELECT HOST, ROUND(USED_PHYSICAL_MEMORY/1024/1024/1024,2) AS USED_GB, ROUND(TOTAL_MEMORY_SIZE/1024/1024/1024,2) AS TOTAL_GB FROM SYS.M_HOST_RESOURCE_UTILIZATION'
 
 echo ''
 echo '=== UPGRADE COMPLETE ==='
