@@ -482,6 +482,80 @@ def check_sm21_syslog() -> str:
         return "No critical errors found in SAP system log. SM21 is GREEN."
     return result
 
+def check_sm20_security_audit_monitor(system_id: str = "A4H", hours: int = 24) -> str:
+    """SM20 equivalent - Security Audit Log Monitor (UC-S1).
+    Queries the Security Audit Log runtime buffer table (RSAU_BUF_DATA) for
+    audit events. Schema confirmed on A4H: AREA, SUBID, SLGDATTIM, SLGUSER,
+    SLGTC, SLGREPNA, TERM_IPV6, SLGLTRM2, SAL_DATA. Returns the last 200 events
+    ordered by timestamp so the calling agent can classify severity
+    (INFO/WARNING/CRITICAL) - failed logon attempts, authorization failures on
+    sensitive transactions, and user master record changes.
+    READ-ONLY - OPERATIONS pillar. Does not modify anything.
+    system_id: SAP System ID (e.g. A4H, BDD, BDP). Default: A4H
+    hours: lookback window in hours, human-readable label only."""
+    try:
+        conn = SAPConnection(system_id)
+        blocked = conn.is_allowed("operations")
+        if blocked: return blocked
+        client = conn.get_ssh_client()
+        sid_lower = conn.sid.lower()
+        userstore = conn.hana_userstore
+        schema = conn.hana_schema
+
+        count_sql = f"SELECT COUNT(*) AS ROW_COUNT FROM {schema}.RSAU_BUF_DATA"
+        sftp = client.open_sftp()
+        with sftp.open("/tmp/sm20_count.sql", "w") as f:
+            f.write(count_sql)
+        sftp.close()
+        stdin, stdout, stderr = client.exec_command(
+            f"su - {sid_lower}adm -c 'hdbsql -U {userstore} -d HDB -I /tmp/sm20_count.sql'"
+        )
+        count_result = stdout.read().decode()
+        count_err = stderr.read().decode()
+        if "invalid table name" in (count_result + count_err).lower() or \
+           "not found" in (count_result + count_err).lower():
+            client.close()
+            return (
+                f"[{system_id}] RSAU_BUF_DATA not found in schema {schema}.\n"
+                f"This SAP release may store the security audit log under a different "
+                f"table name (e.g. RSAU_BUF_DATA_DB on some releases). Raw error:\n"
+                f"{count_result}{count_err}"
+            )
+
+        data_sql = (
+            f"SELECT TOP 200 AREA, SUBID, SLGDATTIM, SLGUSER, SLGTC, SLGREPNA, "
+            f"TERM_IPV6, SLGLTRM2, SAL_DATA FROM {schema}.RSAU_BUF_DATA "
+            f"ORDER BY SLGDATTIM DESC"
+        )
+        sftp = client.open_sftp()
+        with sftp.open("/tmp/sm20_check.sql", "w") as f:
+            f.write(data_sql)
+        sftp.close()
+        stdin, stdout, stderr = client.exec_command(
+            f"su - {sid_lower}adm -c 'hdbsql -U {userstore} -d HDB -I /tmp/sm20_check.sql'"
+        )
+        result = stdout.read().decode()
+        err = stderr.read().decode()
+        client.close()
+
+        if not result.strip():
+            return (
+                f"[{system_id}] SM20 Security Audit Log: 0 rows in RSAU_BUF_DATA "
+                f"(table exists but is empty).\n"
+                f"Row count check returned: {count_result.strip()}\n"
+                f"Likely cause: SM19/RSAU_CONFIG audit logging is not active, or no "
+                f"qualifying events have occurred yet since it was activated.\n"
+                f"Action: activate audit logging via RSAU_CONFIG (SAP GUI), generate a "
+                f"test event (e.g. a deliberate failed logon), then re-run this check."
+            )
+        return (
+            f"[{system_id}] SM20 Security Audit Log - raw buffer contents "
+            f"(requested window label: last {hours}h):\n{result}\n"
+            f"stderr (if any): {err.strip()[:300]}"
+        )
+    except Exception as e:
+        return f"[{system_id}] ERROR: {str(e)}"
+
 def check_sost_failed_emails() -> str:
     """SOST detailed check - groups failed entries by error reason and send type.
     More detailed than check_sost_failures - shows error message and oldest/newest dates."""
