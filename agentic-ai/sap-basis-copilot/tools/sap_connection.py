@@ -119,6 +119,7 @@ PILLAR_TOOLS = {
         "check_hana_load_history", "check_sarfc", "check_smq1_outbound",
         "check_smq2_inbound", "check_st22_dumps", "check_sm21_syslog",
         "check_sm20_security_audit_monitor",
+        "check_critical_auth_changes",
         "check_cancelled_jobs", "check_long_running_jobs",
         "analyze_dbacockpit_cpu_screenshot", "analyze_dbacockpit_memory_screenshot"
     ],

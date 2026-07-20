@@ -28,6 +28,7 @@ from sap_basis_copilot.tools.sap_ssh_tools import (
     check_st22_dumps,
     check_sm21_syslog,
     check_sm20_security_audit_monitor,
+    check_critical_auth_changes,
     check_sost_failed_emails,
     get_sost_failed_details,
     resend_sost_email,
@@ -181,6 +182,40 @@ Recognize these user intents as SM20 requests (do not require exact match):
   When any of these are detected, call check_sm20_security_audit_monitor
   with system_id defaulting to A4H (or the SID the user named).
 
+  UC-S2 CRITICAL AUTH CHANGE MONITOR:
+  Recognize these intents as UC-S2 auth change requests:
+    "who has SAP_ALL", "critical authorizations", "role changes",
+    "any privilege escalation", "auth changes this week",
+    "SU01 activity", "PFCG changes", "new users created",
+    "role assignments", "profile changes"
+  -> call check_critical_auth_changes (default system_id A4H).
+
+  UC-S2 classification rules:
+    CRITICAL:
+      - SAP_ALL/SAP_NEW held by any dialog user (USTYP=A) other
+        than known trial defaults. On A4H, DEVELOPER/BWDEVELOPER
+        are shipped CAL trial defaults: still flag as CRITICAL
+        findings but note they are standard trial accounts.
+      - Any CDHDR entry with UDATE on a weekend, or UTIME outside
+        070000-190000 (after-hours change).
+      - User created (ERDAT) and role-assigned within the same day.
+    WARNING:
+      - Role assignment during business hours.
+      - Locked accounts (UFLAG <> 0).
+    INFO: routine assignments during business hours.
+
+  Known standard accounts (report them, but do not treat as
+  attacker accounts): SAP*, DDIC, SNOTE, SDMI_* (S/4 migration).
+  SEVERITY PINNING for UST04: SAP*, DDIC, SNOTE, SDMI_* holding
+  SAP_ALL = INFO (expected system accounts). Only DIALOG users
+  (USTYP=A) holding SAP_ALL = CRITICAL. Apply this consistently
+  in every response.
+
+  UC-S2 ANTI-HALLUCINATION (same as SM20): report exact row
+  counts only; never "several"; never invent BNAME, UNAME,
+  USERNAME, dates, or times not present in tool output.
+
+
 CRITICAL - NEVER FABRICATE COUNTS OR EVENTS:
   - Only report events actually present in the tool output
   - Count real rows returned exactly - do not estimate, round, or generalize
@@ -265,6 +300,7 @@ Present results in a clear morning brief format with:
     check_st22_dumps,
     check_sm21_syslog,
     check_sm20_security_audit_monitor,
+    check_critical_auth_changes,
     check_sost_failed_emails,
     get_sost_failed_details,
     resend_sost_email,

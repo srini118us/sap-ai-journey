@@ -1186,3 +1186,104 @@ def upgrade_hana_express(current_version="2.00.082", target_tag="latest", vm_nam
     except Exception as e:
         return "Upgrade failed: " + str(e)
 
+
+
+def check_critical_auth_changes(
+    system_id: str = "A4H",
+    days: int = 7
+) -> str:
+    """Critical Authorization Change Monitor (UC-S2).
+
+    Detects privilege escalation and suspicious authorization
+    changes across four views:
+    1. SAP_ALL / SAP_NEW profile holders (UST04)
+    2. Recent role assignments (AGR_USERS)
+    3. Auth-related change documents with exact date+time+actor
+       for after-hours detection (CDHDR: IDENTITY/PFCG/SUSR_PROF)
+    4. Account anomalies: new users, lock flags (USR02)
+
+    READ-ONLY - OPERATIONS pillar. Does not modify anything.
+
+    system_id: SAP System ID (e.g. A4H, BDD, BDP). Default: A4H
+    days: lookback window for changes. Default: 7
+    """
+    conn = SAPConnection(system_id)
+    blocked = conn.is_allowed("operations")
+    if blocked:
+        return blocked
+
+    client = conn.get_ssh_client()
+    userstore = conn.hana_userstore   # "DEFAULT" on A4H
+    schema = conn.hana_schema         # "SAPA4H" on A4H
+
+    # Date columns are NVARCHAR(8) YYYYMMDD on this release
+    cutoff = (
+        f"TO_VARCHAR(ADD_DAYS(CURRENT_DATE, -{days}), 'YYYYMMDD')"
+    )
+
+    queries = [
+        (
+            "CRITICAL PROFILE HOLDERS (UST04)",
+            f"SELECT MANDT, BNAME, PROFILE FROM {schema}.UST04 "
+            f"WHERE PROFILE IN ('SAP_ALL','SAP_NEW') "
+            f"ORDER BY BNAME"
+        ),
+        (
+            f"ROLE ASSIGNMENTS LAST {days} DAYS (AGR_USERS)",
+            f"SELECT TOP 100 UNAME, AGR_NAME, FROM_DAT, TO_DAT "
+            f"FROM {schema}.AGR_USERS "
+            f"WHERE FROM_DAT >= {cutoff} "
+            f"ORDER BY FROM_DAT DESC"
+        ),
+        (
+            f"AUTH CHANGE DOCUMENTS LAST {days} DAYS (CDHDR)",
+            f"SELECT TOP 200 OBJECTCLAS, OBJECTID, USERNAME, "
+            f"UDATE, UTIME, TCODE "
+            f"FROM {schema}.CDHDR "
+            f"WHERE OBJECTCLAS IN ('IDENTITY','PFCG','SUSR_PROF') "
+            f"AND UDATE >= {cutoff} "
+            f"ORDER BY UDATE DESC, UTIME DESC"
+        ),
+        (
+            "ACCOUNT ANOMALIES (USR02)",
+            f"SELECT BNAME, USTYP, UFLAG, ERDAT, ANAME, TRDAT "
+            f"FROM {schema}.USR02 "
+            f"WHERE ERDAT >= {cutoff} OR UFLAG <> 0 "
+            f"ORDER BY ERDAT DESC"
+        ),
+    ]
+
+    sections = []
+    for label, sql in queries:
+        # Same wrapper as SM20: SSH as root, su to a4hadm,
+        # run hdbsql with the DEFAULT userstore key
+        cmd = (
+            'su - a4hadm -c '
+            '"hdbsql -U ' + userstore + ' -A -j \\"' + sql + '\\""'
+        )
+        stdin, stdout, stderr = client.exec_command(cmd, timeout=60)
+        result = stdout.read().decode()
+        err = stderr.read().decode()
+
+        low = (result + err).lower()
+        if "invalid table name" in low or "invalid schema name" in low:
+            sections.append(
+                f"=== {label} ===\n"
+                f"Table/schema not found on this release: "
+                f"{err.strip()[:200]}"
+            )
+        elif "0 rows selected" in result:
+            sections.append(f"=== {label} ===\n0 rows.")
+        elif not result.strip():
+            sections.append(
+                f"=== {label} ===\nNo output. "
+                f"Error: {err.strip()[:200]}"
+            )
+        else:
+            sections.append(f"=== {label} ===\n{result.strip()}")
+
+    client.close()
+    return (
+        f"[{system_id}] UC-S2 Critical Auth Change Monitor "
+        f"(lookback {days} days)\n\n" + "\n\n".join(sections)
+    )
