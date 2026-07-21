@@ -21,14 +21,14 @@ DEFAULT_REGISTRY = {
         },
         "BDD": {
             "description": "SAP S4HANA Development System",
-            "host": "bdd-app-01.internal",
+            "host": "35.236.203.34",
             "sid": "BDD",
             "instance_nr": "00",
             "hana_schema": "SAPBDD",
             "hana_userstore": "DEFAULT",
             "hana_userstore_sys": "HDB_KEY_BDD",
             "ssh_user": "root",
-            "ssh_key_secret": "sap-bdd-ssh-key",
+            "ssh_key_secret": "sap-basis-agent-key",
             "environment": "DEV",
             "system_type": "S4HANA",
             "pillars": ["infrastructure", "operations", "application"]
@@ -120,6 +120,7 @@ PILLAR_TOOLS = {
         "check_smq2_inbound", "check_st22_dumps", "check_sm21_syslog",
         "check_sm20_security_audit_monitor",
         "check_critical_auth_changes",
+        "check_st22_dump_triage",
         "check_cancelled_jobs", "check_long_running_jobs",
         "analyze_dbacockpit_cpu_screenshot", "analyze_dbacockpit_memory_screenshot"
     ],

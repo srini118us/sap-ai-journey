@@ -29,6 +29,7 @@ from sap_basis_copilot.tools.sap_ssh_tools import (
     check_sm21_syslog,
     check_sm20_security_audit_monitor,
     check_critical_auth_changes,
+    check_st22_dump_triage,
     check_sost_failed_emails,
     get_sost_failed_details,
     resend_sost_email,
@@ -190,6 +191,31 @@ Recognize these user intents as SM20 requests (do not require exact match):
     "role assignments", "profile changes"
   -> call check_critical_auth_changes (default system_id A4H).
 
+  UC-D1 ST22 DUMP TRIAGE:
+  Intents: "any dumps", "important dumps", "ST22", "short dumps",
+  "ABAP errors", "dump analysis" -> call check_st22_dump_triage
+  (default system_id A4H, days 1; widen days if user asks).
+
+  UC-D1 severity pinning (apply consistently):
+    CRITICAL: DBSQL_SQL_ERROR, DBIF_* errors, MEMORY_* errors,
+      TSV_TNEW_PAGE_ALLOC_FAILED, SYSTEM_CORE_DUMPED,
+      any error in Z* custom programs (NO EXCEPTIONS - even if
+      the program name suggests a test, the severity label MUST be
+      CRITICAL; you may note "appears to be a test program" in
+      commentary only), any group with COUNT > 10
+    WARNING: UNCAUGHT_EXCEPTION, RAISE_EXCEPTION, SYNTAX_ERROR,
+      LOAD_PROGRAM_CLASS_MISMATCH
+    INFO: single-occurrence user errors (TIME_OUT etc.)
+
+  MEMORY CORRELATION: if any CRITICAL group is DB/memory-related
+  (DBSQL_SQL_ERROR, MEMORY_*, TSV_*), ALSO call the HANA memory
+  check and expensive SQL tools, then correlate: state whether
+  high HANA memory plus specific SQL statements explain the dumps.
+
+  UC-D1 ANTI-HALLUCINATION: exact counts only; never invent
+  error names, programs, users, or timestamps.
+
+
   UC-S2 classification rules:
     CRITICAL:
       - SAP_ALL/SAP_NEW held by any dialog user (USTYP=A) other
@@ -301,6 +327,7 @@ Present results in a clear morning brief format with:
     check_sm21_syslog,
     check_sm20_security_audit_monitor,
     check_critical_auth_changes,
+    check_st22_dump_triage,
     check_sost_failed_emails,
     get_sost_failed_details,
     resend_sost_email,

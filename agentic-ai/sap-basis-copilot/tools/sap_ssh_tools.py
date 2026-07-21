@@ -92,8 +92,20 @@ def check_hana_health(system_id: str = "A4H") -> str:
     except Exception as e:
         return f"[{system_id}] ERROR: {str(e)}"
 
-def check_disk_space() -> str:
-    return run_ssh_command('df -h')
+def check_disk_space(system_id: str = "A4H") -> str:
+    """Disk space (df -h) on the SAP host.
+    system_id: SAP System ID. Default: A4H"""
+    try:
+        conn = SAPConnection(system_id)
+        blocked = conn.is_allowed("operations")
+        if blocked: return blocked
+        client = conn.get_ssh_client()
+        stdin, stdout, stderr = client.exec_command("df -h")
+        result = stdout.read().decode()
+        client.close()
+        return f"[{system_id}]\n" + result
+    except Exception as e:
+        return f"[{system_id}] ERROR: {str(e)}"
 
 def check_system_instances(system_id: str = "A4H") -> str:
     """Check SAP system instances (SM51 equivalent) on specified system.
@@ -113,25 +125,36 @@ def check_system_instances(system_id: str = "A4H") -> str:
     except Exception as e:
         return f"[{system_id}] ERROR: {str(e)}"
 
-def check_long_running_work_processes() -> str:
+def check_long_running_work_processes(system_id: str = "A4H") -> str:
     """SM66 equivalent - Global Work Process Overview.
-    Flags PRIV mode processes (memory hogs) and processes running
-    longer than 10 minutes, identifying the program/report and user."""
-    raw = run_ssh_command("su - a4hadm -c 'sapcontrol -nr 00 -function ABAPGetWPTable'")
+    Flags PRIV mode processes and processes running > 10 minutes.
+    system_id: SAP System ID. Default: A4H"""
+    try:
+        conn = SAPConnection(system_id)
+        blocked = conn.is_allowed("operations")
+        if blocked: return blocked
+        client = conn.get_ssh_client()
+        sid_lower = conn.sid.lower()
+        instance = getattr(conn, "instance_nr", "00")
+        stdin, stdout, stderr = client.exec_command(
+            f"su - {sid_lower}adm -c 'sapcontrol -nr {instance} -function ABAPGetWPTable'"
+        )
+        raw = stdout.read().decode()
+        client.close()
+    except Exception as e:
+        return f"[{system_id}] ERROR: {str(e)}"
     lines = raw.strip().split("\n")
     data_lines = [l for l in lines if l.strip() and l[0].isdigit()]
     if not data_lines:
-        return raw
-
+        return f"[{system_id}] " + raw
     flagged = []
     summary = []
     for line in data_lines:
         cols = [c.strip() for c in line.split(",")]
         if len(cols) < 13:
             continue
-        no, typ, pid, status, reason, start, err, sem, cpu, time_str, program, client, user = cols[:13]
+        no, typ, pid, status, reason, start, err, sem, cpu, time_str, program, client_c, user = cols[:13]
         summary.append(f"WP{no} {typ} {status}")
-
         is_priv = status.upper() == "PRIV"
         is_long_run = False
         if status.lower() in ("run", "running"):
@@ -142,56 +165,142 @@ def check_long_running_work_processes() -> str:
                     is_long_run = True
             except Exception:
                 pass
-
         if is_priv or is_long_run:
             reason_tag = "PRIV (memory hog)" if is_priv else f"Running > 10 min ({time_str})"
-            flagged.append(f"WP{no} ({typ}, PID {pid}): {reason_tag} | Program: {program or 'N/A'} | User: {user or 'N/A'} | Client: {client or 'N/A'}")
-
-    result = f"Total work processes checked: {len(data_lines)}\n"
+            flagged.append(f"WP{no} ({typ}, PID {pid}): {reason_tag} | Program: {program or 'N/A'} | User: {user or 'N/A'} | Client: {client_c or 'N/A'}")
+    result = f"[{system_id}] Total work processes checked: {len(data_lines)}\n"
     result += f"Status summary: {', '.join(summary)}\n\n"
     if flagged:
         result += "FLAGGED WORK PROCESSES:\n" + "\n".join(flagged)
     else:
-        result += "No work processes in PRIV mode or running over 10 minutes. All processes healthy."
+        result += "No work processes in PRIV mode or running over 10 minutes. All healthy."
     return result
 
-def check_lock_entries() -> str:
-    return run_ssh_command("su - a4hadm -c 'sapcontrol -nr 01 -function EnqGetStatistic'")
+def check_lock_entries(system_id: str = "A4H") -> str:
+    """SM12 equivalent - enqueue statistics.
+    system_id: SAP System ID. Default: A4H"""
+    try:
+        conn = SAPConnection(system_id)
+        blocked = conn.is_allowed("operations")
+        if blocked: return blocked
+        client = conn.get_ssh_client()
+        sid_lower = conn.sid.lower()
+        instance = getattr(conn, "instance_nr", "00")
+        stdin, stdout, stderr = client.exec_command(
+            f"su - {sid_lower}adm -c 'sapcontrol -nr {instance} -function EnqGetStatistic'"
+        )
+        result = stdout.read().decode()
+        client.close()
+        return f"[{system_id}] " + (result if result.strip() else "No lock statistics.")
+    except Exception as e:
+        return f"[{system_id}] ERROR: {str(e)}"
 
-def check_hana_load_history() -> str:
-    sql = 'SELECT HOST, MAX(CPU) AS MAX_CPU_PCT, MAX(MEMORY_USED)/1024/1024 AS MAX_MEM_GB FROM SYS.M_LOAD_HISTORY_SERVICE WHERE TIME >= ADD_SECONDS(NOW(), -86400) GROUP BY HOST'
-    cmd = f"su - hdbadm -c 'hdbsql -U HDB_KEY_CAL -d SYSTEMDB \"{sql}\"'"
-    return run_ssh_command(cmd)
+def check_hana_load_history(system_id: str = "A4H") -> str:
+    """HANA load history (last 24h CPU/mem) from SYSTEMDB monitoring views.
+    Uses the SYSTEMDB userstore key (conn.hana_systemdb_userstore) and the
+    HANA OS admin user (conn.hana_os_user). These must exist in the registry
+    per system; for A4H they are HDB_KEY_CAL / hdbadm.
+    system_id: SAP System ID. Default: A4H"""
+    try:
+        conn = SAPConnection(system_id)
+        blocked = conn.is_allowed("operations")
+        if blocked: return blocked
+        client = conn.get_ssh_client()
+        sysdb_key = getattr(conn, "hana_systemdb_userstore", "HDB_KEY_CAL")
+        os_user = getattr(conn, "hana_os_user", "hdbadm")
+        sql = ("SELECT HOST, MAX(CPU) AS MAX_CPU_PCT, "
+               "MAX(MEMORY_USED)/1024/1024 AS MAX_MEM_GB "
+               "FROM SYS.M_LOAD_HISTORY_SERVICE "
+               "WHERE TIME >= ADD_SECONDS(NOW(), -86400) GROUP BY HOST")
+        sftp = client.open_sftp()
+        with sftp.open("/tmp/hana_load.sql", "w") as f:
+            f.write(sql)
+        sftp.close()
+        stdin, stdout, stderr = client.exec_command(
+            f"su - {os_user} -c 'hdbsql -U {sysdb_key} -d SYSTEMDB -I /tmp/hana_load.sql'"
+        )
+        result = stdout.read().decode()
+        client.close()
+        return f"[{system_id}] " + (result if result.strip() else "No load history rows.")
+    except Exception as e:
+        return f"[{system_id}] ERROR: {str(e)}"
 
-def check_hana_expensive_sql() -> str:
-    sql = 'SELECT TOP 5 STATEMENT_HASH, EXECUTION_COUNT, TOTAL_EXECUTION_TIME/1000000 AS TOTAL_SEC, LEFT(STATEMENT_STRING,80) AS STMT FROM SYS.M_SQL_PLAN_CACHE ORDER BY TOTAL_EXECUTION_TIME DESC'
-    cmd = f"su - hdbadm -c 'hdbsql -U HDB_KEY_CAL -d SYSTEMDB \"{sql}\"'"
-    return run_ssh_command(cmd)
+def check_hana_expensive_sql(system_id: str = "A4H") -> str:
+    """Top 5 expensive SQL by total execution time from SYSTEMDB plan cache.
+    Uses the SYSTEMDB userstore key (conn.hana_systemdb_userstore) and the
+    HANA OS admin user (conn.hana_os_user). For A4H: HDB_KEY_CAL / hdbadm.
+    system_id: SAP System ID. Default: A4H"""
+    try:
+        conn = SAPConnection(system_id)
+        blocked = conn.is_allowed("operations")
+        if blocked: return blocked
+        client = conn.get_ssh_client()
+        sysdb_key = getattr(conn, "hana_systemdb_userstore", "HDB_KEY_CAL")
+        os_user = getattr(conn, "hana_os_user", "hdbadm")
+        sql = ("SELECT TOP 5 STATEMENT_HASH, EXECUTION_COUNT, "
+               "TOTAL_EXECUTION_TIME/1000000 AS TOTAL_SEC, "
+               "LEFT(STATEMENT_STRING,80) AS STMT "
+               "FROM SYS.M_SQL_PLAN_CACHE ORDER BY TOTAL_EXECUTION_TIME DESC")
+        sftp = client.open_sftp()
+        with sftp.open("/tmp/hana_exp.sql", "w") as f:
+            f.write(sql)
+        sftp.close()
+        stdin, stdout, stderr = client.exec_command(
+            f"su - {os_user} -c 'hdbsql -U {sysdb_key} -d SYSTEMDB -I /tmp/hana_exp.sql'"
+        )
+        result = stdout.read().decode()
+        client.close()
+        return f"[{system_id}] " + (result if result.strip() else "No expensive SQL rows.")
+    except Exception as e:
+        return f"[{system_id}] ERROR: {str(e)}"
 
-def check_failed_updates() -> str:
-    sql = 'SELECT COUNT(*) AS FAILED_UPDATES FROM SAPA4H.VBHDR WHERE VBSTATE = 2'
-    cmd = f"su - a4hadm -c 'hdbsql -U DEFAULT -d HDB \"{sql}\"'"
-    return run_ssh_command(cmd)
+def check_failed_updates(system_id: str = "A4H") -> str:
+    """SM13 equivalent - count of failed update requests (VBSTATE=2).
+    system_id: SAP System ID. Default: A4H"""
+    try:
+        conn = SAPConnection(system_id)
+        blocked = conn.is_allowed("operations")
+        if blocked: return blocked
+        client = conn.get_ssh_client()
+        sid_lower = conn.sid.lower()
+        sql = f"SELECT COUNT(*) AS FAILED_UPDATES FROM {conn.hana_schema}.VBHDR WHERE VBSTATE = 2"
+        sftp = client.open_sftp()
+        with sftp.open("/tmp/sm13.sql", "w") as f:
+            f.write(sql)
+        sftp.close()
+        stdin, stdout, stderr = client.exec_command(
+            f"su - {sid_lower}adm -c 'hdbsql -U {conn.hana_userstore} -d HDB -I /tmp/sm13.sql'"
+        )
+        result = stdout.read().decode()
+        client.close()
+        return f"[{system_id}] " + (result if result.strip() else "No failed updates.")
+    except Exception as e:
+        return f"[{system_id}] ERROR: {str(e)}"
 
-def check_failed_trfc() -> str:
-    """SM58 equivalent - finds failed tRFC entries with full diagnostic context.
-    Returns destination, function module, error message, user, and tcode for each
-    failed entry so the agent can classify transient vs config issues. Does NOT
-    reprocess anything - reprocessing requires explicit human confirmation via
-    reprocess_trfc_entry()."""
-    import paramiko as _paramiko
-    client = _paramiko.SSHClient()
-    client.set_missing_host_key_policy(_paramiko.AutoAddPolicy())
-    client.connect(SAP_HOST, username=SAP_USER, key_filename=SAP_KEY)
-    sql = "SELECT ARFCDEST, ARFCFNAM, ARFCMSG, ARFCUSER, ARFCTCODE, ARFCDATUM, ARFCUZEIT, ARFCRETRYS FROM SAPA4H.ARFCSSTATE WHERE ARFCSTATE = \'SYSFAIL\'"
-    sftp = client.open_sftp()
-    with sftp.open("/tmp/sm58_detail.sql", "w") as f:
-        f.write(sql)
-    sftp.close()
-    stdin, stdout, stderr = client.exec_command("su - a4hadm -c \'hdbsql -U DEFAULT -d HDB -I /tmp/sm58_detail.sql\'")
-    result = stdout.read().decode()
-    client.close()
-    return result if result.strip() else "No SYSFAIL entries found in tRFC queue."
+def check_failed_trfc(system_id: str = "A4H") -> str:
+    """SM58 equivalent - finds failed tRFC entries (SYSFAIL state).
+    system_id: SAP System ID (e.g. A4H, BDD). Default: A4H"""
+    try:
+        conn = SAPConnection(system_id)
+        blocked = conn.is_allowed("operations")
+        if blocked: return blocked
+        client = conn.get_ssh_client()
+        sid_lower = conn.sid.lower()
+        sql = ("SELECT ARFCDEST, ARFCFNAM, ARFCMSG, ARFCUSER, ARFCTCODE, "
+               "ARFCDATUM, ARFCUZEIT, ARFCRETRYS "
+               f"FROM {conn.hana_schema}.ARFCSSTATE WHERE ARFCSTATE = 'SYSFAIL'")
+        sftp = client.open_sftp()
+        with sftp.open("/tmp/sm58_detail.sql", "w") as f:
+            f.write(sql)
+        sftp.close()
+        stdin, stdout, stderr = client.exec_command(
+            f"su - {sid_lower}adm -c 'hdbsql -U {conn.hana_userstore} -d HDB -I /tmp/sm58_detail.sql'"
+        )
+        result = stdout.read().decode()
+        client.close()
+        return f"[{system_id}] " + (result if result.strip() else "No failed tRFC entries (SM58 clean).")
+    except Exception as e:
+        return f"[{system_id}] ERROR: {str(e)}"
 
 def reprocess_trfc_entry(destination: str, function_module: str) -> str:
     """Reprocesses a failed tRFC entry by triggering RSARFCEX for the specified
@@ -203,9 +312,28 @@ def reprocess_trfc_entry(destination: str, function_module: str) -> str:
     cmd = f"su - a4hadm -c \"echo 'SUBMIT RSARFCEX WITH DESTIN = {destination}.' > /tmp/rsarfcex_job.txt && echo 'Job submission prepared for destination {destination}, function {function_module}. Manual execution via SE38/SM37 recommended for this trial system - RSARFCEX requires background job scheduling authorization.'\""
     return run_ssh_command(cmd)
 
-def check_sost_failures() -> str:
-    cmd = "su - a4hadm -c 'hdbsql -U DEFAULT -d HDB -o /tmp/sost_out.txt \"SELECT STA_ORDER, COUNT(*) AS CNT FROM SAPA4H.SOST GROUP BY STA_ORDER\" && cat /tmp/sost_out.txt'"
-    return run_ssh_command(cmd)
+def check_sost_failures(system_id: str = "A4H") -> str:
+    """SOST equivalent - send-order status counts.
+    system_id: SAP System ID. Default: A4H"""
+    try:
+        conn = SAPConnection(system_id)
+        blocked = conn.is_allowed("operations")
+        if blocked: return blocked
+        client = conn.get_ssh_client()
+        sid_lower = conn.sid.lower()
+        sql = f"SELECT STA_ORDER, COUNT(*) AS CNT FROM {conn.hana_schema}.SOST GROUP BY STA_ORDER"
+        sftp = client.open_sftp()
+        with sftp.open("/tmp/sost_status.sql", "w") as f:
+            f.write(sql)
+        sftp.close()
+        stdin, stdout, stderr = client.exec_command(
+            f"su - {sid_lower}adm -c 'hdbsql -U {conn.hana_userstore} -d HDB -I /tmp/sost_status.sql'"
+        )
+        result = stdout.read().decode()
+        client.close()
+        return f"[{system_id}] " + (result if result.strip() else "No SOST entries.")
+    except Exception as e:
+        return f"[{system_id}] ERROR: {str(e)}"
 
 def check_kernel_version(system_id: str = "A4H") -> str:
     """Check SAP kernel version and patch level on specified system.
@@ -225,35 +353,57 @@ def check_kernel_version(system_id: str = "A4H") -> str:
     except Exception as e:
         return f"[{system_id}] ERROR: {str(e)}"
 
-def check_cancelled_jobs() -> str:
-    import paramiko as _paramiko
-    client = _paramiko.SSHClient()
-    client.set_missing_host_key_policy(_paramiko.AutoAddPolicy())
-    client.connect(SAP_HOST, username=SAP_USER, key_filename=SAP_KEY)
-    sql = "SELECT JOBNAME, STRTDATE, STRTTIME, ENDDATE, ENDTIME, STATUS FROM SAPA4H.TBTCO WHERE STATUS = 'A' AND STRTDATE >= TO_VARCHAR(ADD_DAYS(NOW(),-1),'YYYYMMDD') ORDER BY STRTDATE DESC"
-    sftp = client.open_sftp()
-    with sftp.open('/tmp/sm37c.sql', 'w') as f:
-        f.write(sql)
-    sftp.close()
-    stdin, stdout, stderr = client.exec_command("su - a4hadm -c 'hdbsql -U DEFAULT -d HDB -I /tmp/sm37c.sql'")
-    result = stdout.read().decode()
-    client.close()
-    return result if result else "No cancelled jobs found in last 24h" 
+def check_cancelled_jobs(system_id: str = "A4H") -> str:
+    """SM37 equivalent - cancelled jobs (status A) in last 24h.
+    system_id: SAP System ID. Default: A4H"""
+    try:
+        conn = SAPConnection(system_id)
+        blocked = conn.is_allowed("operations")
+        if blocked: return blocked
+        client = conn.get_ssh_client()
+        sid_lower = conn.sid.lower()
+        sql = ("SELECT JOBNAME, STRTDATE, STRTTIME, ENDDATE, ENDTIME, STATUS "
+               f"FROM {conn.hana_schema}.TBTCO WHERE STATUS = 'A' "
+               "AND STRTDATE >= TO_VARCHAR(ADD_DAYS(NOW(),-1),'YYYYMMDD') "
+               "ORDER BY STRTDATE DESC")
+        sftp = client.open_sftp()
+        with sftp.open("/tmp/sm37c.sql", "w") as f:
+            f.write(sql)
+        sftp.close()
+        stdin, stdout, stderr = client.exec_command(
+            f"su - {sid_lower}adm -c 'hdbsql -U {conn.hana_userstore} -d HDB -I /tmp/sm37c.sql'"
+        )
+        result = stdout.read().decode()
+        client.close()
+        return f"[{system_id}] " + (result if result.strip() else "No cancelled jobs in last 24h.")
+    except Exception as e:
+        return f"[{system_id}] ERROR: {str(e)}"
 
-def check_long_running_jobs() -> str:
-    import paramiko as _paramiko
-    client = _paramiko.SSHClient()
-    client.set_missing_host_key_policy(_paramiko.AutoAddPolicy())
-    client.connect(SAP_HOST, username=SAP_USER, key_filename=SAP_KEY)
-    sql = "SELECT JOBNAME, STRTDATE, STRTTIME, STATUS FROM SAPA4H.TBTCO WHERE STATUS = 'R' AND STRTDATE >= TO_VARCHAR(ADD_DAYS(NOW(),-1),'YYYYMMDD') ORDER BY STRTDATE DESC"
-    sftp = client.open_sftp()
-    with sftp.open('/tmp/sm37l.sql', 'w') as f:
-        f.write(sql)
-    sftp.close()
-    stdin, stdout, stderr = client.exec_command("su - a4hadm -c 'hdbsql -U DEFAULT -d HDB -I /tmp/sm37l.sql'")
-    result = stdout.read().decode()
-    client.close()
-    return result if result else "No long running jobs found" 
+def check_long_running_jobs(system_id: str = "A4H") -> str:
+    """SM37 equivalent - running jobs (status R) started in last 24h.
+    system_id: SAP System ID. Default: A4H"""
+    try:
+        conn = SAPConnection(system_id)
+        blocked = conn.is_allowed("operations")
+        if blocked: return blocked
+        client = conn.get_ssh_client()
+        sid_lower = conn.sid.lower()
+        sql = ("SELECT JOBNAME, STRTDATE, STRTTIME, STATUS "
+               f"FROM {conn.hana_schema}.TBTCO WHERE STATUS = 'R' "
+               "AND STRTDATE >= TO_VARCHAR(ADD_DAYS(NOW(),-1),'YYYYMMDD') "
+               "ORDER BY STRTDATE DESC")
+        sftp = client.open_sftp()
+        with sftp.open("/tmp/sm37l.sql", "w") as f:
+            f.write(sql)
+        sftp.close()
+        stdin, stdout, stderr = client.exec_command(
+            f"su - {sid_lower}adm -c 'hdbsql -U {conn.hana_userstore} -d HDB -I /tmp/sm37l.sql'"
+        )
+        result = stdout.read().decode()
+        client.close()
+        return f"[{system_id}] " + (result if result.strip() else "No long running jobs.")
+    except Exception as e:
+        return f"[{system_id}] ERROR: {str(e)}"
 
 def analyze_dbacockpit_cpu_screenshot() -> str:
     try:
@@ -300,29 +450,31 @@ print(response.text)
     except Exception as e:
         return f'Memory chart analysis skipped - error: {str(e)[:100]}'
 
-def check_sarfc() -> str:
-    """SARFC equivalent - checks RFC server group resources from RZLLITAB.
-    Shows available work process quota and users per server group and AS instance.
-    Status GREEN if WP_QUOTA > 0, YELLOW if WP_QUOTA = 0 (needs RZ12 config check)."""
-    import paramiko as _paramiko
-    client = _paramiko.SSHClient()
-    client.set_missing_host_key_policy(_paramiko.AutoAddPolicy())
-    client.connect(SAP_HOST, username=SAP_USER, key_filename=SAP_KEY)
-    sql = """SELECT CLASSNAME, APPLSERVER, WP_QUOTA, USERS, GROUPTYPE
-    FROM SAPA4H.RZLLITAB
-    ORDER BY CLASSNAME, APPLSERVER"""
-    sftp = client.open_sftp()
-    with sftp.open('/tmp/sarfc_check.sql', 'w') as f:
-        f.write(sql)
-    sftp.close()
-    stdin, stdout, stderr = client.exec_command(
-        "su - a4hadm -c 'hdbsql -U DEFAULT -d HDB -I /tmp/sarfc_check.sql'"
-    )
-    result = stdout.read().decode()
-    client.close()
-    if not result.strip():
-        return "No RFC server groups found in RZLLITAB. Check RZ12 configuration."
-    return result
+def check_sarfc(system_id: str = "A4H") -> str:
+    """SARFC equivalent - RFC server group resources from RZLLITAB.
+    system_id: SAP System ID. Default: A4H"""
+    try:
+        conn = SAPConnection(system_id)
+        blocked = conn.is_allowed("operations")
+        if blocked: return blocked
+        client = conn.get_ssh_client()
+        sid_lower = conn.sid.lower()
+        sql = ("SELECT CLASSNAME, APPLSERVER, WP_QUOTA, USERS, GROUPTYPE "
+               f"FROM {conn.hana_schema}.RZLLITAB ORDER BY CLASSNAME, APPLSERVER")
+        sftp = client.open_sftp()
+        with sftp.open("/tmp/sarfc_check.sql", "w") as f:
+            f.write(sql)
+        sftp.close()
+        stdin, stdout, stderr = client.exec_command(
+            f"su - {sid_lower}adm -c 'hdbsql -U {conn.hana_userstore} -d HDB -I /tmp/sarfc_check.sql'"
+        )
+        result = stdout.read().decode()
+        client.close()
+        if not result.strip():
+            return f"[{system_id}] No RFC server groups in RZLLITAB. Check RZ12."
+        return f"[{system_id}] {result}"
+    except Exception as e:
+        return f"[{system_id}] ERROR: {str(e)}"
 
 def check_failed_idocs(system_id: str = "A4H") -> str:
     """BD87 equivalent - finds failed IDocs grouped by message type and status.
@@ -354,29 +506,33 @@ def check_failed_idocs(system_id: str = "A4H") -> str:
     except Exception as e:
         return f"[{system_id}] ERROR: {str(e)}"
 
-def get_idoc_details(mestyp: str, status: str) -> str:
+def get_idoc_details(mestyp: str, status: str, system_id: str = "A4H") -> str:
     """Get details of failed IDocs for a specific message type and status.
-    Used to provide context for human review before reprocessing decision."""
-    import paramiko as _paramiko
-    client = _paramiko.SSHClient()
-    client.set_missing_host_key_policy(_paramiko.AutoAddPolicy())
-    client.connect(SAP_HOST, username=SAP_USER, key_filename=SAP_KEY)
-    sql = f"""SELECT DOCNUM, MESTYP, STATUS, DIRECT, RCVPRT, RCVPRN,
-    SNDPRT, SNDPRN, CREDAT, CRETIM, UPDDAT, UPDTIM
-    FROM SAPA4H.EDIDC
-    WHERE MESTYP = '{mestyp}' AND STATUS = '{status}'
-    AND UPDDAT >= TO_VARCHAR(ADD_DAYS(NOW(),-7),'YYYYMMDD')
-    ORDER BY CREDAT DESC, CRETIM DESC"""
-    sftp = client.open_sftp()
-    with sftp.open('/tmp/idoc_detail.sql', 'w') as f:
-        f.write(sql)
-    sftp.close()
-    stdin, stdout, stderr = client.exec_command(
-        "su - a4hadm -c 'hdbsql -U DEFAULT -d HDB -I /tmp/idoc_detail.sql'"
-    )
-    result = stdout.read().decode()
-    client.close()
-    return result if result.strip() else f"No IDocs found for MESTYP={mestyp} STATUS={status}."
+    system_id: SAP System ID. Default: A4H"""
+    try:
+        conn = SAPConnection(system_id)
+        blocked = conn.is_allowed("application")
+        if blocked: return f"[{system_id}] {blocked}"
+        client = conn.get_ssh_client()
+        sid_lower = conn.sid.lower()
+        sql = ("SELECT DOCNUM, MESTYP, STATUS, DIRECT, RCVPRT, RCVPRN, "
+               "SNDPRT, SNDPRN, CREDAT, CRETIM, UPDDAT, UPDTIM "
+               f"FROM {conn.hana_schema}.EDIDC "
+               f"WHERE MESTYP = '{mestyp}' AND STATUS = '{status}' "
+               "AND UPDDAT >= TO_VARCHAR(ADD_DAYS(NOW(),-7),'YYYYMMDD') "
+               "ORDER BY CREDAT DESC, CRETIM DESC")
+        sftp = client.open_sftp()
+        with sftp.open("/tmp/idoc_detail.sql", "w") as f:
+            f.write(sql)
+        sftp.close()
+        stdin, stdout, stderr = client.exec_command(
+            f"su - {sid_lower}adm -c 'hdbsql -U {conn.hana_userstore} -d HDB -I /tmp/idoc_detail.sql'"
+        )
+        result = stdout.read().decode()
+        client.close()
+        return f"[{system_id}] " + (result if result.strip() else f"No IDocs for MESTYP={mestyp} STATUS={status}.")
+    except Exception as e:
+        return f"[{system_id}] ERROR: {str(e)}"
 
 def reprocess_idoc(docnum: str) -> str:
     """Reprocess a specific failed IDoc by document number.
@@ -389,98 +545,114 @@ def reprocess_idoc(docnum: str) -> str:
     cmd = f"echo '{audit_entry}' >> /tmp/idoc_audit.log && echo 'IDoc {docnum} reprocess prepared. To execute: in SAP GUI go to BD87, enter IDoc number {docnum}, select and click Reprocess. Or run report RBDMANI2 via SE38 with IDoc number. Audit log entry created.'"
     return run_ssh_command(cmd)
 
-def check_smq1_outbound() -> str:
-    """SMQ1 equivalent - checks outbound qRFC queues for stuck or failed entries.
-    Joins QRFC_N_QOUT with QRFC_I_ERR_STATE to identify queues with errors."""
-    import paramiko as _paramiko
-    client = _paramiko.SSHClient()
-    client.set_missing_host_key_policy(_paramiko.AutoAddPolicy())
-    client.connect(SAP_HOST, username=SAP_USER, key_filename=SAP_KEY)
-    sql = """SELECT Q.QUEUE_NAME, Q.DEST_NAME, Q.CLIENT,
-    COUNT(Q.UNIT_ID) AS QUEUE_DEPTH,
-    E.MESSAGE
-    FROM SAPA4H.QRFC_N_QOUT Q
-    LEFT JOIN SAPA4H.QRFC_I_ERR_STATE E ON Q.UNIT_ID = E.UNIT_ID
-    GROUP BY Q.QUEUE_NAME, Q.DEST_NAME, Q.CLIENT, E.MESSAGE
-    ORDER BY QUEUE_DEPTH DESC"""
-    sftp = client.open_sftp()
-    with sftp.open('/tmp/smq1.sql', 'w') as f:
-        f.write(sql)
-    sftp.close()
-    stdin, stdout, stderr = client.exec_command(
-        "su - a4hadm -c 'hdbsql -U DEFAULT -d HDB -I /tmp/smq1.sql'"
-    )
-    result = stdout.read().decode()
-    client.close()
-    return result if result.strip() else "No outbound qRFC queue entries found (SMQ1 is clean)."
+def check_smq1_outbound(system_id: str = "A4H") -> str:
+    """SMQ1 equivalent - outbound qRFC queues, stuck/failed entries.
+    system_id: SAP System ID. Default: A4H"""
+    try:
+        conn = SAPConnection(system_id)
+        blocked = conn.is_allowed("operations")
+        if blocked: return blocked
+        client = conn.get_ssh_client()
+        sid_lower = conn.sid.lower()
+        sch = conn.hana_schema
+        sql = ("SELECT Q.QUEUE_NAME, Q.DEST_NAME, Q.CLIENT, "
+               "COUNT(Q.UNIT_ID) AS QUEUE_DEPTH, E.MESSAGE "
+               f"FROM {sch}.QRFC_N_QOUT Q "
+               f"LEFT JOIN {sch}.QRFC_I_ERR_STATE E ON Q.UNIT_ID = E.UNIT_ID "
+               "GROUP BY Q.QUEUE_NAME, Q.DEST_NAME, Q.CLIENT, E.MESSAGE "
+               "ORDER BY QUEUE_DEPTH DESC")
+        sftp = client.open_sftp()
+        with sftp.open("/tmp/smq1.sql", "w") as f:
+            f.write(sql)
+        sftp.close()
+        stdin, stdout, stderr = client.exec_command(
+            f"su - {sid_lower}adm -c 'hdbsql -U {conn.hana_userstore} -d HDB -I /tmp/smq1.sql'"
+        )
+        result = stdout.read().decode()
+        client.close()
+        return f"[{system_id}] " + (result if result.strip() else "No outbound qRFC entries (SMQ1 clean).")
+    except Exception as e:
+        return f"[{system_id}] ERROR: {str(e)}"
 
-def check_smq2_inbound() -> str:
-    """SMQ2 equivalent - checks inbound qRFC queues for stuck or failed entries.
-    Joins QRFC_I_QIN with QRFC_I_ERR_STATE to identify queues with errors."""
-    import paramiko as _paramiko
-    client = _paramiko.SSHClient()
-    client.set_missing_host_key_policy(_paramiko.AutoAddPolicy())
-    client.connect(SAP_HOST, username=SAP_USER, key_filename=SAP_KEY)
-    sql = """SELECT Q.QUEUE_NAME, Q.DEST_NAME, Q.CLIENT,
-    COUNT(Q.UNIT_ID) AS QUEUE_DEPTH,
-    E.MESSAGE
-    FROM SAPA4H.QRFC_I_QIN Q
-    LEFT JOIN SAPA4H.QRFC_I_ERR_STATE E ON Q.UNIT_ID = E.UNIT_ID
-    GROUP BY Q.QUEUE_NAME, Q.DEST_NAME, Q.CLIENT, E.MESSAGE
-    ORDER BY QUEUE_DEPTH DESC"""
-    sftp = client.open_sftp()
-    with sftp.open('/tmp/smq2.sql', 'w') as f:
-        f.write(sql)
-    sftp.close()
-    stdin, stdout, stderr = client.exec_command(
-        "su - a4hadm -c 'hdbsql -U DEFAULT -d HDB -I /tmp/smq2.sql'"
-    )
-    result = stdout.read().decode()
-    client.close()
-    return result if result.strip() else "No inbound qRFC queue entries found (SMQ2 is clean)."
-def check_st22_dumps() -> str:
-    """ST22 equivalent - finds ABAP short dumps from last 24 hours.
-    Only returns critical information: error type, program, count.
-    Filters to top 10 most frequent dumps only."""
-    import paramiko as _paramiko
-    client = _paramiko.SSHClient()
-    client.set_missing_host_key_policy(_paramiko.AutoAddPolicy())
-    client.connect(SAP_HOST, username=SAP_USER, key_filename=SAP_KEY)
-    sql = """SELECT TOP 10
-    SNAPDATE, ERRTY, ERRCLAS, REPID,
-    LEFT(ERRMESS, 80) AS ERROR_MSG,
-    COUNT(*) AS DUMP_COUNT
-    FROM SAPA4H.SNAP
-    WHERE SNAPDATE >= TO_VARCHAR(ADD_DAYS(NOW(),-1),'YYYYMMDD')
-    GROUP BY SNAPDATE, ERRTY, ERRCLAS, REPID, ERRMESS
-    ORDER BY DUMP_COUNT DESC"""
-    sftp = client.open_sftp()
-    with sftp.open('/tmp/st22.sql', 'w') as f:
-        f.write(sql)
-    sftp.close()
-    stdin, stdout, stderr = client.exec_command(
-        "su - a4hadm -c 'hdbsql -U DEFAULT -d HDB -I /tmp/st22.sql'"
-    )
-    result = stdout.read().decode()
-    client.close()
-    return result if result.strip() else "No ABAP short dumps in last 24 hours. ST22 is GREEN."
+def check_smq2_inbound(system_id: str = "A4H") -> str:
+    """SMQ2 equivalent - inbound qRFC queues, stuck/failed entries.
+    system_id: SAP System ID. Default: A4H"""
+    try:
+        conn = SAPConnection(system_id)
+        blocked = conn.is_allowed("operations")
+        if blocked: return blocked
+        client = conn.get_ssh_client()
+        sid_lower = conn.sid.lower()
+        sch = conn.hana_schema
+        sql = ("SELECT Q.QUEUE_NAME, Q.DEST_NAME, Q.CLIENT, "
+               "COUNT(Q.UNIT_ID) AS QUEUE_DEPTH, E.MESSAGE "
+               f"FROM {sch}.QRFC_I_QIN Q "
+               f"LEFT JOIN {sch}.QRFC_I_ERR_STATE E ON Q.UNIT_ID = E.UNIT_ID "
+               "GROUP BY Q.QUEUE_NAME, Q.DEST_NAME, Q.CLIENT, E.MESSAGE "
+               "ORDER BY QUEUE_DEPTH DESC")
+        sftp = client.open_sftp()
+        with sftp.open("/tmp/smq2.sql", "w") as f:
+            f.write(sql)
+        sftp.close()
+        stdin, stdout, stderr = client.exec_command(
+            f"su - {sid_lower}adm -c 'hdbsql -U {conn.hana_userstore} -d HDB -I /tmp/smq2.sql'"
+        )
+        result = stdout.read().decode()
+        client.close()
+        return f"[{system_id}] " + (result if result.strip() else "No inbound qRFC entries (SMQ2 clean).")
+    except Exception as e:
+        return f"[{system_id}] ERROR: {str(e)}"
 
-def check_sm21_syslog() -> str:
-    """SM21 equivalent - reads SAP system log for critical errors only.
-    Uses sapcontrol ABAPReadSyslog and filters for E/A severity messages.
-    Ignores Info and Warning level messages to reduce noise."""
-    import paramiko as _paramiko
-    client = _paramiko.SSHClient()
-    client.set_missing_host_key_policy(_paramiko.AutoAddPolicy())
-    client.connect(SAP_HOST, username=SAP_USER, key_filename=SAP_KEY)
-    stdin, stdout, stderr = client.exec_command(
-        "su - a4hadm -c 'sapcontrol -nr 00 -function ABAPReadSyslog' | grep -E '(Error|Abort|Critical|ABAP|kernel|restart|dump|shutdown)' | head -20"
-    )
-    result = stdout.read().decode()
-    client.close()
-    if not result.strip():
-        return "No critical errors found in SAP system log. SM21 is GREEN."
-    return result
+def check_st22_dumps(system_id: str = "A4H") -> str:
+    """ST22 equivalent (legacy simple) - ABAP short dumps last 24h, top 10.
+    NOTE: check_st22_dump_triage (UC-D1) is the richer replacement.
+    system_id: SAP System ID. Default: A4H"""
+    try:
+        conn = SAPConnection(system_id)
+        blocked = conn.is_allowed("operations")
+        if blocked: return blocked
+        client = conn.get_ssh_client()
+        sid_lower = conn.sid.lower()
+        sql = ("SELECT TOP 10 SNAPDATE, ERRTY, ERRCLAS, REPID, "
+               "LEFT(ERRMESS, 80) AS ERROR_MSG, COUNT(*) AS DUMP_COUNT "
+               f"FROM {conn.hana_schema}.SNAP "
+               "WHERE SNAPDATE >= TO_VARCHAR(ADD_DAYS(NOW(),-1),'YYYYMMDD') "
+               "GROUP BY SNAPDATE, ERRTY, ERRCLAS, REPID, ERRMESS "
+               "ORDER BY DUMP_COUNT DESC")
+        sftp = client.open_sftp()
+        with sftp.open("/tmp/st22.sql", "w") as f:
+            f.write(sql)
+        sftp.close()
+        stdin, stdout, stderr = client.exec_command(
+            f"su - {sid_lower}adm -c 'hdbsql -U {conn.hana_userstore} -d HDB -I /tmp/st22.sql'"
+        )
+        result = stdout.read().decode()
+        client.close()
+        return f"[{system_id}] " + (result if result.strip() else "No ABAP short dumps in last 24h.")
+    except Exception as e:
+        return f"[{system_id}] ERROR: {str(e)}"
+
+def check_sm21_syslog(system_id: str = "A4H") -> str:
+    """SM21 equivalent - SAP system log, critical errors only.
+    system_id: SAP System ID. Default: A4H"""
+    try:
+        conn = SAPConnection(system_id)
+        blocked = conn.is_allowed("operations")
+        if blocked: return blocked
+        client = conn.get_ssh_client()
+        sid_lower = conn.sid.lower()
+        instance = getattr(conn, "instance_nr", "00")
+        stdin, stdout, stderr = client.exec_command(
+            f"su - {sid_lower}adm -c 'sapcontrol -nr {instance} -function ABAPReadSyslog' "
+            "| grep -E '(Error|Abort|Critical|ABAP|kernel|restart|dump|shutdown)' | head -20"
+        )
+        result = stdout.read().decode()
+        client.close()
+        if not result.strip():
+            return f"[{system_id}] No critical errors in SAP system log (SM21 GREEN)."
+        return f"[{system_id}] {result}"
+    except Exception as e:
+        return f"[{system_id}] ERROR: {str(e)}"
 
 def check_sm20_security_audit_monitor(system_id: str = "A4H", hours: int = 24) -> str:
     """SM20 equivalent - Security Audit Log Monitor (UC-S1).
@@ -556,56 +728,61 @@ def check_sm20_security_audit_monitor(system_id: str = "A4H", hours: int = 24) -
     except Exception as e:
         return f"[{system_id}] ERROR: {str(e)}"
 
-def check_sost_failed_emails() -> str:
-    """SOST detailed check - groups failed entries by error reason and send type.
-    More detailed than check_sost_failures - shows error message and oldest/newest dates."""
-    import paramiko as _paramiko
-    client = _paramiko.SSHClient()
-    client.set_missing_host_key_policy(_paramiko.AutoAddPolicy())
-    client.connect(SAP_HOST, username=SAP_USER, key_filename=SAP_KEY)
-    sql = """SELECT SNDART, MSGID, MSGNO, LEFT(MSGV1,60) AS ERROR_REASON,
-    COUNT(*) AS CNT,
-    MIN(ENTRY_DATE) AS OLDEST,
-    MAX(ENTRY_DATE) AS NEWEST
-    FROM SAPA4H.SOST
-    WHERE STA_ORDER NOT IN ('S','E')
-    OR (STA_ORDER = 'E' AND ENTRY_DATE >= TO_VARCHAR(ADD_DAYS(NOW(),-1),'YYYYMMDD'))
-    GROUP BY SNDART, MSGID, MSGNO, MSGV1
-    ORDER BY CNT DESC"""
-    sftp = client.open_sftp()
-    with sftp.open('/tmp/sost_failed.sql', 'w') as f:
-        f.write(sql)
-    sftp.close()
-    stdin, stdout, stderr = client.exec_command(
-        "su - a4hadm -c 'hdbsql -U DEFAULT -d HDB -I /tmp/sost_failed.sql'"
-    )
-    result = stdout.read().decode()
-    client.close()
-    return result if result.strip() else "No failed SOST entries found in last 24h."
+def check_sost_failed_emails(system_id: str = "A4H") -> str:
+    """SOST detailed - failed entries grouped by error reason and send type.
+    system_id: SAP System ID. Default: A4H"""
+    try:
+        conn = SAPConnection(system_id)
+        blocked = conn.is_allowed("application")
+        if blocked: return f"[{system_id}] {blocked}"
+        client = conn.get_ssh_client()
+        sid_lower = conn.sid.lower()
+        sql = ("SELECT SNDART, MSGID, MSGNO, LEFT(MSGV1,60) AS ERROR_REASON, "
+               "COUNT(*) AS CNT, MIN(ENTRY_DATE) AS OLDEST, MAX(ENTRY_DATE) AS NEWEST "
+               f"FROM {conn.hana_schema}.SOST "
+               "WHERE STA_ORDER NOT IN ('S','E') "
+               "OR (STA_ORDER = 'E' AND ENTRY_DATE >= TO_VARCHAR(ADD_DAYS(NOW(),-1),'YYYYMMDD')) "
+               "GROUP BY SNDART, MSGID, MSGNO, MSGV1 ORDER BY CNT DESC")
+        sftp = client.open_sftp()
+        with sftp.open("/tmp/sost_failed.sql", "w") as f:
+            f.write(sql)
+        sftp.close()
+        stdin, stdout, stderr = client.exec_command(
+            f"su - {sid_lower}adm -c 'hdbsql -U {conn.hana_userstore} -d HDB -I /tmp/sost_failed.sql'"
+        )
+        result = stdout.read().decode()
+        client.close()
+        return f"[{system_id}] " + (result if result.strip() else "No failed SOST entries in last 24h.")
+    except Exception as e:
+        return f"[{system_id}] ERROR: {str(e)}"
 
-def get_sost_failed_details() -> str:
-    """Get full details of failed SOST entries for human review before resend decision.
-    Shows object key, sender, recipient, send type, date, and error."""
-    import paramiko as _paramiko
-    client = _paramiko.SSHClient()
-    client.set_missing_host_key_policy(_paramiko.AutoAddPolicy())
-    client.connect(SAP_HOST, username=SAP_USER, key_filename=SAP_KEY)
-    sql = """SELECT OBJTP, OBJYR, OBJNO, SNDART, CREATOR, SENDER,
-    ENTRY_DATE, ENTRY_TIME, STA_ORDER, MSGID, MSGNO, LEFT(MSGV1,60) AS ERROR
-    FROM SAPA4H.SOST
-    WHERE STA_ORDER NOT IN ('S','E')
-    OR (STA_ORDER = 'E' AND ENTRY_DATE >= TO_VARCHAR(ADD_DAYS(NOW(),-1),'YYYYMMDD'))
-    ORDER BY ENTRY_DATE DESC, ENTRY_TIME DESC"""
-    sftp = client.open_sftp()
-    with sftp.open('/tmp/sost_details.sql', 'w') as f:
-        f.write(sql)
-    sftp.close()
-    stdin, stdout, stderr = client.exec_command(
-        "su - a4hadm -c 'hdbsql -U DEFAULT -d HDB -I /tmp/sost_details.sql'"
-    )
-    result = stdout.read().decode()
-    client.close()
-    return result if result.strip() else "No failed SOST entries found."
+def get_sost_failed_details(system_id: str = "A4H") -> str:
+    """Full details of failed SOST entries for human review before resend.
+    system_id: SAP System ID. Default: A4H"""
+    try:
+        conn = SAPConnection(system_id)
+        blocked = conn.is_allowed("application")
+        if blocked: return f"[{system_id}] {blocked}"
+        client = conn.get_ssh_client()
+        sid_lower = conn.sid.lower()
+        sql = ("SELECT OBJTP, OBJYR, OBJNO, SNDART, CREATOR, SENDER, "
+               "ENTRY_DATE, ENTRY_TIME, STA_ORDER, MSGID, MSGNO, LEFT(MSGV1,60) AS ERROR "
+               f"FROM {conn.hana_schema}.SOST "
+               "WHERE STA_ORDER NOT IN ('S','E') "
+               "OR (STA_ORDER = 'E' AND ENTRY_DATE >= TO_VARCHAR(ADD_DAYS(NOW(),-1),'YYYYMMDD')) "
+               "ORDER BY ENTRY_DATE DESC, ENTRY_TIME DESC")
+        sftp = client.open_sftp()
+        with sftp.open("/tmp/sost_details.sql", "w") as f:
+            f.write(sql)
+        sftp.close()
+        stdin, stdout, stderr = client.exec_command(
+            f"su - {sid_lower}adm -c 'hdbsql -U {conn.hana_userstore} -d HDB -I /tmp/sost_details.sql'"
+        )
+        result = stdout.read().decode()
+        client.close()
+        return f"[{system_id}] " + (result if result.strip() else "No failed SOST entries.")
+    except Exception as e:
+        return f"[{system_id}] ERROR: {str(e)}"
 
 def resend_sost_email(object_type: str, object_year: str, object_number: str) -> str:
     """Resend a specific failed SOST entry by object key.
@@ -1287,3 +1464,97 @@ def check_critical_auth_changes(
         f"[{system_id}] UC-S2 Critical Auth Change Monitor "
         f"(lookback {days} days)\n\n" + "\n\n".join(sections)
     )
+
+
+import re
+
+
+def check_st22_dump_triage(
+    system_id: str = "A4H",
+    days: int = 1
+) -> str:
+    """ST22 ABAP Dump Triage (UC-D1).
+
+    Reads dump headers from SNAP, decodes error type + program,
+    groups and counts them for triage. READ-ONLY, OPERATIONS pillar.
+
+    system_id: SAP System ID. Default A4H
+    days: lookback window. Default 1 (24 hours)
+    """
+    conn = SAPConnection(system_id)
+    blocked = conn.is_allowed("operations")
+    if blocked:
+        return blocked
+
+    client = conn.get_ssh_client()
+    userstore = conn.hana_userstore
+    schema = conn.hana_schema
+    cutoff = f"TO_VARCHAR(ADD_DAYS(CURRENT_DATE, -{days}), 'YYYYMMDD')"
+
+    sql = (
+        f"SELECT TOP 200 DATUM, UZEIT, AHOST, UNAME, "
+        f"FLIST || FLIST02 AS HDR "
+        f"FROM {schema}.SNAP "
+        f"WHERE FLIST LIKE 'FC%' AND DATUM >= {cutoff} "
+        f"ORDER BY DATUM DESC, UZEIT DESC"
+    )
+    # Write SQL to a temp file on the VM, run hdbsql -I, avoids
+    # all nested-quote issues through paramiko + su
+    remote_sql = "/tmp/uc_d1_dump.sql"
+    sftp = client.open_sftp()
+    with sftp.open(remote_sql, "w") as f:
+        f.write(sql + ";\n")
+    sftp.close()
+    cmd = ("su - a4hadm -c 'hdbsql -U " + userstore
+           + " -A -j -I " + remote_sql + "'")
+    stdin, stdout, stderr = client.exec_command(cmd, timeout=90)
+    result = stdout.read().decode()
+    err = stderr.read().decode()
+    client.close()
+
+    if result.strip().startswith("*"):
+        return (f"[{system_id}] ST22 query failed: "
+                + result.strip()[:300])
+    if "0 rows selected" in result:
+        return (f"[{system_id}] ST22 Dump Triage: 0 dumps in the "
+                f"last {days} day(s). System clean.")
+    if not result.strip():
+        return f"[{system_id}] ST22 query error: {err.strip()[:300]}"
+
+    def field(hdr, tag):
+        m = re.search(tag + r"(\d{3})", hdr)
+        if not m:
+            return ""
+        ln = int(m.group(1))
+        start = m.end()
+        return hdr[start:start + ln].strip()
+
+    groups = {}
+    for line in result.splitlines():
+        if not line.startswith("|") or line.startswith("| ---"):
+            continue
+        parts = [c.strip() for c in line.strip("|").split("|")]
+        if len(parts) < 5 or parts[0] == "DATUM":
+            continue
+        datum, uzeit, ahost, uname, hdr = parts[:5]
+        errid = field(hdr, "FC")
+        prog = field(hdr, "AP")
+        key = (errid, prog)
+        g = groups.setdefault(key, {"cnt": 0, "users": set(),
+                                    "first": datum + " " + uzeit,
+                                    "last": datum + " " + uzeit})
+        g["cnt"] += 1
+        g["users"].add(uname or "?")
+        g["last"] = max(g["last"], datum + " " + uzeit)
+        g["first"] = min(g["first"], datum + " " + uzeit)
+
+    lines = [f"[{system_id}] ST22 Dump Triage (last {days} day(s)) "
+             f"- {sum(g['cnt'] for g in groups.values())} dumps, "
+             f"{len(groups)} distinct groups:\n"]
+    for (errid, prog), g in sorted(groups.items(),
+                                   key=lambda x: -x[1]["cnt"]):
+        lines.append(
+            f"ERROR: {errid} | PROGRAM: {prog or 'n/a'} | "
+            f"COUNT: {g['cnt']} | USERS: {','.join(sorted(g['users']))} | "
+            f"FIRST: {g['first']} | LAST: {g['last']}")
+    return "\n".join(lines)
