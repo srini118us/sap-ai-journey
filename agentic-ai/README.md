@@ -2,7 +2,7 @@
 
 ## Scope
 
-This section contains AI agents that autonomously perform tasks by combining LLMs with tools, APIs, and human-in-the-loop controls. These agents go beyond simple chat - they observe, plan, act, and learn.
+This section contains AI agents that autonomously perform tasks by combining LLMs with tools, APIs, and human-in-the-loop controls. These agents go beyond simple chat: they observe, plan, act, and learn.
 
 ## Why "Agentic AI"
 
@@ -12,9 +12,9 @@ Traditional AI answers questions. Agentic AI takes actions. These use cases demo
 
 | # | Use Case | What It Does | Key Technology |
 |---|----------|--------------|----------------|
-| 1 | [Basis Ops Copilot](./basis-ops-copilot/) | Investigates SAP job failures, proposes remediation | LangGraph + OData |
+| 1 | [Basis Help Assistant](./basis-help-assistant/) | Investigates SAP job failures, proposes remediation | LangGraph + OData |
 | 2 | [Customer Churn Agent](./customer-churn-agent/) | Predicts churn, explains why, recommends actions | ML + GenAI Hub |
-| 3 | [LangGraph Labs](./langgraph/) | Multi-agent patterns across SAP, GCP, AWS | LangGraph framework |
+| 3 | [LangGraph Labs](./langgraph/) | Purchase order fulfillment agent against S/4HANA | LangGraph framework |
 
 ## Agent Architecture Pattern
 
@@ -40,23 +40,23 @@ Traditional AI answers questions. Agentic AI takes actions. These use cases demo
 
 ## Use Case Details
 
-### Basis Ops Copilot
+### Basis Help Assistant
+
 - **Problem**: SAP job failures require manual investigation
 - **Solution**: Agent fetches failed jobs, analyzes logs, proposes fixes
 - **Safety**: Human approval required for restart/cancel actions
 - **API**: `APJ_JOB_MANAGEMENT_SRV` OData service
 
 ### Customer Churn Agent
+
 - **Problem**: Identifying at-risk customers and taking action
 - **Solution**: ML predicts churn, LLM explains and recommends
 - **Pattern**: Predictive (ML) + Prescriptive (LLM)
 - **API**: SAP GenAI Hub orchestration
 
 ### LangGraph Labs
+
 - **uc1-sap-procurement**: PO fulfillment agent with S/4HANA
-- **uc2-sap-infra**: Infrastructure monitoring agent
-- **uc3-gcp-vertex**: Cross-cloud agent with GCP
-- **uc4-aws-bedrock**: Cross-cloud agent with AWS
 
 ## Key Concepts
 
@@ -80,7 +80,7 @@ Traditional AI answers questions. Agentic AI takes actions. These use cases demo
 ```
 agentic-ai/
 ├── README.md                    # This file
-├── basis-ops-copilot/
+├── basis-help-assistant/
 │   ├── README.md
 │   ├── job_failure_agent.py
 │   ├── llm_client.py
@@ -92,10 +92,7 @@ agentic-ai/
 │   ├── genai_client.py
 │   └── requirements.txt
 └── langgraph/
-    ├── uc1-sap-procurement/
-    ├── uc2-sap-infra/
-    ├── uc3-gcp-vertex/
-    └── uc4-aws-bedrock/
+    └── uc1-sap-procurement/
 ```
 
 ## Reference
