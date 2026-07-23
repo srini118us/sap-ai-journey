@@ -1,9 +1,8 @@
 # Enterprise AI Engineering on SAP — GCP, Databricks, and Modern LLM Tooling
 
-A working portfolio of applied AI, machine learning, and agentic systems for enterprise SAP landscapes. Projects span SAP AI Core, SAP Business Data Cloud, HANA Cloud, SAP Joule Studio, Google Cloud (Vertex AI, ADK), Databricks, and modern LLM frameworks. The focus is applied engineering: agents and models built against real SAP data and systems, documented end to end.
+A working portfolio of applied AI, machine learning, and agentic systems for enterprise SAP landscapes. Projects span SAP AI Core, SAP Business Data Cloud, HANA Cloud, SAP Joule Studio, Google Cloud (Vertex AI, ADK), Databricks, and modern LLM frameworks. The focus is applied engineering: agents and models built end to end against real running SAP systems in personal lab and trial environments, using synthetic business data.
 
-> Maturity is noted honestly per project — from work proven against live systems to prototypes and tutorials. All system identifiers shown are non-production examples.
-
+> Maturity is noted honestly per project, from working proofs of concept to prototypes and tutorials. Everything runs on personal lab, trial, and sandbox environments (SAP CAL, BTP trial, SAP Databricks trial) with synthetic or sample data: real systems rather than mocks, so the mechanics are genuine, but nothing here is a production or client landscape. All system identifiers shown are examples only.
 ---
 
 ## Featured Work
