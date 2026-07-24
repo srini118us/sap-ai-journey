@@ -1,12 +1,12 @@
 #!/bin/bash
 # Parameterized HANA Express Docker Run Script
 # Usage: bash 03_run_hana_express.sh [SID] [HOSTNAME] [VM_IP] [PASSWORD]
-# Example: bash 03_run_hana_express.sh HXE hxehost 34.48.207.206 HanaExpr2026#
+# Example: bash 03_run_hana_express.sh HXE hxehost YOUR_VM_IP CHANGE_ME
 
 SID=${1:-HXE}
 HOSTNAME=${2:-hxehost}
-VM_IP=${3:-34.48.207.206}
-PASSWORD=${4:-HanaExpr2026#}
+VM_IP=${3:-YOUR_VM_IP}
+PASSWORD=${4:-CHANGE_ME}
 PROJECT=${5:-sap-basis-copilot}
 ZONE=${6:-us-east4-b}
 SID_LOWER=$(echo $SID | tr '[:upper:]' '[:lower:]')

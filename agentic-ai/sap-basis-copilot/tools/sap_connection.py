@@ -7,7 +7,7 @@ DEFAULT_REGISTRY = {
     "systems": {
         "A4H": {
             "description": "SAP ABAP Platform 2023 Trial (SAP CAL on GCP)",
-            "host": "35.236.203.34",
+            "host": "YOUR_SAP_HOST_IP",
             "sid": "A4H",
             "instance_nr": "00",
             "hana_schema": "SAPA4H",
@@ -21,7 +21,7 @@ DEFAULT_REGISTRY = {
         },
         "BDD": {
             "description": "SAP S4HANA Development System",
-            "host": "35.236.203.34",
+            "host": "YOUR_SAP_HOST_IP",
             "sid": "BDD",
             "instance_nr": "00",
             "hana_schema": "SAPBDD",

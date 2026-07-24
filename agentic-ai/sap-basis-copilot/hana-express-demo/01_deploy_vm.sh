@@ -67,7 +67,7 @@ gcloud compute instances create $VM_NAME \
   --boot-disk-size=200GB \
   --boot-disk-type=pd-ssd \
   --boot-disk-device-name=${VM_NAME}-disk \
-  --metadata="enable-osconfig=TRUE,ssh-keys=saps101226:$SSH_KEY" \
+  --metadata="enable-osconfig=TRUE,ssh-keys=YOUR_SSH_USER:$SSH_KEY" \
   --tags=hana-express,sap-demo \
   --scopes=cloud-platform \
   --labels="sid=$SID_LOWER,type=hana-express,env=dev"

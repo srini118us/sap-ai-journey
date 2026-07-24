@@ -22,7 +22,7 @@ from sap_basis_copilot.tools.sap_connection import SAPConnection, get_available_
 import os
 import tempfile
 
-SAP_HOST = "35.236.203.34"
+SAP_HOST = "YOUR_SAP_HOST_IP"
 SAP_USER = "root"
 
 def get_ssh_key_path():
@@ -1196,7 +1196,7 @@ gcloud compute instances create $VM_NAME \
   --image-project=suse-cloud \
   --boot-disk-size=200GB \
   --boot-disk-type=pd-ssd \
-  --metadata="enable-osconfig=TRUE,ssh-keys=saps101226:$SSH_KEY" \
+  --metadata="enable-osconfig=TRUE,ssh-keys=YOUR_SSH_USER:$SSH_KEY" \
   --tags=hana-express,sap-demo \
   --scopes=cloud-platform \
   --labels="sid={sid_lower},type=hana-express,env=dev"
@@ -1236,7 +1236,7 @@ echo 'kernel.shmmax=1073741824' | sudo tee -a /etc/sysctl.conf
 echo 'kernel.shmall=8388608' | sudo tee -a /etc/sysctl.conf
 sudo sysctl -p 2>/dev/null || true
 sudo mkdir -p {data_dir} && sudo chmod 777 {data_dir}
-echo '{{"master_password": "HanaExpr2026#"}}' | sudo tee {data_dir}/{sid_lower}passwd.json
+echo '{{"master_password": "CHANGE_ME"}}' | sudo tee {data_dir}/{sid_lower}passwd.json
 sudo chmod 600 {data_dir}/{sid_lower}passwd.json
 sudo chown 12000:79 {data_dir}/{sid_lower}passwd.json
 echo 'Setup complete!'
@@ -1288,23 +1288,23 @@ echo 'Wait 5-8 minutes then verify with verify_hana_running()'
     return result.stdout
 
 def verify_hana_running(sid: str = "HXE") -> str:
-    """Verify HANA Express running via direct SSH to 34.48.207.206"""
+    """Verify HANA Express running via direct SSH to YOUR_VM_IP"""
     import paramiko, os
     try:
         sid_lower = sid.lower()
         key_path = _get_ssh_key_path()
         client = paramiko.SSHClient()
         client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        client.connect("34.48.207.206", username="saps101226", key_filename=key_path)
+        client.connect("YOUR_VM_IP", username="YOUR_SSH_USER", key_filename=key_path)
         cmd = (
             "echo === Container Status === && "
             "sudo docker ps --filter name=hxe && "
             "HDBSQL=$(sudo docker exec hxe find /hana/shared -name hdbsql 2>/dev/null | head -1) && "
             "echo === Version === && "
-            "sudo docker exec hxe $HDBSQL -i 90 -d HXE -u SYSTEM -p HanaExpr2026# "
+            "sudo docker exec hxe $HDBSQL -i 90 -d HXE -u SYSTEM -p CHANGE_ME "
             "'SELECT VERSION FROM SYS.M_DATABASE' && "
             "echo === SQL Test === && "
-            "sudo docker exec hxe $HDBSQL -i 90 -d HXE -u SYSTEM -p HanaExpr2026# "
+            "sudo docker exec hxe $HDBSQL -i 90 -d HXE -u SYSTEM -p CHANGE_ME "
             "'SELECT * FROM DUMMY'"
         )
         stdin, stdout, stderr = client.exec_command(cmd)
@@ -1321,7 +1321,7 @@ def upgrade_hana_express(current_version="2.00.082", target_tag="latest", vm_nam
         key = _get_ssh_key_path()
         c = paramiko.SSHClient()
         c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        c.connect("34.48.207.206", username="saps101226", key_filename=key)
+        c.connect("YOUR_VM_IP", username="YOUR_SSH_USER", key_filename=key)
         out = []
         def run(cmd):
             _, o, e = c.exec_command(cmd)
@@ -1355,8 +1355,8 @@ def upgrade_hana_express(current_version="2.00.082", target_tag="latest", vm_nam
                 break
         out.append("=== STEP 6: POST-CHECKS ===")
         h = run("sudo docker exec hxe find /hana/shared -name hdbsql 2>/dev/null | head -1").strip()
-        out.append(run("sudo docker exec hxe " + h + " -i 90 -d HXE -u SYSTEM -p HanaExpr2026# 'SELECT VERSION FROM SYS.M_DATABASE'"))
-        out.append(run("sudo docker exec hxe " + h + " -i 90 -d HXE -u SYSTEM -p HanaExpr2026# 'SELECT * FROM DUMMY'"))
+        out.append(run("sudo docker exec hxe " + h + " -i 90 -d HXE -u SYSTEM -p CHANGE_ME 'SELECT VERSION FROM SYS.M_DATABASE'"))
+        out.append(run("sudo docker exec hxe " + h + " -i 90 -d HXE -u SYSTEM -p CHANGE_ME 'SELECT * FROM DUMMY'"))
         out.append("=== UPGRADE COMPLETE: " + current_version + " to " + target_tag + " ===")
         c.close()
         return "\n".join(out)
