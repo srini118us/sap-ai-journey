@@ -14,11 +14,11 @@ services (GCP VM Manager, `systemctl`/`sapcontrol` over SSH).
 
 ```
 patching_agent/
-├── patching_orchestrator/
-│   ├── agent.py          # Agent definition + 7 tool functions
-│   └── __init__.py       # Exposes root_agent
-├── setup_test_vm.sh      # Provisions a free-tier GCP e2-micro VM with Tomcat
-└── .env                  # Google/Vertex credentials (not committed values)
+|-- patching_orchestrator/
+|   |-- agent.py          # Agent definition + 7 tool functions
+|   `-- __init__.py       # Exposes root_agent
+|-- setup_test_vm.sh      # Provisions a free-tier GCP e2-micro VM with Tomcat
+`-- .env                  # Google/Vertex credentials (not committed values)
 ```
 
 ## The Agent

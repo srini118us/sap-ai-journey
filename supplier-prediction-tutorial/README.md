@@ -10,18 +10,18 @@ endpoint with explanations.
 
 ```
 supplier-prediction-tutorial/
-├── data/
-│   ├── generate_data.py         # Synthetic data generator (vendors + PO records)
-│   └── training_data.csv        # 10,000 generated PO records
-├── training/
-│   ├── train.py                 # XGBoost training + evaluation + artifact save
-│   ├── Dockerfile
-│   └── requirements.txt
-├── serving/
-│   ├── serve.py                 # FastAPI inference server (/v2/predict, /healthz)
-│   ├── Dockerfile
-│   └── requirements.txt
-└── supplier-prediction-train.yaml  # Argo WorkflowTemplate for AI Core
+|-- data/
+|   |-- generate_data.py         # Synthetic data generator (vendors + PO records)
+|   `-- training_data.csv        # 10,000 generated PO records
+|-- training/
+|   |-- train.py                 # XGBoost training + evaluation + artifact save
+|   |-- Dockerfile
+|   `-- requirements.txt
+|-- serving/
+|   |-- serve.py                 # FastAPI inference server (/v2/predict, /healthz)
+|   |-- Dockerfile
+|   `-- requirements.txt
+`-- supplier-prediction-train.yaml  # Argo WorkflowTemplate for AI Core
 ```
 
 ## 1. Data

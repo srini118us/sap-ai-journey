@@ -12,10 +12,10 @@ https://developers.sap.com/tutorials/ai-core-code.html
 
 ```
 house-price-tutorial/
-├── main.py                  # Training script (load data -> split -> train -> score)
-├── Dockerfile               # python:3.11-slim image that runs main.py
-├── house-price-train.yaml   # Argo WorkflowTemplate for AI Core
-└── requirements.txt         # scikit-learn, numpy, pandas
+|-- main.py                  # Training script (load data -> split -> train -> score)
+|-- Dockerfile               # python:3.11-slim image that runs main.py
+|-- house-price-train.yaml   # Argo WorkflowTemplate for AI Core
+`-- requirements.txt         # scikit-learn, numpy, pandas
 ```
 
 ## What It Does

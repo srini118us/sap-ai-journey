@@ -14,10 +14,10 @@ Target system in the sample: SAP SID `SBX`, instance `00`, Oracle SID `SBX`.
 
 ```
 sap-diagnostic-agent/
-├── sap_diagnostic/
-│   ├── agent.py        # Agent definition + 4 diagnostic tools
-│   └── __init__.py     # Exposes root_agent
-└── .env                # Google/Vertex credentials (not committed values)
+|-- sap_diagnostic/
+|   |-- agent.py        # Agent definition + 4 diagnostic tools
+|   `-- __init__.py     # Exposes root_agent
+`-- .env                # Google/Vertex credentials (not committed values)
 ```
 
 ## The Agent

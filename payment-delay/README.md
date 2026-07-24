@@ -16,17 +16,17 @@ and a KServe serving endpoint that exposes real-time predictions.
 
 ```
 payment-delay/
-├── train/                     # Training component
-│   ├── train.py               # HANA read -> feature prep -> XGBoost -> save artifact
-│   ├── Dockerfile             # python:3.11-slim, runs train.py
-│   └── requirements.txt
-├── serve/                     # Serving component
-│   ├── serve.py               # Flask app: /v1/predict, /v1/healthz
-│   ├── Dockerfile             # gunicorn on port 9001
-│   └── requirements.txt
-└── workflows/                 # SAP AI Core templates
-    ├── training-template.yaml # Argo WorkflowTemplate (pd-train-tmpl)
-    └── serving-template.yaml  # ServingTemplate (pd-serve-tmpl)
+|-- train/                     # Training component
+|   |-- train.py               # HANA read -> feature prep -> XGBoost -> save artifact
+|   |-- Dockerfile             # python:3.11-slim, runs train.py
+|   `-- requirements.txt
+|-- serve/                     # Serving component
+|   |-- serve.py               # Flask app: /v1/predict, /v1/healthz
+|   |-- Dockerfile             # gunicorn on port 9001
+|   `-- requirements.txt
+`-- workflows/                 # SAP AI Core templates
+    |-- training-template.yaml # Argo WorkflowTemplate (pd-train-tmpl)
+    `-- serving-template.yaml  # ServingTemplate (pd-serve-tmpl)
 ```
 
 ## Data
