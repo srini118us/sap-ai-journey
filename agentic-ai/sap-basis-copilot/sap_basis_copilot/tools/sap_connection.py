@@ -121,6 +121,8 @@ PILLAR_TOOLS = {
         "check_sm20_security_audit_monitor",
         "check_critical_auth_changes",
         "check_st22_dump_triage",
+        "find_function_module",
+        "get_function_module_signature",
         "check_cancelled_jobs", "check_long_running_jobs",
         "analyze_dbacockpit_cpu_screenshot", "analyze_dbacockpit_memory_screenshot"
     ],
@@ -128,7 +130,10 @@ PILLAR_TOOLS = {
         "check_failed_trfc", "reprocess_trfc_entry", "check_failed_idocs",
         "get_idoc_details", "reprocess_idoc", "check_sost_failures",
         "check_sost_failed_emails", "get_sost_failed_details", "resend_sost_email",
-        "check_failed_updates", "check_hana_expensive_sql"
+        "check_failed_updates", "check_hana_expensive_sql",
+        "check_application_log", "list_application_log_objects",
+        "check_workflow_errors", "list_workflow_summary",
+        "check_stuck_workflows"
     ]
 }
 

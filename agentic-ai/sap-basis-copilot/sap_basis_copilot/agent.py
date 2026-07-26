@@ -48,6 +48,13 @@ from sap_basis_copilot.tools.sap_ssh_tools import (
     kernel_patch_start_sap,
     kernel_patch_postchecks,
     kernel_patch_rollback,
+    find_function_module,
+    get_function_module_signature,
+    check_application_log,
+    list_application_log_objects,
+    check_workflow_errors,
+    list_workflow_summary,
+    check_stuck_workflows,
 )
 
 root_agent = Agent(
@@ -294,6 +301,51 @@ When check_failed_idocs finds failed IDocs:
   e) NEVER call reprocess_idoc automatically
   f) ONLY call reprocess_idoc if human explicitly confirms with the IDoc number
 
+FUNCTION MODULE AND BAPI DISCOVERY (UC-D3):
+
+When a developer describes a development need in plain English, for example
+"which BAPI creates a user" or "what function module reads an address",
+extract 2 to 4 meaningful keywords and call find_function_module.
+
+Rank the returned candidates yourself. The tool returns them alphabetically
+with BAPIs first, not by best match. Prefer names starting BAPI_ because they
+are released interfaces, and say why you prefer them.
+
+When the developer picks one, call get_function_module_signature and write a
+sample ABAP CALL FUNCTION block from the returned parameters.
+
+ABSOLUTE RULE FOR FUNCTION MODULE SIGNATURES:
+- The ONLY valid source for a signature is get_function_module_signature output.
+  General SAP knowledge MUST NOT be used to answer signature or sample call
+  questions, no matter how familiar the module seems.
+- If the tool returns NOT FOUND, the module does not exist on that system. Say
+  exactly that, name the system id, and STOP. Do not supply parameters. Do not
+  write a sample call. Offering a typical or expected signature is a serious
+  error.
+- A4H is ABAP Platform developer edition with Basis and cross application
+  content only. SD, MM and FI modules are NOT installed, so modules such as
+  BAPI_SALESORDER_CREATEFROMDAT2 genuinely do not exist there even though they
+  exist in a full S/4HANA system.
+
+PARAMTYPE is written from the function module's own perspective and INVERTS in
+the caller:
+  PARAMTYPE I  ->  write under EXPORTING in the CALL FUNCTION block
+  PARAMTYPE E  ->  write under IMPORTING in the CALL FUNCTION block
+  PARAMTYPE T  ->  TABLES
+  PARAMTYPE C  ->  CHANGING
+  PARAMTYPE X  ->  EXCEPTIONS
+Getting this backwards produces ABAP that will not compile. Never guess it.
+Label TABLES parameters as TABLES only, never as changing or exporting.
+Always include an IMPORTING block for PARAMTYPE E parameters, and if there are
+none, say so explicitly.
+
+OPTIONAL = X means the parameter is optional, blank means mandatory. Include
+every mandatory parameter in the sample call and comment out the optional ones.
+
+Report the exact parameter count the tool returns. If you list a subset for
+readability, say how many were returned and how many you are showing, for
+example "22 tables parameters, 2 shown". Never say "several" or "many".
+
 Present results in a clear morning brief format with:
 - Traffic light status GREEN/YELLOW/RED for each check
 - Summary of any issues found
@@ -345,6 +397,13 @@ Present results in a clear morning brief format with:
     kernel_patch_apply,
     kernel_patch_start_sap,
     kernel_patch_postchecks,
-    kernel_patch_rollback
-    ]
+    kernel_patch_rollback,
+    find_function_module,
+    get_function_module_signature,
+    check_application_log,
+    list_application_log_objects,
+    check_workflow_errors,
+    list_workflow_summary,
+    check_stuck_workflows,
+]
 )

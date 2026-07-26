@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 import paramiko
 
 def _get_ssh_key_path():
@@ -1558,3 +1559,781 @@ def check_st22_dump_triage(
             f"COUNT: {g['cnt']} | USERS: {','.join(sorted(g['users']))} | "
             f"FIRST: {g['first']} | LAST: {g['last']}")
     return "\n".join(lines)
+
+
+def find_function_module(
+    search_terms: str,
+    system_id: str = "A4H",
+    rfc_only: bool = True
+) -> str:
+    """Function Module and BAPI Finder (UC-D3 search).
+
+    SE37 / BAPI browser equivalent. Searches the function module
+    directory (TFDIR) joined to English short texts (TFTIT) for the
+    supplied keywords. Use when a developer describes a need in plain
+    English, e.g. "which BAPI creates a user".
+
+    Returns candidate names and descriptions ONLY. Call
+    get_function_module_signature() afterwards for parameters.
+
+    READ-ONLY - OPERATIONS pillar. Does not modify anything.
+
+    search_terms: space separated keywords, e.g. "user create"
+    system_id: SAP System ID (e.g. A4H, BDD, BDP). Default: A4H
+    rfc_only: restrict to remote enabled modules. Default: True
+    """
+    conn = SAPConnection(system_id)
+    blocked = conn.is_allowed("operations")
+    if blocked:
+        return blocked
+
+    terms = [t.upper() for t in re.findall(r"[A-Za-z0-9_]+", search_terms)]
+    terms = terms[:5]
+    if not terms:
+        return (
+            f"[{system_id}] No usable search keywords supplied. "
+            f"Ask the user for 2 to 4 keywords."
+        )
+
+    client = conn.get_ssh_client()
+    userstore = conn.hana_userstore   # "DEFAULT" on A4H
+    schema = conn.hana_schema         # "SAPA4H" on A4H
+    adm_user = conn.sid.lower() + "adm"
+
+    conds = " AND ".join(
+        f"(UPPER(T.STEXT) LIKE '%{t}%' OR UPPER(D.FUNCNAME) LIKE '%{t}%')"
+        for t in terms
+    )
+    rfc = "D.FMODE = 'R' AND " if rfc_only else ""
+
+    sql = (
+        f"SELECT TOP 25 D.FUNCNAME, D.FMODE, T.STEXT "
+        f"FROM {schema}.TFDIR D "
+        f"INNER JOIN {schema}.TFTIT T "
+        f"ON T.FUNCNAME = D.FUNCNAME AND T.SPRAS = 'E' "
+        f"WHERE {rfc}{conds} "
+        f"ORDER BY CASE WHEN D.FUNCNAME LIKE 'BAPI%' THEN 0 ELSE 1 END, "
+        f"D.FUNCNAME"
+    )
+
+    cmd = (
+        'su - ' + adm_user + ' -c '
+        '"hdbsql -U ' + userstore + ' -A -j \\"' + sql + '\\""'
+    )
+    stdin, stdout, stderr = client.exec_command(cmd, timeout=60)
+    result = stdout.read().decode()
+    err = stderr.read().decode()
+    client.close()
+
+    joined = " ".join(terms)
+    low = (result + err).lower()
+
+    if "invalid table name" in low or "invalid schema name" in low:
+        return (
+            f"[{system_id}] Dictionary tables not reachable on this "
+            f"release: {err.strip()[:200]}"
+        )
+
+    if "0 rows selected" in result or not result.strip():
+        return (
+            f"[{system_id}] NOT FOUND: no function modules on system "
+            f"{system_id} match these keywords: {joined}. "
+            f"Do NOT suggest function module names from general SAP "
+            f"knowledge. Tell the user nothing matched on this system "
+            f"and ask for different keywords."
+        )
+
+    rows = [ln for ln in result.strip().split("\n")[1:] if ln.strip()]
+    return (
+        f"[{system_id}] UC-D3 Function Module Search - keywords: {joined}\n"
+        f"{len(rows)} match(es) shown, capped at 25. "
+        f"Live read from {schema}.TFDIR joined to TFTIT.\n\n"
+        + result.strip()
+    )
+
+
+def get_function_module_signature(
+    function_name: str,
+    system_id: str = "A4H"
+) -> str:
+    """Function Module Signature Reader (UC-D3 detail).
+
+    Reads the full active parameter interface of a function module or
+    BAPI from FUPARAREF, so a sample CALL FUNCTION block can be written
+    from real parameters rather than from memory. Call after
+    find_function_module() once the developer picks a module.
+
+    READ-ONLY - OPERATIONS pillar. Does not modify anything.
+
+    function_name: exact name, e.g. BAPI_USER_CREATE1
+    system_id: SAP System ID (e.g. A4H, BDD, BDP). Default: A4H
+    """
+    conn = SAPConnection(system_id)
+    blocked = conn.is_allowed("operations")
+    if blocked:
+        return blocked
+
+    fm = re.sub(r"[^A-Za-z0-9_/]", "", function_name).upper()
+    if not fm:
+        return f"[{system_id}] Invalid function module name supplied."
+
+    client = conn.get_ssh_client()
+    userstore = conn.hana_userstore
+    schema = conn.hana_schema
+    adm_user = conn.sid.lower() + "adm"
+
+    sql = (
+        f"SELECT PARAMTYPE, PPOSITION, PARAMETER, STRUCTURE, "
+        f"OPTIONAL, DEFAULTVAL "
+        f"FROM {schema}.FUPARAREF "
+        f"WHERE FUNCNAME = '{fm}' AND R3STATE = 'A' "
+        f"ORDER BY PARAMTYPE, PPOSITION"
+    )
+
+    cmd = (
+        'su - ' + adm_user + ' -c '
+        '"hdbsql -U ' + userstore + ' -A -j \\"' + sql + '\\""'
+    )
+    stdin, stdout, stderr = client.exec_command(cmd, timeout=60)
+    result = stdout.read().decode()
+    err = stderr.read().decode()
+    client.close()
+
+    low = (result + err).lower()
+
+    if "invalid table name" in low or "invalid schema name" in low:
+        return (
+            f"[{system_id}] FUPARAREF not reachable on this release: "
+            f"{err.strip()[:200]}"
+        )
+
+    if "0 rows selected" in result or not result.strip():
+        return (
+            f"[{system_id}] NOT FOUND: function module {fm} does not "
+            f"exist on system {system_id}. FUPARAREF returned zero "
+            f"active parameters, so this module is not installed here. "
+            f"Report it to the user as not found and STOP. Do NOT "
+            f"generate a signature or a sample ABAP call for {fm} from "
+            f"general SAP knowledge. Note this system is ABAP Platform "
+            f"developer edition, so SD, MM and FI modules are absent."
+        )
+
+    rows = [ln for ln in result.strip().split("\n")[1:] if ln.strip()]
+    return (
+        f"[{system_id}] UC-D3 Signature for {fm} - {len(rows)} active "
+        f"parameters. Live read from {schema}.FUPARAREF.\n"
+        f"PARAMTYPE is from the function module's own perspective and "
+        f"INVERTS in the caller: I = importing, so write it under "
+        f"EXPORTING in the CALL FUNCTION block; E = exporting, so write "
+        f"it under IMPORTING; C = changing; T = tables; X = exceptions. "
+        f"OPTIONAL = X means optional, blank means mandatory.\n\n"
+        + result.strip()
+    )
+# =====================================================================
+# UC-A3 / UC-A4  New tools for the SAP Basis Copilot
+#
+# Append these two functions to the END of tools/sap_ssh_tools.py,
+# after get_function_module_signature.
+#
+# House style followed:
+#   inline hdbsql through paramiko + su, no sftp of .sql files
+#   adm user derived from the SID, not hardcoded a4hadm
+#   conn.hana_userstore and conn.hana_schema used for the connection
+#   bare "blocked" returned for governance blocks
+#   hdbsql errors detected on STDOUT with the '* NNN:' prefix
+#
+# VERIFY ON FIRST RUN
+#   BALHDR message count columns. The SE16 export showed 9 of 43 fields,
+#   so MSG_CNT_A / MSG_CNT_E / MSG_CNT_W and ALPROG are expected but not
+#   confirmed on this release. If hdbsql returns an unknown column error
+#   it names the column, so drop that one from the SELECT and rerun.
+# =====================================================================
+
+from datetime import datetime, timedelta
+
+
+def check_application_log(
+    system_id: str = "A4H",
+    hours_back: int = 2,
+    program: str = "",
+    log_object: str = "",
+    user: str = "",
+    errors_only: bool = True,
+    date_from: str = "",
+    date_to: str = "",
+) -> str:
+    """Read the SAP application log (SLG1) for a time window.
+
+    This is the BUSINESS level log. Applications write here through the
+    BAL framework when something fails for a business reason, which is
+    often invisible in ST22 because no program actually terminated.
+
+    Args:
+        system_id: SID from the registry, for example A4H
+        hours_back: how far back to look, in hours
+        program: optional filter on the writing program (ALPROG)
+        log_object: optional filter on the application area (OBJECT)
+        user: optional filter on the user who triggered it
+        errors_only: when True, only logs containing errors or aborts
+        date_from: optional absolute start date, YYYYMMDD. Overrides
+            hours_back. Use when the user names a specific date or when
+            the data being looked for is older than a relative window
+            would reach.
+        date_to: optional absolute end date, YYYYMMDD. Defaults to
+            date_from, meaning a single day.
+
+    Returns:
+        Formatted findings, or a message stating nothing was found.
+    """
+    conn = SAPConnection(system_id)
+
+    blocked = conn.is_allowed("application")
+    if blocked:
+        return blocked
+
+    if date_from:
+        d_from, t_from = date_from, "000000"
+        d_to, t_to = (date_to or date_from), "235959"
+        window_label = f"{d_from} to {d_to}"
+    else:
+        now = datetime.now()
+        start = now - timedelta(hours=hours_back)
+        d_from, t_from = start.strftime("%Y%m%d"), start.strftime("%H%M%S")
+        d_to, t_to = now.strftime("%Y%m%d"), now.strftime("%H%M%S")
+        window_label = f"last {hours_back} hour(s)"
+
+    schema = conn.hana_schema
+    adm = conn.sid.lower() + "adm"
+
+    # ALDATE and ALTIME are separate columns, so the window has to be
+    # expressed as a spanning comparison rather than a date equality.
+    # That also means it crosses midnight correctly.
+    where = [
+        f"( ALDATE > '{d_from}' OR ( ALDATE = '{d_from}' AND ALTIME >= '{t_from}' ) )",
+        f"( ALDATE < '{d_to}'   OR ( ALDATE = '{d_to}'   AND ALTIME <= '{t_to}' ) )",
+    ]
+
+    if errors_only:
+        # Only logs that actually carry an error or an abort. Without this
+        # a busy system returns hundreds of routine informational logs.
+        # MSG_CNT_* are NUMC, holding '000000' rather than 0, so the
+        # cast is required. A bare > 0 comparison is unreliable here.
+        where.append(
+            "( TO_INTEGER(MSG_CNT_E) > 0 OR TO_INTEGER(MSG_CNT_A) > 0 )"
+        )
+    if program:
+        where.append(f"UPPER(ALPROG) LIKE UPPER('%{program}%')")
+    if log_object:
+        where.append(f"UPPER(OBJECT) LIKE UPPER('%{log_object}%')")
+    if user:
+        where.append(f"UPPER(ALUSER) = UPPER('{user}')")
+
+    sql = (
+        "SELECT ALDATE, ALTIME, ALUSER, OBJECT, SUBOBJECT, ALPROG, "
+        "ALTCODE, EXTNUMBER, MSG_CNT_A, MSG_CNT_E, MSG_CNT_W, LOGNUMBER "
+        f"FROM {schema}.BALHDR "
+        "WHERE " + " AND ".join(where) + " "
+        "ORDER BY ALDATE, ALTIME"
+    )
+
+    cmd = 'su - ' + adm + ' -c ' + '"hdbsql -U ' + conn.hana_userstore + \
+          ' -A -j \\"' + sql + '\\""'
+
+    client = conn.get_ssh_client()
+    stdin, stdout, stderr = client.exec_command(cmd, timeout=60)
+    out = stdout.read().decode(errors="replace")
+    client.close()
+
+    # hdbsql writes errors to STDOUT with a '* NNN:' prefix, not stderr.
+    # Without this check the tool falsely reports a clean result.
+    if "* " in out and ":" in out.split("* ", 1)[-1][:8]:
+        return f"{system_id}: application log query failed. {out.strip()}"
+
+    rows = [r for r in out.splitlines() if r.strip() and not r.startswith("rows")]
+    if not rows:
+        scope = "with errors" if errors_only else ""
+        return (
+            f"{system_id}: no application log entries {scope} in "
+            f"{window_label}. Note this is a genuine empty result, "
+            f"not a failure. On a developer edition system without the SD, "
+            f"MM and FI application stack, SLG1 is written mainly by "
+            f"Gateway and Fiori components."
+        )
+
+    lines = [
+        f"{system_id} APPLICATION LOG (SLG1), {window_label}",
+        f"Filters: errors_only={errors_only}"
+        + (f", program~{program}" if program else "")
+        + (f", object~{log_object}" if log_object else "")
+        + (f", user={user}" if user else ""),
+        f"{len(rows)} log(s) found",
+        "",
+    ]
+
+    for r in rows[:50]:
+        f = [c.strip().strip('"') for c in r.split(",")]
+        if len(f) < 12:
+            continue
+        (aldate, altime, aluser, obj, subobj, alprog,
+         altcode, extnum, cnt_a, cnt_e, cnt_w, lognum) = f[:12]
+
+        stamp = f"{aldate[6:8]}.{aldate[4:6]}.{aldate[0:4]} {altime[0:2]}:{altime[2:4]}:{altime[4:6]}"
+        sev = "ABORT" if cnt_a not in ("0", "") else "ERROR"
+
+        lines.append(
+            f"[{sev}] {stamp} {aluser} | {obj}/{subobj} | program {alprog}"
+            + (f" | tcode {altcode}" if altcode else "")
+            + (f" | ext {extnum}" if extnum else "")
+        )
+        lines.append(
+            f"        aborts {cnt_a}, errors {cnt_e}, warnings {cnt_w} "
+            f"| open SLG1 on log {lognum} for message detail"
+        )
+
+    if len(rows) > 50:
+        lines.append("")
+        lines.append(
+            f"[TRUNCATED] showing 50 of {len(rows)}. Narrow the window or "
+            f"add a program or object filter."
+        )
+
+    return "\n".join(lines)
+
+
+def check_workflow_errors(
+    system_id: str = "A4H",
+    hours_back: int = 24,
+    task: str = "",
+) -> str:
+    """Find SAP Business Workflow work items sitting in error.
+
+    Equivalent to SWI2_DIAG. A workflow in error stalls silently: the
+    business process simply stops, and nobody is notified unless someone
+    looks. Reads SWWWIHEAD, the work item header table.
+
+    Args:
+        system_id: SID from the registry, for example A4H
+        hours_back: how far back to look, in hours
+        task: optional filter on the task, for example TS12300097
+
+    Returns:
+        Formatted findings, or a message stating nothing was found.
+    """
+    conn = SAPConnection(system_id)
+
+    blocked = conn.is_allowed("application")
+    if blocked:
+        return blocked
+
+    start = datetime.now() - timedelta(hours=hours_back)
+    d_from = start.strftime("%Y%m%d")
+
+    schema = conn.hana_schema
+    adm = conn.sid.lower() + "adm"
+
+    where = [
+        "WI_STAT = 'ERROR'",
+        f"WI_CD >= '{d_from}'",
+    ]
+    if task:
+        where.append(f"UPPER(WI_RH_TASK) LIKE UPPER('%{task}%')")
+
+    sql = (
+        "SELECT WI_ID, WI_CD, WI_CT, WI_TYPE, WI_RH_TASK, WI_STAT, "
+        "WI_CREATOR, WI_TEXT "
+        f"FROM {schema}.SWWWIHEAD "
+        "WHERE " + " AND ".join(where) + " "
+        "ORDER BY WI_CD, WI_CT"
+    )
+
+    cmd = 'su - ' + adm + ' -c ' + '"hdbsql -U ' + conn.hana_userstore + \
+          ' -A -j \\"' + sql + '\\""'
+
+    client = conn.get_ssh_client()
+    stdin, stdout, stderr = client.exec_command(cmd, timeout=60)
+    out = stdout.read().decode(errors="replace")
+    client.close()
+
+    if "* " in out and ":" in out.split("* ", 1)[-1][:8]:
+        return f"{system_id}: workflow query failed. {out.strip()}"
+
+    rows = [r for r in out.splitlines() if r.strip() and not r.startswith("rows")]
+    if not rows:
+        return (
+            f"{system_id}: no workflow work items in error status in the "
+            f"last {hours_back} hour(s). Note this is a genuine empty "
+            f"result. A developer edition system with no business "
+            f"applications configured will normally have no workflows "
+            f"running at all."
+        )
+
+    lines = [
+        f"{system_id} WORKFLOW ERRORS (SWI2_DIAG equivalent), last {hours_back} hour(s)",
+        f"{len(rows)} work item(s) in error",
+        "",
+    ]
+
+    for r in rows[:50]:
+        f = [c.strip().strip('"') for c in r.split(",")]
+        if len(f) < 8:
+            continue
+        wi_id, wi_cd, wi_ct, wi_type, task_id, stat, creator, text = f[:8]
+        stamp = f"{wi_cd[6:8]}.{wi_cd[4:6]}.{wi_cd[0:4]} {wi_ct[0:2]}:{wi_ct[2:4]}:{wi_ct[4:6]}"
+        lines.append(f"[ERROR] {stamp} work item {wi_id} | task {task_id} | type {wi_type}")
+        lines.append(f"        {text}")
+        lines.append(f"        created by {creator} | restart via SWPR after fixing the cause")
+
+    if len(rows) > 50:
+        lines.append("")
+        lines.append(f"[TRUNCATED] showing 50 of {len(rows)}.")
+
+    return "\n".join(lines)
+
+
+
+# =====================================================================
+# DISCOVERY TOOLS
+#
+# The problem these solve: nobody knows the OBJECT codes or the task IDs.
+# Real users say "Gateway" or "purchasing", while the tables hold
+# /IWFND/ and TS12300097. These return the shape of what is there, so
+# the conversation becomes two steps: what is logging errors, then show
+# me those.
+# =====================================================================
+
+
+def list_application_log_objects(
+    system_id: str = "A4H",
+    hours_back: int = 24,
+    date_from: str = "",
+    date_to: str = "",
+) -> str:
+    """Show which applications wrote to SLG1, and how many had errors.
+
+    Use this FIRST when the user asks a broad question like "any
+    application errors today" or does not know the OBJECT code. The
+    result tells them what to drill into with check_application_log.
+
+    Args:
+        system_id: SID from the registry, for example A4H
+        hours_back: how far back to look, in hours
+        date_from: optional absolute start date, YYYYMMDD. Overrides
+            hours_back.
+        date_to: optional absolute end date, YYYYMMDD. Defaults to
+            date_from, meaning a single day.
+
+    Returns:
+        One line per application area with totals and error counts.
+    """
+    conn = SAPConnection(system_id)
+
+    blocked = conn.is_allowed("application")
+    if blocked:
+        return blocked
+
+    if date_from:
+        d_from, t_from = date_from, "000000"
+        d_to, t_to = (date_to or date_from), "235959"
+        window_label = f"{d_from} to {d_to}"
+    else:
+        now = datetime.now()
+        start = now - timedelta(hours=hours_back)
+        d_from, t_from = start.strftime("%Y%m%d"), start.strftime("%H%M%S")
+        d_to, t_to = now.strftime("%Y%m%d"), now.strftime("%H%M%S")
+        window_label = f"last {hours_back} hour(s)"
+
+    schema = conn.hana_schema
+    adm = conn.sid.lower() + "adm"
+
+    sql = (
+        "SELECT OBJECT, SUBOBJECT, COUNT(*) AS TOTAL, "
+        "SUM(CASE WHEN TO_INTEGER(MSG_CNT_E) > 0 "
+        "OR TO_INTEGER(MSG_CNT_A) > 0 THEN 1 ELSE 0 END) AS WITH_ERR "
+        f"FROM {schema}.BALHDR "
+        f"WHERE ( ALDATE > '{d_from}' OR ( ALDATE = '{d_from}' AND ALTIME >= '{t_from}' ) ) "
+        f"AND ( ALDATE < '{d_to}' OR ( ALDATE = '{d_to}' AND ALTIME <= '{t_to}' ) ) "
+        "GROUP BY OBJECT, SUBOBJECT "
+        "ORDER BY WITH_ERR DESC, TOTAL DESC"
+    )
+
+    cmd = 'su - ' + adm + ' -c ' + '"hdbsql -U ' + conn.hana_userstore + \
+          ' -A -j \\"' + sql + '\\""'
+
+    client = conn.get_ssh_client()
+    stdin, stdout, stderr = client.exec_command(cmd, timeout=60)
+    out = stdout.read().decode(errors="replace")
+    client.close()
+
+    if "* " in out and ":" in out.split("* ", 1)[-1][:8]:
+        return f"{system_id}: application log summary failed. {out.strip()}"
+
+    rows = [r for r in out.splitlines() if r.strip() and not r.startswith("rows")]
+    if not rows:
+        return (
+            f"{system_id}: nothing wrote to the application log in "
+            f"{window_label}. This is a genuine empty result."
+        )
+
+    lines = [
+        f"{system_id} APPLICATION LOG SUMMARY, {window_label}",
+        f"{len(rows)} application area(s) wrote logs",
+        "",
+    ]
+
+    err_areas = []
+    for r in rows[:60]:
+        f = [c.strip().strip('"') for c in r.split(",")]
+        if len(f) < 4:
+            continue
+        obj, subobj, total, with_err = f[:4]
+        flag = "ERRORS" if with_err not in ("0", "") else "clean "
+        lines.append(
+            f"[{flag}] {obj}/{subobj}: {total} log(s), {with_err} containing errors"
+        )
+        if with_err not in ("0", ""):
+            err_areas.append(obj)
+
+    lines.append("")
+    if err_areas:
+        lines.append(
+            "To drill in, call check_application_log with log_object set to "
+            "one of: " + ", ".join(sorted(set(err_areas))[:8])
+        )
+    else:
+        lines.append("No area recorded any errors in this window.")
+
+    return "\n".join(lines)
+
+
+def list_workflow_summary(
+    system_id: str = "A4H",
+    hours_back: int = 24,
+) -> str:
+    """Show workflow activity grouped by task and status.
+
+    Use this FIRST for broad questions like "any workflow issues" or
+    "how are the workflows doing". It shows the shape: which tasks are
+    running, and how many sit in each status. ERROR is the obvious
+    problem, but a large READY or STARTED count on an old task usually
+    means something is silently stuck.
+
+    Args:
+        system_id: SID from the registry, for example A4H
+        hours_back: how far back to look, in hours
+
+    Returns:
+        One line per task and status combination with a count.
+    """
+    conn = SAPConnection(system_id)
+
+    blocked = conn.is_allowed("application")
+    if blocked:
+        return blocked
+
+    start = datetime.now() - timedelta(hours=hours_back)
+    d_from = start.strftime("%Y%m%d")
+
+    schema = conn.hana_schema
+    adm = conn.sid.lower() + "adm"
+
+    sql = (
+        "SELECT WI_RH_TASK, WI_STAT, COUNT(*) AS CNT "
+        f"FROM {schema}.SWWWIHEAD "
+        f"WHERE WI_CD >= '{d_from}' "
+        "GROUP BY WI_RH_TASK, WI_STAT "
+        "ORDER BY CNT DESC"
+    )
+
+    cmd = 'su - ' + adm + ' -c ' + '"hdbsql -U ' + conn.hana_userstore + \
+          ' -A -j \\"' + sql + '\\""'
+
+    client = conn.get_ssh_client()
+    stdin, stdout, stderr = client.exec_command(cmd, timeout=60)
+    out = stdout.read().decode(errors="replace")
+    client.close()
+
+    if "* " in out and ":" in out.split("* ", 1)[-1][:8]:
+        return f"{system_id}: workflow summary failed. {out.strip()}"
+
+    rows = [r for r in out.splitlines() if r.strip() and not r.startswith("rows")]
+    if not rows:
+        return (
+            f"{system_id}: no workflow work items created in the last "
+            f"{hours_back} hour(s). This is a genuine empty result. A "
+            f"developer edition system with no business applications "
+            f"configured normally runs no workflows at all."
+        )
+
+    lines = [
+        f"{system_id} WORKFLOW SUMMARY, last {hours_back} hour(s)",
+        "",
+    ]
+
+    problems = []
+    for r in rows[:60]:
+        f = [c.strip().strip('"') for c in r.split(",")]
+        if len(f) < 3:
+            continue
+        task, stat, cnt = f[:3]
+        marker = "PROBLEM" if stat.upper() in ("ERROR", "CANCELLED") else "       "
+        lines.append(f"[{marker}] task {task}: {cnt} work item(s) in status {stat}")
+        if stat.upper() == "ERROR":
+            problems.append(task)
+
+    lines.append("")
+    if problems:
+        lines.append(
+            "Work items in ERROR found. Call check_workflow_errors for the "
+            "detail on: " + ", ".join(sorted(set(problems))[:8])
+        )
+    else:
+        lines.append(
+            "No work items in ERROR status. Call check_stuck_workflows to "
+            "look for items that are not in error but have stopped moving."
+        )
+
+    return "\n".join(lines)
+
+
+def check_stuck_workflows(
+    system_id: str = "A4H",
+    older_than_hours: int = 24,
+) -> str:
+    """Find work items that are not in error but have stopped moving.
+
+    This is the harder failure mode. A work item in ERROR at least
+    announces itself. One sitting in READY or STARTED for days looks
+    healthy in every status report while the business process it belongs
+    to has quietly stopped, usually because no agent was assigned or the
+    assigned agent never acted.
+
+    Args:
+        system_id: SID from the registry, for example A4H
+        older_than_hours: flag items untouched for longer than this
+
+    Returns:
+        Formatted findings, or a message stating nothing was found.
+    """
+    conn = SAPConnection(system_id)
+
+    blocked = conn.is_allowed("application")
+    if blocked:
+        return blocked
+
+    cutoff = datetime.now() - timedelta(hours=older_than_hours)
+    d_cut = cutoff.strftime("%Y%m%d")
+
+    schema = conn.hana_schema
+    adm = conn.sid.lower() + "adm"
+
+    sql = (
+        "SELECT WI_ID, WI_CD, WI_CT, WI_TYPE, WI_RH_TASK, WI_STAT, "
+        "WI_AAGENT, WI_TEXT "
+        f"FROM {schema}.SWWWIHEAD "
+        "WHERE WI_STAT IN ( 'READY', 'STARTED', 'WAITING', 'COMMITTED' ) "
+        f"AND WI_CD <= '{d_cut}' "
+        "ORDER BY WI_CD, WI_CT"
+    )
+
+    cmd = 'su - ' + adm + ' -c ' + '"hdbsql -U ' + conn.hana_userstore + \
+          ' -A -j \\"' + sql + '\\""'
+
+    client = conn.get_ssh_client()
+    stdin, stdout, stderr = client.exec_command(cmd, timeout=60)
+    out = stdout.read().decode(errors="replace")
+    client.close()
+
+    if "* " in out and ":" in out.split("* ", 1)[-1][:8]:
+        return f"{system_id}: stuck workflow query failed. {out.strip()}"
+
+    rows = [r for r in out.splitlines() if r.strip() and not r.startswith("rows")]
+    if not rows:
+        return (
+            f"{system_id}: no work items older than {older_than_hours} "
+            f"hour(s) still sitting in an open status. This is a genuine "
+            f"empty result."
+        )
+
+    lines = [
+        f"{system_id} STUCK WORKFLOWS, open for more than {older_than_hours} hour(s)",
+        f"{len(rows)} work item(s) not progressing",
+        "",
+    ]
+
+    for r in rows[:50]:
+        f = [c.strip().strip('"') for c in r.split(",")]
+        if len(f) < 8:
+            continue
+        wi_id, wi_cd, wi_ct, wi_type, task_id, stat, agent, text = f[:8]
+        stamp = f"{wi_cd[6:8]}.{wi_cd[4:6]}.{wi_cd[0:4]} {wi_ct[0:2]}:{wi_ct[2:4]}"
+        age_note = "no agent assigned" if not agent.strip() else f"assigned to {agent}"
+        lines.append(f"[STALLED] {stamp} work item {wi_id} | task {task_id} | status {stat}")
+        lines.append(f"          {text}")
+        lines.append(f"          {age_note} | check SWI1 for the work item history")
+
+    if len(rows) > 50:
+        lines.append("")
+        lines.append(f"[TRUNCATED] showing 50 of {len(rows)}.")
+
+    return "\n".join(lines)
+
+# =====================================================================
+# WIRING — three places, same as every other tool
+#
+# 1. agent.py imports
+#    from tools.sap_ssh_tools import (
+#        ...,
+#        check_application_log,
+#        list_application_log_objects,
+#        check_workflow_errors,
+#        list_workflow_summary,
+#        check_stuck_workflows,
+#    )
+#
+# 2. agent.py tools list
+#    tools=[
+#        ...,
+#        check_application_log,
+#        list_application_log_objects,
+#        check_workflow_errors,
+#        list_workflow_summary,
+#        check_stuck_workflows,
+#    ]
+#
+# 3. tools/sap_connection.py
+#    PILLAR_TOOLS["application"].extend([
+#        "check_application_log",
+#        "list_application_log_objects",
+#        "check_workflow_errors",
+#        "list_workflow_summary",
+#        "check_stuck_workflows",
+#    ])
+#
+# Both belong to the APPLICATION pillar, so they are blocked on PRD
+# systems by the existing governance, which is correct.
+# =====================================================================
+
+# =====================================================================
+# AGENT INSTRUCTION BLOCK — add to the instruction string in agent.py
+#
+# APPLICATION LOG AND WORKFLOW
+#
+# check_application_log reads SLG1, the BUSINESS level log. Use it when
+# the question is about an application failing rather than a program
+# terminating. It is a different layer from ST22: a business validation
+# failure writes here and produces no dump at all.
+#
+# Default to errors_only=True. Routine informational logs are noise and
+# a busy system writes hundreds of them.
+#
+# check_workflow_errors finds work items stuck in error status. A stalled
+# workflow is silent, so nobody is notified unless someone looks.
+#
+# ABSOLUTE RULE for both: an empty result means the log is genuinely
+# empty. Say so plainly. Do NOT describe what such logs usually contain,
+# and do NOT fill the gap from general SAP knowledge. State that nothing
+# was found and suggest widening the window.
+#
+# Neither tool returns individual message text. Say so when relevant, and
+# point the user at SLG1 on the specific log number for the detail.
+# =====================================================================
