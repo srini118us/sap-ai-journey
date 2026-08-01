@@ -25,11 +25,15 @@ from sap_basis_copilot.tools.sap_ssh_tools import (
     reprocess_idoc,
     check_smq1_outbound,
     check_smq2_inbound,
-    check_st22_dumps,
     check_sm21_syslog,
     check_sm20_security_audit_monitor,
     check_critical_auth_changes,
     check_st22_dump_triage,
+    check_hana_parameters,
+    os_patch_check,
+    os_patch_detect_app,
+    os_patch_apply,
+    os_patch_verify,
     check_sost_failed_emails,
     get_sost_failed_details,
     resend_sost_email,
@@ -114,7 +118,6 @@ automatically. Instead:
 20. reprocess_idoc - reprocess a specific IDoc (ONLY with explicit human confirmation)
 21. check_smq1_outbound - SMQ1 equivalent - outbound qRFC queue status
 22. check_smq2_inbound - SMQ2 equivalent - inbound qRFC queue status
-23. check_st22_dumps - ST22 equivalent - ABAP short dumps last 24h (critical only, top 10)
 24. check_sm21_syslog
 
 MULTI-SYSTEM SUPPORT:
@@ -202,6 +205,24 @@ Recognize these user intents as SM20 requests (do not require exact match):
   Intents: "any dumps", "important dumps", "ST22", "short dumps",
   "ABAP errors", "dump analysis" -> call check_st22_dump_triage
   (default system_id A4H, days 1; widen days if user asks).
+
+  OS PATCHING (VM Manager) - state-changing, human-in-the-loop:
+  Intents: "patch the OS", "OS patching", "patch <vm>", "apply OS updates",
+  "yum/dnf/zypper updates", "patch RHEL/SLES host".
+  ALWAYS follow this sequence and STOP for human confirmation before applying:
+    1. os_patch_check(vm_name) - report available updates + whether a kernel
+       update (reboot) is involved. This is the 'before' baseline.
+    2. os_patch_detect_app(vm_name) - determine if SAP/HANA is running.
+       - If a SAP host: tell the user SAP must be stopped first
+         (kernel_patch_stop_sap) and restarted after (kernel_patch_start_sap).
+       - If a plain OS host: note no application to stop.
+    3. PRESENT THE PLAN and ASK THE USER TO CONFIRM before proceeding.
+       Do NOT call os_patch_apply until the user explicitly approves.
+    4. os_patch_apply(vm_name) - only after approval (and after SAP is stopped
+       if it is a SAP host). Reboots if a patch requires it.
+    5. os_patch_verify(vm_name) - the 'after' check (0 updates, kernel/uptime).
+       If SAP was stopped, remind the user to start it and confirm health.
+  vm_name is the GCE instance name (e.g. "rhel-patch-demo"), not the SAP SID.
 
   UC-D1 severity pinning (apply consistently):
     CRITICAL: DBSQL_SQL_ERROR, DBIF_* errors, MEMORY_* errors,
@@ -375,11 +396,15 @@ Present results in a clear morning brief format with:
     reprocess_idoc,
     check_smq1_outbound,
     check_smq2_inbound,
-    check_st22_dumps,
     check_sm21_syslog,
     check_sm20_security_audit_monitor,
     check_critical_auth_changes,
     check_st22_dump_triage,
+    check_hana_parameters,
+    os_patch_check,
+    os_patch_detect_app,
+    os_patch_apply,
+    os_patch_verify,
     check_sost_failed_emails,
     get_sost_failed_details,
     resend_sost_email,

@@ -604,35 +604,6 @@ def check_smq2_inbound(system_id: str = "A4H") -> str:
     except Exception as e:
         return f"[{system_id}] ERROR: {str(e)}"
 
-def check_st22_dumps(system_id: str = "A4H") -> str:
-    """ST22 equivalent (legacy simple) - ABAP short dumps last 24h, top 10.
-    NOTE: check_st22_dump_triage (UC-D1) is the richer replacement.
-    system_id: SAP System ID. Default: A4H"""
-    try:
-        conn = SAPConnection(system_id)
-        blocked = conn.is_allowed("operations")
-        if blocked: return blocked
-        client = conn.get_ssh_client()
-        sid_lower = conn.sid.lower()
-        sql = ("SELECT TOP 10 SNAPDATE, ERRTY, ERRCLAS, REPID, "
-               "LEFT(ERRMESS, 80) AS ERROR_MSG, COUNT(*) AS DUMP_COUNT "
-               f"FROM {conn.hana_schema}.SNAP "
-               "WHERE SNAPDATE >= TO_VARCHAR(ADD_DAYS(NOW(),-1),'YYYYMMDD') "
-               "GROUP BY SNAPDATE, ERRTY, ERRCLAS, REPID, ERRMESS "
-               "ORDER BY DUMP_COUNT DESC")
-        sftp = client.open_sftp()
-        with sftp.open("/tmp/st22.sql", "w") as f:
-            f.write(sql)
-        sftp.close()
-        stdin, stdout, stderr = client.exec_command(
-            f"su - {sid_lower}adm -c 'hdbsql -U {conn.hana_userstore} -d HDB -I /tmp/st22.sql'"
-        )
-        result = stdout.read().decode()
-        client.close()
-        return f"[{system_id}] " + (result if result.strip() else "No ABAP short dumps in last 24h.")
-    except Exception as e:
-        return f"[{system_id}] ERROR: {str(e)}"
-
 def check_sm21_syslog(system_id: str = "A4H") -> str:
     """SM21 equivalent - SAP system log, critical errors only.
     system_id: SAP System ID. Default: A4H"""
@@ -1197,7 +1168,7 @@ gcloud compute instances create $VM_NAME \
   --image-project=suse-cloud \
   --boot-disk-size=200GB \
   --boot-disk-type=pd-ssd \
-  --metadata="enable-osconfig=TRUE,ssh-keys=YOUR_SSH_USER:$SSH_KEY" \
+  --metadata="enable-osconfig=TRUE,ssh-keys=YOUR_GCP_USER:$SSH_KEY" \
   --tags=hana-express,sap-demo \
   --scopes=cloud-platform \
   --labels="sid={sid_lower},type=hana-express,env=dev"
@@ -1237,7 +1208,7 @@ echo 'kernel.shmmax=1073741824' | sudo tee -a /etc/sysctl.conf
 echo 'kernel.shmall=8388608' | sudo tee -a /etc/sysctl.conf
 sudo sysctl -p 2>/dev/null || true
 sudo mkdir -p {data_dir} && sudo chmod 777 {data_dir}
-echo '{{"master_password": "CHANGE_ME"}}' | sudo tee {data_dir}/{sid_lower}passwd.json
+echo '{{"master_password": "HanaExpr2026#"}}' | sudo tee {data_dir}/{sid_lower}passwd.json
 sudo chmod 600 {data_dir}/{sid_lower}passwd.json
 sudo chown 12000:79 {data_dir}/{sid_lower}passwd.json
 echo 'Setup complete!'
@@ -1289,23 +1260,23 @@ echo 'Wait 5-8 minutes then verify with verify_hana_running()'
     return result.stdout
 
 def verify_hana_running(sid: str = "HXE") -> str:
-    """Verify HANA Express running via direct SSH to YOUR_VM_IP"""
+    """Verify HANA Express running via direct SSH to YOUR_HANA_HOST_IP"""
     import paramiko, os
     try:
         sid_lower = sid.lower()
         key_path = _get_ssh_key_path()
         client = paramiko.SSHClient()
         client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        client.connect("YOUR_VM_IP", username="YOUR_SSH_USER", key_filename=key_path)
+        client.connect("YOUR_HANA_HOST_IP", username="YOUR_GCP_USER", key_filename=key_path)
         cmd = (
             "echo === Container Status === && "
             "sudo docker ps --filter name=hxe && "
             "HDBSQL=$(sudo docker exec hxe find /hana/shared -name hdbsql 2>/dev/null | head -1) && "
             "echo === Version === && "
-            "sudo docker exec hxe $HDBSQL -i 90 -d HXE -u SYSTEM -p CHANGE_ME "
+            "sudo docker exec hxe $HDBSQL -i 90 -d HXE -u SYSTEM -p HanaExpr2026# "
             "'SELECT VERSION FROM SYS.M_DATABASE' && "
             "echo === SQL Test === && "
-            "sudo docker exec hxe $HDBSQL -i 90 -d HXE -u SYSTEM -p CHANGE_ME "
+            "sudo docker exec hxe $HDBSQL -i 90 -d HXE -u SYSTEM -p HanaExpr2026# "
             "'SELECT * FROM DUMMY'"
         )
         stdin, stdout, stderr = client.exec_command(cmd)
@@ -1322,7 +1293,7 @@ def upgrade_hana_express(current_version="2.00.082", target_tag="latest", vm_nam
         key = _get_ssh_key_path()
         c = paramiko.SSHClient()
         c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        c.connect("YOUR_VM_IP", username="YOUR_SSH_USER", key_filename=key)
+        c.connect("YOUR_HANA_HOST_IP", username="YOUR_GCP_USER", key_filename=key)
         out = []
         def run(cmd):
             _, o, e = c.exec_command(cmd)
@@ -1356,8 +1327,8 @@ def upgrade_hana_express(current_version="2.00.082", target_tag="latest", vm_nam
                 break
         out.append("=== STEP 6: POST-CHECKS ===")
         h = run("sudo docker exec hxe find /hana/shared -name hdbsql 2>/dev/null | head -1").strip()
-        out.append(run("sudo docker exec hxe " + h + " -i 90 -d HXE -u SYSTEM -p CHANGE_ME 'SELECT VERSION FROM SYS.M_DATABASE'"))
-        out.append(run("sudo docker exec hxe " + h + " -i 90 -d HXE -u SYSTEM -p CHANGE_ME 'SELECT * FROM DUMMY'"))
+        out.append(run("sudo docker exec hxe " + h + " -i 90 -d HXE -u SYSTEM -p HanaExpr2026# 'SELECT VERSION FROM SYS.M_DATABASE'"))
+        out.append(run("sudo docker exec hxe " + h + " -i 90 -d HXE -u SYSTEM -p HanaExpr2026# 'SELECT * FROM DUMMY'"))
         out.append("=== UPGRADE COMPLETE: " + current_version + " to " + target_tag + " ===")
         c.close()
         return "\n".join(out)
@@ -2337,3 +2308,361 @@ def check_stuck_workflows(
 # Neither tool returns individual message text. Say so when relevant, and
 # point the user at SLG1 on the specific log number for the detail.
 # =====================================================================
+def check_hana_parameters(system_id: str = "A4H") -> str:
+    """HANA Parameter Config Review (UC-HP1).
+    Reads customer-set (SYSTEM + DATABASE layer) HANA .ini parameter overrides
+    and has Gemini assess them against best practice. Reviews only the
+    non-DEFAULT layers - deliberate changes from SAP defaults, the real config
+    risk surface, not the 3500+ shipped defaults. Focuses on global.ini,
+    nameserver.ini, indexserver.ini. READ-ONLY, OPERATIONS pillar.
+    system_id: SAP System ID. Default A4H
+    """
+    conn = SAPConnection(system_id)
+    blocked = conn.is_allowed("operations")
+    if blocked:
+        return blocked
+    client = conn.get_ssh_client()
+    userstore = conn.hana_userstore
+    sql = (
+        "SELECT FILE_NAME, LAYER_NAME, SECTION, KEY, VALUE "
+        "FROM SYS.M_INIFILE_CONTENTS "
+        "WHERE LAYER_NAME IN ('SYSTEM','DATABASE') "
+        "ORDER BY FILE_NAME, SECTION, KEY"
+    )
+    # File-based hdbsql: SFTP the SQL to the VM, run hdbsql -I, avoids
+    # all nested-quote issues through paramiko + su (same as UC-D1)
+    remote_sql = "/tmp/uc_hp1_params.sql"
+    sftp = client.open_sftp()
+    with sftp.open(remote_sql, "w") as f:
+        f.write(sql + ";\n")
+    sftp.close()
+    cmd = ("su - a4hadm -c 'hdbsql -U " + userstore
+           + " -A -j -I " + remote_sql + "'")
+    stdin, stdout, stderr = client.exec_command(cmd, timeout=90)
+    result = stdout.read().decode()
+    err = stderr.read().decode()
+    client.close()
+    if result.strip().startswith("*"):
+        return (f"[{system_id}] HANA parameter query failed: "
+                + result.strip()[:300])
+    if not result.strip():
+        return f"[{system_id}] HANA query error: {err.strip()[:300]}"
+    if "0 rows selected" in result:
+        return (f"[{system_id}] HANA Parameter Review: no SYSTEM/DATABASE "
+                f"layer overrides found (unusual - expected customer settings).")
+
+    # Parse the hdbsql pipe-table output into numbered evidence rows
+    important = ("global.ini", "nameserver.ini", "indexserver.ini")
+    rows = []
+    for line in result.splitlines():
+        if not line.startswith("|") or line.startswith("| ---"):
+            continue
+        parts = [c.strip() for c in line.strip("|").split("|")]
+        if len(parts) < 5 or parts[0] == "FILE_NAME":
+            continue
+        rows.append(parts[:5])
+    if not rows:
+        return (f"[{system_id}] Could not parse parameter rows. Raw:\n"
+                + result[:1200])
+
+    ev = []
+    n = 0
+    for fname, layer, section, key, value in rows:
+        n += 1
+        flag = " [KEY FILE]" if fname in important else ""
+        ev.append(f"[{n}] {fname} / {section} / {key} = {value} "
+                  f"(layer={layer}){flag}")
+    evidence = "\n".join(ev)
+
+    prompt = (
+        "You are a senior SAP HANA administrator reviewing the customer-set "
+        "configuration parameter OVERRIDES on system " + system_id + ". These "
+        "are parameters deliberately changed from SAP defaults (SYSTEM and "
+        "DATABASE layers), so each is a conscious choice worth scrutinising. "
+        "Below is the complete numbered list.\n\n"
+        "PARAMETER OVERRIDES:\n" + evidence + "\n\n"
+        "Assess the configuration. For EACH parameter you comment on, cite its "
+        "number [n]. Structure your response:\n"
+        "1. OVERALL ASSESSMENT: one line - GREEN / AMBER / RED.\n"
+        "2. NOTABLE PARAMETERS: for each worth attention, give parameter, "
+        "value, why it matters, and whether it looks safe / aggressive / "
+        "risky. Focus on memory (allocationlimit, buffer caches), persistence, "
+        "password policy, security-relevant settings. Prioritise global.ini / "
+        "nameserver.ini / indexserver.ini.\n"
+        "3. SUGGESTED CHECKS: additional HANA mini-checks you would run GIVEN "
+        "these specific values (e.g. verify allocationlimit against physical "
+        "RAM and co-located tenants).\n\n"
+        "RULES: comment only on parameters actually listed - do NOT invent "
+        "any. If a value cannot be judged without more context (e.g. physical "
+        "RAM), say so rather than guessing. Put general HANA knowledge in a "
+        "clearly labelled COMMENTARY note, separate from findings about the "
+        "actual data above."
+    )
+    try:
+        from google import genai
+        client_ai = genai.Client(vertexai=True, project='sap-basis-copilot', location='global')
+        response = client_ai.models.generate_content(
+            model='gemini-3.5-flash',
+            contents=[{'role': 'user', 'parts': [{'text': prompt}]}])
+        verdict = response.text
+    except Exception as e:
+        return (f"[{system_id}] Collected {n} parameter overrides but Gemini "
+                f"review failed: {str(e)}\n\nRAW OVERRIDES:\n{evidence}")
+
+    return (f"[{system_id}] HANA Parameter Config Review - {n} customer "
+            f"overrides (SYSTEM/DATABASE layers)\n\n{verdict}")
+# ============================================================================
+# ============================================================================
+# ============================================================================
+# OS Patching via VM Manager — operations pillar, state-changing (v4)
+# Uses google-cloud-os-config (inventory + patch jobs) and google-cloud-compute
+# (VM existence / running-state / reboot confirmation). No gcloud CLI.
+# v4 adds: VM-exists-and-running pre-check, before/after OS version capture,
+# reboot-and-up confirmation, and a complete single-session narrative.
+# Requires in Dockerfile pip install: google-cloud-os-config google-cloud-compute
+# ============================================================================
+
+def _osconfig_project():
+    import os
+    return os.environ.get("GOOGLE_CLOUD_PROJECT", "sap-basis-copilot")
+
+
+def _vm_status(vm_name: str, zone: str):
+    """Return (exists: bool, status: str) for a GCE instance. status is e.g.
+    RUNNING / TERMINATED / STOPPING, or '' if it does not exist."""
+    from google.cloud import compute_v1
+    project = _osconfig_project()
+    client = compute_v1.InstancesClient()
+    try:
+        inst = client.get(project=project, zone=zone, instance=vm_name)
+        return True, inst.status
+    except Exception:
+        return False, ""
+
+
+def _os_version(vm_name: str, zone: str):
+    """Return the OS short_name + version from VM Manager inventory, or None."""
+    try:
+        from google.cloud import osconfig_v1
+        project = _osconfig_project()
+        client = osconfig_v1.OsConfigZonalServiceClient()
+        name = f"projects/{project}/locations/{zone}/instances/{vm_name}/inventory"
+        inv = client.get_inventory(request={"name": name, "view": osconfig_v1.InventoryView.FULL})
+        return f"{inv.os_info.short_name} {inv.os_info.version}"
+    except Exception:
+        return None
+
+
+def os_patch_check(vm_name: str, zone: str = "us-east4-b") -> str:
+    """Check available OS patches on a target VM. First verifies the VM exists and
+    is RUNNING, then reads the VM Manager inventory.
+    Operations pillar tool — READ-ONLY pre-check. This is the 'before' baseline.
+    vm_name is the GCE instance name (e.g. 'rhel-patch-demo')."""
+    # 1. VM existence + running-state guard
+    try:
+        exists, status = _vm_status(vm_name, zone)
+    except Exception as e:
+        return f"OS patch check for {vm_name}: could not query VM status ({e})."
+    if not exists:
+        return (f"OS patch check for {vm_name}: VM NOT FOUND in zone {zone}. "
+                f"Confirm the instance name and zone before patching.")
+    if status != "RUNNING":
+        return (f"OS patch check for {vm_name}: VM exists but is '{status}', not RUNNING. "
+                f"Start the VM before patching.")
+    # 2. Inventory read
+    try:
+        from google.cloud import osconfig_v1
+        project = _osconfig_project()
+        client = osconfig_v1.OsConfigZonalServiceClient()
+        name = f"projects/{project}/locations/{zone}/instances/{vm_name}/inventory"
+        inv = client.get_inventory(request={"name": name, "view": osconfig_v1.InventoryView.FULL})
+    except Exception as e:
+        return (f"OS patch check for {vm_name}: VM is RUNNING, but inventory is not "
+                f"available yet (VM Manager may still be collecting). {e}")
+    installed, available, kernel_pending = 0, 0, False
+    sample = []
+    for item in inv.items.values():
+        if item.type_ == osconfig_v1.Inventory.Item.Type.INSTALLED_PACKAGE:
+            installed += 1
+        elif item.type_ == osconfig_v1.Inventory.Item.Type.AVAILABLE_PACKAGE:
+            available += 1
+            pkg = item.available_package
+            nm = ""
+            for attr in ("yum_package", "zypper_patch", "apt_package", "cos_package"):
+                p = getattr(pkg, attr, None)
+                if p and getattr(p, "package_name", ""):
+                    nm = p.package_name; break
+            if not nm:
+                nm = str(pkg).split("\n")[0][:40]
+            if "kernel" in nm.lower():
+                kernel_pending = True
+            if len(sample) < 8:
+                sample.append(nm)
+    lines = [f"VM status: RUNNING",
+             f"OS: {inv.os_info.short_name} {inv.os_info.version}",
+             f"Installed packages: {installed}",
+             f"Available updates: {available}",
+             f"Kernel update pending: {'YES (reboot required)' if kernel_pending else 'no'}"]
+    if sample:
+        lines.append("Sample available updates: " + ", ".join(sample))
+    return f"OS patch pre-check for {vm_name} ({zone}):\n" + "\n".join(lines)
+
+
+def os_patch_detect_app(vm_name: str, zone: str = "us-east4-b") -> str:
+    """Detect whether an SAP application / HANA is present on the target VM,
+    using the VM Manager inventory (installed packages) as a signal.
+    Operations pillar tool — READ-ONLY. Call BEFORE os_patch_apply."""
+    try:
+        from google.cloud import osconfig_v1
+        project = _osconfig_project()
+        client = osconfig_v1.OsConfigZonalServiceClient()
+        name = f"projects/{project}/locations/{zone}/instances/{vm_name}/inventory"
+        inv = client.get_inventory(request={"name": name, "view": osconfig_v1.InventoryView.FULL})
+    except Exception as e:
+        return (f"Application check for {vm_name}: inventory not available ({e}). "
+                f"Treat as UNKNOWN — confirm manually before patching.")
+    blob = ""
+    for item in inv.items.values():
+        blob += str(item.installed_package).lower()
+    sap_markers = ["saphostagent", "saphostctrl", "hdb", "saphana", "sapcar", "sapinit"]
+    hit = [m for m in sap_markers if m in blob]
+    if hit:
+        return (f"Application check for {vm_name}: SAP-related packages detected ({', '.join(hit)}). "
+                f"Treat as a SAP host — STOP SAP/HANA before patching (kernel_patch_stop_sap), "
+                f"then start after (kernel_patch_start_sap).")
+    return (f"Application check for {vm_name}: no SAP-related packages detected in inventory. "
+            f"Appears to be a plain OS host — safe to patch directly, no stop/start needed.")
+
+
+def os_patch_apply(vm_name: str, zone: str = "us-east4-b", reboot: str = "DEFAULT") -> str:
+    """Apply OS patches to a target VM via a VM Manager patch job, then confirm the
+    VM rebooted and is back up, and report the OS version before -> after.
+    Operations pillar tool — STATE-CHANGING. ONLY call after explicit human
+    confirmation and after os_patch_detect_app. Waits up to ~20 minutes for the job
+    to complete; for longer jobs it returns the job id and asks the user to run verify.
+    Do NOT call against a live SAP host without stopping SAP first."""
+    import time
+    try:
+        from google.cloud import osconfig_v1
+    except Exception as e:
+        return f"OS patch apply for {vm_name}: os-config library unavailable ({e})"
+
+    # Guard: VM must exist and be RUNNING
+    try:
+        exists, status = _vm_status(vm_name, zone)
+    except Exception as e:
+        return f"OS patch apply for {vm_name}: could not query VM status ({e})."
+    if not exists:
+        return f"OS patch apply for {vm_name}: VM NOT FOUND in zone {zone}. Aborting."
+    if status != "RUNNING":
+        return f"OS patch apply for {vm_name}: VM is '{status}', not RUNNING. Start it first. Aborting."
+
+    before_version = _os_version(vm_name, zone) or "unknown"
+    project = _osconfig_project()
+    client = osconfig_v1.OsConfigServiceClient()
+    reboot_map = {
+        "DEFAULT": osconfig_v1.PatchConfig.RebootConfig.DEFAULT,
+        "ALWAYS": osconfig_v1.PatchConfig.RebootConfig.ALWAYS,
+        "NEVER": osconfig_v1.PatchConfig.RebootConfig.NEVER,
+    }
+    try:
+        job = client.execute_patch_job(request={
+            "parent": f"projects/{project}",
+            "instance_filter": osconfig_v1.PatchInstanceFilter(
+                instances=[f"zones/{zone}/instances/{vm_name}"]),
+            "patch_config": osconfig_v1.PatchConfig(
+                reboot_config=reboot_map.get(reboot, osconfig_v1.PatchConfig.RebootConfig.DEFAULT)),
+            "display_name": f"{vm_name}-patch-job",
+            "description": "OS patch via Basis Copilot",
+        })
+    except Exception as e:
+        return f"OS patch apply for {vm_name}: failed to start patch job ({e})"
+    job_name = job.name
+
+    DONE = {osconfig_v1.PatchJob.State.SUCCEEDED,
+            osconfig_v1.PatchJob.State.COMPLETED_WITH_ERRORS,
+            osconfig_v1.PatchJob.State.CANCELED,
+            osconfig_v1.PatchJob.State.TIMED_OUT}
+    # Bounded wait ~20 min: 60 iterations x 20s
+    final = None
+    for _ in range(60):
+        try:
+            j = client.get_patch_job(name=job_name)
+            final = j.state
+            if j.state in DONE:
+                break
+        except Exception:
+            pass
+        time.sleep(20)
+
+    # If not finished within the window, return gracefully
+    if final not in DONE:
+        return (f"OS patch job for {vm_name} started (job: {job_name}) and is still running "
+                f"after ~20 minutes (state: {final.name if final else 'UNKNOWN'}). "
+                f"Large jobs can take longer — run 'verify OS patches on {vm_name}' shortly to "
+                f"confirm completion and the final version.")
+
+    if final != osconfig_v1.PatchJob.State.SUCCEEDED:
+        return (f"OS patch job for {vm_name} finished with state {final.name} (job: {job_name}). "
+                f"Review the patch job in VM Manager for details.")
+
+    # Job SUCCEEDED — confirm the VM rebooted and is back RUNNING (bounded ~5 min)
+    reboot_ok = False
+    for _ in range(15):
+        try:
+            _, st = _vm_status(vm_name, zone)
+            if st == "RUNNING":
+                reboot_ok = True
+                break
+        except Exception:
+            pass
+        time.sleep(20)
+
+    # Re-read version + remaining updates (inventory may lag; best-effort)
+    after_version = _os_version(vm_name, zone) or "unknown (inventory refreshing)"
+    remaining = "unknown"
+    try:
+        zclient = osconfig_v1.OsConfigZonalServiceClient()
+        name = f"projects/{project}/locations/{zone}/instances/{vm_name}/inventory"
+        inv = zclient.get_inventory(request={"name": name, "view": osconfig_v1.InventoryView.FULL})
+        remaining = str(sum(1 for it in inv.items.values()
+                            if it.type_ == osconfig_v1.Inventory.Item.Type.AVAILABLE_PACKAGE))
+    except Exception:
+        pass
+
+    reboot_line = ("VM rebooted and is back up (RUNNING)." if reboot_ok
+                   else "VM reboot not yet confirmed back up — check shortly.")
+    version_line = (f"OS version: {before_version} -> {after_version}"
+                    if before_version != after_version
+                    else f"OS version: {after_version}")
+    return (f"OS patch job for {vm_name}: SUCCEEDED (job: {job_name}).\n"
+            f"{version_line}\n"
+            f"{reboot_line}\n"
+            f"Updates remaining: {remaining} "
+            f"(inventory refreshes on an interval; run verify shortly if this is not 0 yet).")
+
+
+def os_patch_verify(vm_name: str, zone: str = "us-east4-b") -> str:
+    """Verify OS patching succeeded on the target VM via the VM Manager inventory API.
+    Operations pillar tool — READ-ONLY post-check. Reports remaining available updates
+    (should be 0) and the OS/kernel state. This is the 'after' evidence."""
+    try:
+        exists, status = _vm_status(vm_name, zone)
+        if not exists:
+            return f"OS patch verify for {vm_name}: VM NOT FOUND in zone {zone}."
+    except Exception:
+        pass
+    try:
+        from google.cloud import osconfig_v1
+        project = _osconfig_project()
+        client = osconfig_v1.OsConfigZonalServiceClient()
+        name = f"projects/{project}/locations/{zone}/instances/{vm_name}/inventory"
+        inv = client.get_inventory(request={"name": name, "view": osconfig_v1.InventoryView.FULL})
+    except Exception as e:
+        return f"OS patch verify for {vm_name}: inventory not available yet ({e})"
+    available = sum(1 for item in inv.items.values()
+                    if item.type_ == osconfig_v1.Inventory.Item.Type.AVAILABLE_PACKAGE)
+    status_txt = "CLEAN — no updates pending" if available == 0 else f"{available} updates still pending"
+    return (f"OS patch verification for {vm_name} ({zone}):\n"
+            f"OS: {inv.os_info.short_name} {inv.os_info.version}\n"
+            f"Available updates remaining: {available}  ({status_txt})")
