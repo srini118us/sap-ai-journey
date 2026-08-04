@@ -1,3 +1,4 @@
+import re
 from datetime import datetime, timedelta
 import paramiko
 
@@ -23,7 +24,7 @@ from sap_basis_copilot.tools.sap_connection import SAPConnection, get_available_
 import os
 import tempfile
 
-SAP_HOST = "YOUR_SAP_HOST_IP"
+SAP_HOST = "35.236.203.34"
 SAP_USER = "root"
 
 def get_ssh_key_path():
@@ -862,15 +863,68 @@ def kernel_patch_prechecks(staging_dir='/usr/sap/basis/kernel') -> str:
     results.append(stdout.read().decode().strip())
 
     stdin, stdout, stderr = client.exec_command("df -h /usr/sap | tail -1")
+    disk_line = stdout.read().decode().strip()
     results.append("\n=== DISK SPACE (/usr/sap) ===")
-    results.append(stdout.read().decode().strip())
+    results.append(disk_line)
+
+    dm = re.search(r"(\d+)%", disk_line)
+    if dm:
+        used_pct = int(dm.group(1))
+        avail = disk_line.split()[3] if len(disk_line.split()) > 3 else "unknown"
+        if used_pct >= 95:
+            results.append("")
+            results.append("  *** BLOCKED: INSUFFICIENT DISK SPACE ***")
+            results.append(f"  Filesystem is {used_pct}% full ({avail} free).")
+            results.append("  A kernel patch needs roughly 5 GB free for the backup and extract.")
+            results.append("  Starting now risks failing mid-patch with SAP already stopped.")
+            results.append("  DO NOT PROCEED. Free space first.")
+        elif used_pct >= 85:
+            results.append(f"  WARNING: {used_pct}% used ({avail} free). Backup plus extract needs")
+            results.append("  roughly 5 GB. Verify headroom before proceeding.")
+        else:
+            results.append(f"  OK: {used_pct}% used, {avail} available.")
+    else:
+        results.append("  Could not parse disk usage - verify manually.")
 
     stdin, stdout, stderr = client.exec_command(
-        f"find {staging_dir} -name '*.SAR' -o -name '*.sar' 2>/dev/null | wc -l"
+        f"find {staging_dir} -maxdepth 1 \\( -name '*.SAR' -o -name '*.sar' \\) 2>/dev/null"
     )
-    sar_count = stdout.read().decode().strip()
+    sar_files = [l for l in stdout.read().decode().strip().split("\n") if l]
     results.append(f"\n=== SAR FILES IN {staging_dir} ===")
-    results.append(f"  {sar_count} SAR file(s) ready for patching")
+    results.append(f"  {len(sar_files)} SAR file(s) staged for patching")
+    for f in sar_files:
+        results.append(f"    {f.split('/')[-1]}")
+
+    # --- target vs installed patch level guard ---
+    target_level = None
+    for f in sar_files:
+        m = re.search(r"SAPEXE(?:DB)?_(\d+)-", f.split("/")[-1])
+        if m:
+            target_level = m.group(1)
+            break
+
+    installed_level = None
+    m = re.search(r"patch number\s+(\d+)", results[1])
+    if m:
+        installed_level = m.group(1)
+
+    results.append("\n=== TARGET VS INSTALLED ===")
+    results.append(f"  Installed patch level: {installed_level or 'unknown'}")
+    results.append(f"  Staged target level:   {target_level or 'unknown'}")
+
+    if target_level and installed_level and target_level == installed_level:
+        results.append("")
+        results.append("  *** BLOCKED: SAME-VERSION PATCH ***")
+        results.append(f"  The staged SAR files are patch level {target_level}, which is already installed.")
+        results.append("  Applying this patch would cause an outage with no version change.")
+        results.append("  DO NOT PROCEED. Stage the intended target patch level, or confirm")
+        results.append("  explicitly that a same-version reinstall is intended.")
+    elif target_level and installed_level:
+        results.append(f"  OK: patch {installed_level} -> {target_level} is a valid forward change."
+                       if int(target_level) > int(installed_level)
+                       else f"  WARNING: {installed_level} -> {target_level} is a DOWNGRADE. Confirm this is intended.")
+    else:
+        results.append("  Could not determine one or both levels - verify manually before proceeding.")
 
     client.close()
     return "\n".join(results)
@@ -880,7 +934,7 @@ def kernel_patch_backup() -> str:
     cmd = '''
 echo "=== KERNEL BACKUP ==="
 timestamp=$(date +%Y%m%d_%H%M%S)
-backup_root="/usr/sap/kernel_backup_${timestamp}"
+backup_root="/usr/sap/A4H/kernel_backup_${timestamp}"
 mkdir -p ${backup_root}
 EXE_DIRS=$(find /usr/sap /sapmnt -name "disp+work" 2>/dev/null | grep -v backup | grep -v extract | grep -v kernel_patch | xargs -I{} dirname {})
 if [ -z "$EXE_DIRS" ]; then
@@ -904,7 +958,7 @@ echo "Size: $(du -sh ${backup_root} | cut -f1)"
     return run_ssh_command(cmd)
 
 def kernel_patch_extract(staging_dir='/usr/sap/basis/kernel') -> str:
-    """Extract all SAR files from staging directory to /tmp/kernel_extract/."""
+    """Extract all SAR files from staging directory to /usr/sap/basis/kernel/extract/."""
     cmd = f'''
 echo "=== EXTRACTING SAR FILES ==="
 EXTRACT_DIR="/usr/sap/basis/kernel/extract"
@@ -973,6 +1027,46 @@ done
 
 def kernel_patch_stop_sap() -> str:
     """Stop SAP and wait until ALL processes are GRAY. Never returns early."""
+    # --- HARD GUARD: refuse to stop SAP for a same-version patch ---
+    import re as _re
+    import paramiko as _p
+    _c = _p.SSHClient()
+    _c.set_missing_host_key_policy(_p.AutoAddPolicy())
+    _c.connect(SAP_HOST, username=SAP_USER, key_filename=SAP_KEY)
+
+    _, _o, _ = _c.exec_command(
+        "su - a4hadm -c 'disp+work -version' | grep -E 'patch number'"
+    )
+    _m = _re.search(r"patch number\s+(\d+)", _o.read().decode())
+    _installed_level = _m.group(1) if _m else None
+
+    _staging = '/usr/sap/basis/kernel'
+    _, _o, _ = _c.exec_command(
+        "find " + _staging + " -maxdepth 1 \\( -name '*.SAR' -o -name '*.sar' \\) 2>/dev/null"
+    )
+    _target_level = None
+    for _f in _o.read().decode().strip().split("\n"):
+        if not _f:
+            continue
+        _mm = _re.search(r"SAPEXE(?:DB)?_(\d+)-", _f.split("/")[-1])
+        if _mm:
+            _target_level = _mm.group(1)
+            break
+    _c.close()
+
+    if _installed_level and _target_level and _installed_level == _target_level:
+        return (
+            "=== SAP NOT STOPPED - NO PATCH REQUIRED ===\n"
+            "Installed patch level: " + _installed_level + "\n"
+            "Staged target level:   " + _target_level + "\n\n"
+            "System is already at the staged target patch level.\n"
+            "Stopping SAP would cause an outage with no version change,\n"
+            "so this tool has declined to proceed. SAP is still running.\n\n"
+            "If a different target was intended, stage those SAR files\n"
+            "and re-run the pre-checks. A same-version reinstall must be\n"
+            "done manually - this tool will not take an outage for one."
+        )
+    # --- END HARD GUARD ---
     cmd = '''
 echo "=== STOPPING SAP ==="
 su - a4hadm -c 'sapcontrol -nr 00 -function Stop'
@@ -1015,7 +1109,7 @@ def kernel_patch_apply() -> str:
 echo "=== APPLYING KERNEL PATCH ==="
 EXTRACT_DIR="/usr/sap/basis/kernel/extract"
 if [ ! -d "$EXTRACT_DIR" ] || [ -z "$(ls $EXTRACT_DIR 2>/dev/null)" ]; then
-    echo "ERROR: /tmp/kernel_extract is empty. Run kernel_patch_extract() first."
+    echo "ERROR: Extract directory is empty. Run kernel_patch_extract() first."
     exit 1
 fi
 green=$(su - a4hadm -c 'sapcontrol -nr 00 -function GetProcessList' 2>/dev/null | grep -c "GREEN" || true)
@@ -1110,7 +1204,7 @@ def kernel_patch_rollback() -> str:
 echo "=== KERNEL ROLLBACK ==="
 if [ ! -f /tmp/kernel_backup_info.txt ]; then
     echo "ERROR: No backup info at /tmp/kernel_backup_info.txt"
-    echo "Check /usr/sap/ for kernel_backup_* directories manually."
+    echo "Check /usr/sap/A4H/ for kernel_backup_* directories manually."
     exit 1
 fi
 BACKUP_ROOT=$(grep BACKUP_ROOT /tmp/kernel_backup_info.txt | cut -d= -f2)
@@ -1168,7 +1262,7 @@ gcloud compute instances create $VM_NAME \
   --image-project=suse-cloud \
   --boot-disk-size=200GB \
   --boot-disk-type=pd-ssd \
-  --metadata="enable-osconfig=TRUE,ssh-keys=YOUR_GCP_USER:$SSH_KEY" \
+  --metadata="enable-osconfig=TRUE,ssh-keys=saps101226:$SSH_KEY" \
   --tags=hana-express,sap-demo \
   --scopes=cloud-platform \
   --labels="sid={sid_lower},type=hana-express,env=dev"
@@ -1260,14 +1354,14 @@ echo 'Wait 5-8 minutes then verify with verify_hana_running()'
     return result.stdout
 
 def verify_hana_running(sid: str = "HXE") -> str:
-    """Verify HANA Express running via direct SSH to YOUR_HANA_HOST_IP"""
+    """Verify HANA Express running via direct SSH to 34.48.207.206"""
     import paramiko, os
     try:
         sid_lower = sid.lower()
         key_path = _get_ssh_key_path()
         client = paramiko.SSHClient()
         client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        client.connect("YOUR_HANA_HOST_IP", username="YOUR_GCP_USER", key_filename=key_path)
+        client.connect("34.48.207.206", username="saps101226", key_filename=key_path)
         cmd = (
             "echo === Container Status === && "
             "sudo docker ps --filter name=hxe && "
@@ -1293,7 +1387,7 @@ def upgrade_hana_express(current_version="2.00.082", target_tag="latest", vm_nam
         key = _get_ssh_key_path()
         c = paramiko.SSHClient()
         c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        c.connect("YOUR_HANA_HOST_IP", username="YOUR_GCP_USER", key_filename=key)
+        c.connect("34.48.207.206", username="saps101226", key_filename=key)
         out = []
         def run(cmd):
             _, o, e = c.exec_command(cmd)
