@@ -311,8 +311,24 @@ def reprocess_trfc_entry(destination: str, function_module: str) -> str:
     automatically without explicit human confirmation in the conversation,
     especially for destinations related to invoicing, billing, or customer-facing
     interfaces, where reprocessing could cause duplicate transactions."""
-    cmd = f"su - a4hadm -c \"echo 'SUBMIT RSARFCEX WITH DESTIN = {destination}.' > /tmp/rsarfcex_job.txt && echo 'Job submission prepared for destination {destination}, function {function_module}. Manual execution via SE38/SM37 recommended for this trial system - RSARFCEX requires background job scheduling authorization.'\""
-    return run_ssh_command(cmd)
+    del function_module  # RSARFCEX operates per destination
+    return (
+        "=== REPROCESS NOT PERFORMED ===\n"
+        f"Destination: {destination}\n\n"
+        "This tool did NOT reprocess anything. The tRFC reprocess path is\n"
+        "not implemented over SSH: RSARFCEX must run as a background job,\n"
+        "which requires SM36 scheduling authorization that this connection\n"
+        "does not hold.\n\n"
+        "To reprocess now, use SAP GUI:\n"
+        "  - SE38 -> RSARFCEX, set destination, execute; or\n"
+        "  - SM58 -> select entries -> Edit -> Execute LUW\n\n"
+        "Before reprocessing, confirm with the team owning this destination\n"
+        "that a retry is safe. Repeating an invoicing, billing or customer\n"
+        "facing interface can create duplicate transactions.\n\n"
+        "Roadmap: this belongs in an ABAP SDK program running inside the\n"
+        "application server, under SAP authorization, where submitting\n"
+        "RSARFCEX is a normal operation."
+    )
 
 def check_sost_failures(system_id: str = "A4H") -> str:
     """SOST equivalent - send-order status counts.
