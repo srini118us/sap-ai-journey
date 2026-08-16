@@ -1,0 +1,223 @@
+"""SAP MCP Server
+Exposes live S/4HANA purchase order data as MCP tools over the standard
+API_PURCHASEORDER_PROCESS_SRV OData service.
+
+Tools:
+  get_purchase_orders(top, supplier)   - list POs, optionally filtered by supplier
+  get_purchase_order(po_number)        - one PO with its line items
+  get_vendor_summary(supplier)         - PO count and profile for one supplier
+  classify_purchase_order(po_number)   - direct vs indirect classification via PO type
+
+Configuration comes from environment variables only (never hardcode credentials):
+  SAP_BASE_URL   e.g. https://mtsapserver6g.themdlabs.com:44300
+  SAP_USER       communication user
+  SAP_PASSWORD   its password
+  VERIFY_SSL     "true" or "false" (lab systems usually need false)
+  DIRECT_PO_TYPES  comma separated document types treated as direct (default "NB")
+
+Run modes:
+  python sap_mcp_server.py --test    quick connectivity test, no MCP involved
+  python sap_mcp_server.py           starts the MCP server on stdio (for ADK / clients)
+"""
+
+import json
+import os
+import re
+import sys
+
+import httpx
+from mcp.server.fastmcp import FastMCP
+
+SAP_BASE_URL = os.environ.get("SAP_BASE_URL", "").rstrip("/")
+SAP_USER = os.environ.get("SAP_USER", "")
+SAP_PASSWORD = os.environ.get("SAP_PASSWORD", "")
+VERIFY_SSL = os.environ.get("VERIFY_SSL", "false").lower() == "true"
+DIRECT_PO_TYPES = {
+    t.strip() for t in os.environ.get("DIRECT_PO_TYPES", "NB").split(",") if t.strip()
+}
+
+SERVICE = "/sap/opu/odata/sap/API_PURCHASEORDER_PROCESS_SRV"
+
+HEADER_FIELDS = [
+    "PurchaseOrder", "PurchaseOrderType", "Supplier", "AddressName",
+    "CompanyCode", "PurchasingOrganization", "PurchasingGroup",
+    "DocumentCurrency", "PaymentTerms", "CreationDate",
+]
+ITEM_FIELDS = [
+    "PurchaseOrderItem", "Material", "PurchaseOrderItemText",
+    "OrderQuantity", "PurchaseOrderQuantityUnit", "NetPriceAmount",
+    "DocumentCurrency", "Plant",
+]
+
+mcp = FastMCP("sap-purchase-orders")
+
+
+def _client() -> httpx.Client:
+    if not (SAP_BASE_URL and SAP_USER and SAP_PASSWORD):
+        raise RuntimeError(
+            "Missing configuration: set SAP_BASE_URL, SAP_USER and SAP_PASSWORD "
+            "environment variables before starting the server."
+        )
+    return httpx.Client(
+        base_url=SAP_BASE_URL,
+        auth=(SAP_USER, SAP_PASSWORD),
+        verify=VERIFY_SSL,
+        timeout=30.0,
+    )
+
+
+def _odata(path: str, params: dict) -> dict:
+    """GET an OData v2 path and return the payload under d."""
+    params = {**params, "$format": "json"}
+    with _client() as client:
+        resp = client.get(f"{SERVICE}{path}", params=params)
+        resp.raise_for_status()
+        return resp.json()["d"]
+
+
+def _odata_count(path: str, params: dict) -> int:
+    """GET an OData v2 $count endpoint, which returns plain text."""
+    with _client() as client:
+        resp = client.get(f"{SERVICE}{path}/$count", params=params)
+        resp.raise_for_status()
+        return int(resp.text.strip())
+
+
+def _iso_date(value):
+    """Convert OData v2 /Date(ms)/ strings to YYYY-MM-DD."""
+    if isinstance(value, str):
+        match = re.match(r"/Date\((\d+)", value)
+        if match:
+            from datetime import datetime, timezone
+            ms = int(match.group(1))
+            return datetime.fromtimestamp(ms / 1000, tz=timezone.utc).date().isoformat()
+    return value
+
+
+def _slim(record: dict, fields: list) -> dict:
+    out = {}
+    for key in fields:
+        val = record.get(key)
+        if key.endswith("Date"):
+            val = _iso_date(val)
+        out[key] = val
+    return out
+
+
+@mcp.tool()
+def get_purchase_orders(top: int = 10, supplier: str = "") -> str:
+    """List purchase orders from the live SAP S/4HANA system.
+
+    Args:
+        top: maximum number of orders to return (1 to 50).
+        supplier: optional SAP supplier ID to filter by, e.g. "17300001" or "USSU-VSF01".
+    """
+    params = {"$top": max(1, min(int(top), 50)), "$select": ",".join(HEADER_FIELDS)}
+    if supplier:
+        params["$filter"] = f"Supplier eq '{supplier}'"
+    data = _odata("/A_PurchaseOrder", params)
+    rows = [_slim(r, HEADER_FIELDS) for r in data.get("results", [])]
+    return json.dumps({"count_returned": len(rows), "purchase_orders": rows})
+
+
+@mcp.tool()
+def get_purchase_order(po_number: str) -> str:
+    """Get one purchase order with its line items from the live SAP S/4HANA system.
+
+    Args:
+        po_number: the purchase order number, e.g. "4500000001".
+    """
+    data = _odata(
+        f"/A_PurchaseOrder('{po_number}')",
+        {"$expand": "to_PurchaseOrderItem"},
+    )
+    header = _slim(data, HEADER_FIELDS)
+    items_raw = data.get("to_PurchaseOrderItem", {}).get("results", [])
+    header["items"] = [_slim(i, ITEM_FIELDS) for i in items_raw]
+    header["item_count"] = len(header["items"])
+    return json.dumps(header)
+
+
+@mcp.tool()
+def get_vendor_summary(supplier: str) -> str:
+    """Summarize one supplier: total PO count in SAP, document types used, and recent orders.
+
+    Args:
+        supplier: the SAP supplier ID, e.g. "17300001" or "USSU-VSF01".
+    """
+    total = _odata_count(
+        "/A_PurchaseOrder", {"$filter": f"Supplier eq '{supplier}'"}
+    )
+    data = _odata(
+        "/A_PurchaseOrder",
+        {
+            "$filter": f"Supplier eq '{supplier}'",
+            "$select": "PurchaseOrder,PurchaseOrderType,AddressName,CreationDate",
+            "$top": 50,
+        },
+    )
+    rows = data.get("results", [])
+    types = {}
+    for r in rows:
+        types[r.get("PurchaseOrderType", "?")] = types.get(r.get("PurchaseOrderType", "?"), 0) + 1
+    summary = {
+        "supplier": supplier,
+        "supplier_name": rows[0].get("AddressName") if rows else None,
+        "total_purchase_orders": total,
+        "document_types_in_sample": types,
+        "sample_size": len(rows),
+        "recent_orders": [r.get("PurchaseOrder") for r in rows[:5]],
+        "note": "Counts come live from S/4HANA via OData; sample limited to 50 orders.",
+    }
+    return json.dumps(summary)
+
+
+@mcp.tool()
+def classify_purchase_order(po_number: str) -> str:
+    """Classify a purchase order as direct or indirect procurement, the same
+    lookup an invoice routing workflow performs before deciding the target system.
+
+    Args:
+        po_number: the purchase order number, e.g. "4500000001".
+    """
+    data = _odata(
+        f"/A_PurchaseOrder('{po_number}')",
+        {"$select": "PurchaseOrder,PurchaseOrderType,Supplier,AddressName"},
+    )
+    po_type = data.get("PurchaseOrderType", "")
+    classification = "direct" if po_type in DIRECT_PO_TYPES else "indirect"
+    result = {
+        "purchase_order": data.get("PurchaseOrder"),
+        "document_type": po_type,
+        "supplier": data.get("Supplier"),
+        "supplier_name": data.get("AddressName"),
+        "classification": classification,
+        "rule": (
+            f"document types {sorted(DIRECT_PO_TYPES)} are treated as direct; "
+            "the mapping is configurable per landscape (env DIRECT_PO_TYPES)"
+        ),
+    }
+    return json.dumps(result)
+
+
+def _selftest() -> None:
+    print(f"Base URL : {SAP_BASE_URL}")
+    print(f"User     : {SAP_USER}")
+    print(f"VerifySSL: {VERIFY_SSL}")
+    print("-" * 60)
+    print("1) get_purchase_orders(top=3)")
+    print(get_purchase_orders(3), "\n")
+    print("2) get_purchase_order('4500000001')")
+    print(get_purchase_order("4500000001"), "\n")
+    print("3) get_vendor_summary('17300001')")
+    print(get_vendor_summary("17300001"), "\n")
+    print("4) classify_purchase_order('4500000029')  # the ENB one")
+    print(classify_purchase_order("4500000029"), "\n")
+    print("All four tools returned. The server is ready for MCP clients.")
+
+
+if __name__ == "__main__":
+    if "--test" in sys.argv:
+        _selftest()
+    else:
+        mcp.run()
