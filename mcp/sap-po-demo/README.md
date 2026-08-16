@@ -95,6 +95,11 @@ python email_to_order.py --run
 | APPROVED + duplicate | Idempotency guard returns the existing Sales Order, no double post, confirmation cites the existing order |
 | APPROVED + new | New Sales Order created, confirmation sent |
 
+## SBPA project
+
+The approval workflow used by the pipeline is exported as `OrderApproval_EmailtoOrder_GCP.mtar`.  
+To reproduce: SAP Build lobby → three dots menu → Import Project → select the .mtar file → Release → Deploy to your Public environment. The pipeline expects a process named `Order_Approval` inside project `OrderApproval_EmailtoOrder_GCP` with an API trigger named `orderProposal`; the deployed `SBPA_DEFINITION_ID` in `.env` needs updating to your tenant's version.
+
 ## Notes
 
 - Test data is synthetic (customer POs, invoice kit generated from real S/4
@@ -103,3 +108,4 @@ python email_to_order.py --run
   blueprint. Rotate any secret that has ever been on a shared screen.
 - For demo day: put the Gemini API key on billing (paid tier gets priority
   during capacity spikes) or route through Vertex AI.
+
