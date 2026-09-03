@@ -49,3 +49,6 @@ agentic-ai/sap-basis-copilot/
 .adk/
 *.tar.gz
 *.mtar
+
+# Joule Studio / SAP Build exports
+!uc4-procurement-agent/joule/export/*.mtar
