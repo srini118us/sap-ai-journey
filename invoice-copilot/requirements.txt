@@ -1,0 +1,17 @@
+langgraph>=0.2
+
+# SAP GenAI Hub SDK -- imports as `gen_ai_hub`. Used by the extract node.
+generative-ai-hub-sdk
+
+# Used by the score node to call the RPT-1.5 inference deployment directly.
+# The GenAI Hub SDK has no tabular client, so that call is plain REST.
+# (Already present transitively via the SDK; pinned here as a direct dependency
+# because src/rpt.py imports it.)
+requests>=2.31
+
+python-dotenv>=1.0.0
+
+# Google identity tokens for the cross-cloud second-opinion call.
+# src/vertex_secondopinion.py mints an ID token from a service account key to
+# reach the private Cloud Run endpoint. Only that module needs it.
+google-auth>=2.28

@@ -1,0 +1,30 @@
+---
+config:
+  flowchart:
+    curve: linear
+---
+graph TD;
+	__start__([<p>__start__</p>]):::first
+	intake(intake)
+	extract(extract)
+	validate(validate)
+	score(score)
+	route(route)
+	straight_through(straight_through)
+	human_review(human_review)
+	__end__([<p>__end__</p>]):::last
+	__start__ --> intake;
+	extract -.-> human_review;
+	extract -.-> validate;
+	intake -.-> extract;
+	intake -.-> human_review;
+	route -.-> human_review;
+	route -.-> straight_through;
+	score -.-> human_review;
+	score -.-> route;
+	validate --> score;
+	human_review --> __end__;
+	straight_through --> __end__;
+	classDef default fill:#f2f0ff,line-height:1.2
+	classDef first fill-opacity:0
+	classDef last fill:#bfb6fc
