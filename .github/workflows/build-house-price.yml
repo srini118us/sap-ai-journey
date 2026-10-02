@@ -5,7 +5,7 @@ on:
     branches:
       - master
     paths:
-      - 'house-price-tutorial/**'
+      - '01-ai-core/tutorials/house-price-tutorial/**'
       - '.github/workflows/build-house-price.yml'
   workflow_dispatch:
 
@@ -29,8 +29,8 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: ./house-price-tutorial
-          file: ./house-price-tutorial/Dockerfile
+          context: ./01-ai-core/tutorials/house-price-tutorial
+          file: ./01-ai-core/tutorials/house-price-tutorial/Dockerfile
           push: true
           tags: |
             docker.io/srini117us/house-price:01

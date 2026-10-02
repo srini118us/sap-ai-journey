@@ -5,7 +5,7 @@ on:
     branches:
       - master
     paths:
-      - 'supplier-prediction-tutorial/**'
+      - '01-ai-core/tutorials/supplier-prediction-tutorial/**'
       - '.github/workflows/build-supplier-prediction.yml'
   workflow_dispatch:
 
@@ -28,8 +28,8 @@ jobs:
       - name: Build and push training image
         uses: docker/build-push-action@v5
         with:
-          context: ./supplier-prediction-tutorial/training
-          file: ./supplier-prediction-tutorial/training/Dockerfile
+          context: ./01-ai-core/tutorials/supplier-prediction-tutorial/training
+          file: ./01-ai-core/tutorials/supplier-prediction-tutorial/training/Dockerfile
           push: true
           tags: |
             docker.io/srini117us/supplier-prediction-train:01
@@ -55,8 +55,8 @@ jobs:
       - name: Build and push serving image
         uses: docker/build-push-action@v5
         with:
-          context: ./supplier-prediction-tutorial/serving
-          file: ./supplier-prediction-tutorial/serving/Dockerfile
+          context: ./01-ai-core/tutorials/supplier-prediction-tutorial/serving
+          file: ./01-ai-core/tutorials/supplier-prediction-tutorial/serving/Dockerfile
           push: true
           tags: |
             docker.io/srini117us/supplier-prediction-serve:01
