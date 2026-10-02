@@ -8,7 +8,7 @@ Production-ready SAP BTP applications demonstrating full-stack development patte
 
 | # | Use Case | What It Demonstrates | Status |
 |---|----------|---------------------|--------|
-| 1 | [BTP Ops Intelligence](./btp-ops-intelligence/) | Operations dashboard with Joule NLQ | ✅ Complete |
+| 1 | [BTP Ops Intelligence](./) | Operations dashboard with Joule NLQ | ✅ Complete |
 
 ## Architecture
 

@@ -2,7 +2,7 @@
 
 RAG solution for detecting and explaining vendor master data quality issues in SAP environments. Grounded on HANA Cloud native vector engine plus SAP Gen AI Hub Orchestration.
 
-Companion to [sap-procurement-rag](../sap-procurement-rag) in this repo.
+Companion to [sap-procurement-rag](https://github.com/srini118us/sap-procurement-rag) in this repo.
 
 ## Business context
 

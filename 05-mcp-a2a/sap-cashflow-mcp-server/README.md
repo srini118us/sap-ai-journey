@@ -8,7 +8,7 @@ MCP server implementations that expose SAP systems to AI assistants. These serve
 
 | # | Use Case | What It Demonstrates | Status |
 |---|----------|---------------------|--------|
-| 1 | [Kyma MCP Server](./kyma-mcp-server/) | S/4HANA Purchase Orders via MCP | ✅ Complete |
+| 1 | [Kyma MCP Server](../kyma-mcp-server/) | S/4HANA Purchase Orders via MCP | ✅ Complete |
 
 ## Architecture
 
