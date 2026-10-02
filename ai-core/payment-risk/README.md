@@ -171,7 +171,7 @@ const confidence = Math.round(riskEntry.confidence * 100) + '%';
 ### Installation
 
 ```bash
-cd 01-ai-core/payment-risk
+cd ai-core/payment-risk
 npm install
 ```
 

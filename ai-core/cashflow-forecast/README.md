@@ -14,7 +14,7 @@ End-to-end ML training pipeline on SAP AI Core for financial cashflow forecastin
 ## Project Structure
 
 ```
-sap-ai-journey/01-ai-core/cashflow-forecast/
+sap-ai-journey/ai-core/cashflow-forecast/
 ├── src/                                # UC2.3 + UC2.5 training
 │   ├── train.py                        # AutoTS training script
 │   ├── insert_synthetic.py             # Synthetic data insertion

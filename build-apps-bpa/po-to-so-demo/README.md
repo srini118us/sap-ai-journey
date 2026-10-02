@@ -139,7 +139,7 @@ Configured directly in script (from BTP service key for Document Information Ext
 ### Installation
 
 ```bash
-cd 06-build-apps-bpa/po-to-so-demo
+cd build-apps-bpa/po-to-so-demo
 pip install -r requirements.txt
 ```
 

@@ -1,4 +1,4 @@
-# 06 Build Apps and BPA
+# Build Apps and BPA
 
 SAP Build application development, process automation, and CAP apps.
 
@@ -6,7 +6,7 @@ SAP Build application development, process automation, and CAP apps.
 Labs whose main purpose is SAP Build Process Automation, SAP Build Apps, or CAP application work.
 
 ## Does not belong here
-Joule Studio agents (02) and AI Core model work (01).
+Joule Studio agents (joule-joule-studio) and AI Core model work (ai-core).
 
 ## Labs
 * po-to-so-demo: SBPA purchase order to sales order workflow demo

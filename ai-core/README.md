@@ -1,4 +1,4 @@
-# 01 AI Core
+# AI Core
 
 SAP AI Core runtime work: scenarios, Argo workflows, training and serving, metrics, utilities, and SAP RPT 1.
 
@@ -6,7 +6,7 @@ SAP AI Core runtime work: scenarios, Argo workflows, training and serving, metri
 Labs whose main purpose is learning or demonstrating SAP AI Core deployment, training, serving, or monitoring, including LangGraph running through AI Core.
 
 ## Does not belong here
-Joule Studio work (02), RAG patterns (03), agent architecture labs (04), and operations scenarios such as Basis automation (08).
+Joule Studio work (joule-joule-studio), RAG patterns (rag), agent architecture labs (agentic-ai), and operations scenarios such as Basis automation (infrastructure-ai).
 
 ## Labs
 * foundations: hello world, metrics, model serving, multi step pipeline

@@ -139,7 +139,7 @@ Serialized scikit-learn model using joblib.
 
 ```bash
 # Simulate the training logic locally
-cd 01-ai-core/ml-training
+cd ai-core/ml-training
 
 # The workflow runs inside AI Core, but the Python logic can be extracted
 # and tested with local data

@@ -1,4 +1,4 @@
-# 05 MCP and A2A
+# MCP and A2A
 
 Model Context Protocol servers and agent to agent interoperability.
 

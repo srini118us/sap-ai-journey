@@ -11,28 +11,28 @@ All work runs on personal lab, trial, and sandbox environments. Maturity is note
 ```mermaid
 flowchart TD
     R[sap-ai-journey]
-    R --> A[01-ai-core]
-    R --> B[02-joule-joule-studio]
-    R --> C[03-rag]
-    R --> D[04-agentic-ai]
-    R --> E[05-mcp-a2a]
-    R --> F[06-build-apps-bpa]
-    R --> G[07-data-ai]
-    R --> H[08-infrastructure-ai]
+    R --> A[ai-core]
+    R --> B[joule-joule-studio]
+    R --> C[rag]
+    R --> D[agentic-ai]
+    R --> E[mcp-a2a]
+    R --> F[build-apps-bpa]
+    R --> G[data-ai]
+    R --> H[infrastructure-ai]
     R --> I[architecture]
     R --> J[docs]
 ```
 
 | Folder | What belongs here |
 |---|---|
-| [01-ai-core](01-ai-core/) | SAP AI Core runtime, training, serving, metrics, utilities, and RPT 1 |
-| [02-joule-joule-studio](02-joule-joule-studio/) | Joule Studio agents and skills |
-| [03-rag](03-rag/) | Retrieval augmented generation on SAP data (HANA vector engine, GenAI Hub) |
-| [04-agentic-ai](04-agentic-ai/) | Agent orchestration and agent architecture labs |
-| [05-mcp-a2a](05-mcp-a2a/) | MCP servers and agent interoperability |
-| [06-build-apps-bpa](06-build-apps-bpa/) | SAP Build apps and process automation, CAP apps |
-| [07-data-ai](07-data-ai/) | SAP data plus AI experiments (BDC Delta Share on Databricks, HANA Cloud ML) |
-| [08-infrastructure-ai](08-infrastructure-ai/) | AI assisted SAP Basis and operations (Basis Copilot, patching, diagnostics, BTP ops) |
+| [ai-core](ai-core/) | SAP AI Core runtime, training, serving, metrics, utilities, and RPT 1 |
+| [joule-joule-studio](joule-joule-studio/) | Joule Studio agents and skills |
+| [rag](rag/) | Retrieval augmented generation on SAP data (HANA vector engine, GenAI Hub) |
+| [agentic-ai](agentic-ai/) | Agent orchestration and agent architecture labs |
+| [mcp-a2a](mcp-a2a/) | MCP servers and agent interoperability |
+| [build-apps-bpa](build-apps-bpa/) | SAP Build apps and process automation, CAP apps |
+| [data-ai](data-ai/) | SAP data plus AI experiments (BDC Delta Share on Databricks, HANA Cloud ML) |
+| [infrastructure-ai](infrastructure-ai/) | AI assisted SAP Basis and operations (Basis Copilot, patching, diagnostics, BTP ops) |
 | [architecture](architecture/) | Cross lab architecture notes |
 | [docs](docs/) | Supporting documentation and the old to new path mapping |
 
@@ -43,12 +43,12 @@ Two staging folders hold items waiting for a decision:
 
 ## Featured labs
 
-* Basis Copilot: Google ADK and Gemini agent for SAP Basis operations ([08-infrastructure-ai](08-infrastructure-ai/basis-copilot/))
-* Joule Studio 2 Intelligent Collections Orchestrator ([02-joule-joule-studio](02-joule-joule-studio/collections-orchestrator/))
-* Cashflow forecasting pipeline on SAP AI Core ([01-ai-core](01-ai-core/cashflow-forecast/))
-* MCP servers for S/4HANA, cashflow, and procurement ([05-mcp-a2a](05-mcp-a2a/))
-* Vendor master data quality RAG ([03-rag](03-rag/vendor-mdq-copilot/))
-* BDC Delta Share ML labs on Databricks ([07-data-ai](07-data-ai/databricks-labs/))
+* Basis Copilot: Google ADK and Gemini agent for SAP Basis operations ([infrastructure-ai](infrastructure-ai/basis-copilot/))
+* Joule Studio 2 Intelligent Collections Orchestrator ([joule-joule-studio](joule-joule-studio/collections-orchestrator/))
+* Cashflow forecasting pipeline on SAP AI Core ([ai-core](ai-core/cashflow-forecast/))
+* MCP servers for S/4HANA, cashflow, and procurement ([mcp-a2a](mcp-a2a/))
+* Vendor master data quality RAG ([rag](rag/vendor-mdq-copilot/))
+* BDC Delta Share ML labs on Databricks ([data-ai](data-ai/databricks-labs/))
 
 ## Related repositories
 

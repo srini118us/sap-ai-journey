@@ -153,7 +153,7 @@ S4_PASSWORD=password
 ### Local Development (Claude Desktop)
 
 ```bash
-cd 05-mcp-a2a/kyma-mcp-server
+cd mcp-a2a/kyma-mcp-server
 pip install -r requirements.txt
 
 # Set S/4HANA credentials

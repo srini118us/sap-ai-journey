@@ -1,4 +1,4 @@
-# 07 Data and AI
+# Data and AI
 
 SAP data plus AI experiments that belong to the SAP AI learning path.
 

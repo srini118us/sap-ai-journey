@@ -1,4 +1,4 @@
-# 03 RAG
+# RAG
 
 Retrieval augmented generation on SAP data.
 
@@ -6,7 +6,7 @@ Retrieval augmented generation on SAP data.
 Labs whose main purpose is retrieval, grounding, and cited answers.
 
 ## Does not belong here
-General agent orchestration (04) or HANA ML exercises (07).
+General agent orchestration (agentic-ai) or HANA ML exercises (data-ai).
 
 ## Labs
 * vendor-mdq-copilot: vendor master data quality RAG on HANA Cloud vector engine and GenAI Hub

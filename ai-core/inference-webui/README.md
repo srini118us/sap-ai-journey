@@ -180,7 +180,7 @@ const CONFIG = {
 ### Installation
 
 ```bash
-cd 01-ai-core/inference-webui
+cd ai-core/inference-webui
 npm install
 ```
 

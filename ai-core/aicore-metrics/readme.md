@@ -98,7 +98,7 @@ tracking.log_metrics([
 ## Quick Start
 
 ```bash
-cd 01-ai-core/aicore-metrics
+cd ai-core/aicore-metrics
 python sap_aicore_metrics_demo.py
 ```
 

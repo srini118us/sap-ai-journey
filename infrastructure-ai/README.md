@@ -1,4 +1,4 @@
-# 08 Infrastructure AI
+# Infrastructure AI
 
 AI assisted SAP infrastructure and operations, even when the labs use agents or RAG internally.
 
@@ -6,7 +6,7 @@ AI assisted SAP infrastructure and operations, even when the labs use agents or 
 Basis automation, system health, patching, diagnostics, and operational intelligence.
 
 ## Does not belong here
-Generic agent or RAG teaching labs (03, 04).
+Generic agent or RAG teaching labs (rag, agentic-ai).
 
 ## Labs
 * basis-copilot: Google ADK and Gemini agent for SAP Basis operations
