@@ -1,5 +1,5 @@
 # UC2.2 cashflow training artifacts
-mlops/cashflow-forecast/output/
+ai-core/cashflow-forecast/output/
 
 # Python venvs and caches
 venv-*/
@@ -39,21 +39,25 @@ ConsoleHost_history.txt
 *.xls
 
 # Exceptions - documentation we do want to ship
-!uc4-procurement-agent/docs/*.docx
-!mcp/sap-po-demo/customer_po_*.pdf
-!mcp/sap-po-demo/invoice_kit*/**
+!joule-joule-studio/uc4-procurement-agent/docs/*.docx
+!_e2e-candidates/sap-po-demo/customer_po_*.pdf
+!_e2e-candidates/sap-po-demo/invoice_kit*/**
 
 # Misc
-agentic-ai/sap-basis-copilot/
+infrastructure-ai/basis-copilot/
 *.swp
 .adk/
 *.tar.gz
 *.mtar
 
 # Joule Studio / SAP Build exports
-!uc4-procurement-agent/joule/export/*.mtar
+!joule-joule-studio/uc4-procurement-agent/joule/export/*.mtar
 
 # Paused approval state for the quote-to-order agent endpoint (Tier 4b-1).
 # Holds in-flight sales-order approvals, not secrets, but it is runtime state
 # rather than source.
 .agent_state/
+
+# Local only items
+*Shortcut.lnk
+joule-joule-studio/uc4-procurement-agent/docs/aicore-inventory-pre-migration.json

@@ -1,0 +1,12 @@
+python-dotenv>=1.0.0
+# SAP AI Core & GenAI Hub
+generative-ai-hub-sdk
+ai-core-sdk
+python-dotenv
+
+# Graph Orchestration
+langgraph
+langchain-core
+
+# Google Cloud Vertex AI (for upcoming A2A stage)
+google-cloud-aiplatform
