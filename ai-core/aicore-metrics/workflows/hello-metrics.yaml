@@ -9,10 +9,10 @@ metadata:
     executables.ai.sap.com/name: "hello-metrics-exec"
   labels:
     scenarios.ai.sap.com/id: "hello-metrics"
-    ai.sap.com/version: "1.0.0"
+    ai.sap.com/version: "1.0.1"
 spec:
   imagePullSecrets:
-    - name: default
+    - name: docker-hub-srini117us
   entrypoint: main
   templates:
     - name: main
