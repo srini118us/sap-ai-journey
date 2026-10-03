@@ -1,4 +1,4 @@
-# AI Core
+﻿# AI Core
 
 SAP AI Core runtime work: scenarios, Argo workflows, training and serving, metrics, utilities, and SAP RPT 1.
 
@@ -17,6 +17,7 @@ Joule Studio work (joule-joule-studio), RAG patterns (rag), agent architecture l
 * payment-risk: SAP RPT 1 with a CAP app
 * payment-delay: XGBoost late payment prediction
 * tutorials: house price and supplier prediction
+* tabular-prediction: RPT-1 against XGBoost against PAL, plus compute constraint diagnostics
 
 Technologies: SAP AI Core, Argo Workflows, Docker, HANA Cloud, SAP RPT 1.
 
