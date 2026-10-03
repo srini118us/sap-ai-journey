@@ -10,7 +10,7 @@ metadata:
     artifacts.ai.sap.com/paymentmodel.kind: "model"
   labels:
     scenarios.ai.sap.com/id: "payment-delay-prediction"
-    ai.sap.com/version: "1.0"
+    ai.sap.com/version: "1.1"
 spec:
   imagePullSecrets:
     - name: docker-hub-srini117us
@@ -19,7 +19,7 @@ spec:
     - name: trainstep
       metadata:
         labels:
-          ai.sap.com/resourcePlan: train.l
+          ai.sap.com/resourcePlan: starter
       container:
         image: "docker.io/srini117us/payment-delay-train:1.1"
         command: ["/bin/sh", "-c"]
