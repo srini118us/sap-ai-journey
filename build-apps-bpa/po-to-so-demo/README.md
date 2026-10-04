@@ -1,4 +1,4 @@
-# PO-to-SO Automation Demo
+﻿# PO-to-SO Automation Demo
 
 ## Scope
 
@@ -125,7 +125,7 @@ BPA_CLIENT_SECRET=xxx
 
 ### DIE Credentials
 
-Configured directly in script (from BTP service key for Document Information Extraction service).
+Set DIE_CLIENT_ID and DIE_CLIENT_SECRET in .env (see .env.example).
 
 ## Quick Start
 
@@ -146,7 +146,7 @@ pip install -r requirements.txt
 ### Configuration
 
 1. Create `.env` file with BPA credentials
-2. Update DIE credentials in `po_to_so_demo.py`
+2. Add DIE credentials to `.env`
 3. Place customer PO PDF in the folder
 
 ### Run
