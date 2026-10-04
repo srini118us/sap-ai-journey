@@ -1,4 +1,4 @@
-import httpx
+﻿import httpx
 import json
 import time
 import os
@@ -9,8 +9,8 @@ load_dotenv()
 # ============ DIE CREDENTIALS ============
 die_api_url = "https://aiservices-dox.cfapps.us10.hana.ondemand.com"
 die_token_url = "https://sap-btp-joule.authentication.us10.hana.ondemand.com/oauth/token"
-die_client_id = "sb-0ebb7b58-8c2a-4432-a9bb-a5b499cbe7d0!b612484|dox-xsuaa-std-production!b9505"
-die_client_secret = "bc86d2a4-ed70-49ad-8c8b-3c3fd988eff2$_FbsbJL2WCdiovb8Js1QNBC1ZkmopZ6MmAutMIazFBE="  # Fill this
+die_client_id = os.getenv("DIE_CLIENT_ID")
+die_client_secret = os.getenv("DIE_CLIENT_SECRET")
 
 # ============ BPA CREDENTIALS (from .env) ============
 bpa_api_url = os.getenv('BPA_API_URL')
