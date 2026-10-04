@@ -244,3 +244,7 @@ python-dotenv
 - [Document Information Extraction](https://help.sap.com/docs/document-information-extraction)
 - [SAP Build Process Automation API](https://help.sap.com/docs/build-process-automation)
 - [SBPA Workflow REST API](https://api.sap.com/api/SPA_Workflow_Runtime/overview)
+
+## Deployable
+
+SBPA project mtar: [po-to-so-v1.0.12](https://github.com/srini118us/sap-ai-journey/releases/tag/po-to-so-v1.0.12). Recreate destinations before import.
