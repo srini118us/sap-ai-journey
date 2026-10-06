@@ -35,11 +35,11 @@ A procurement manager asks: which suppliers will deliver late, why, how much val
  3 ACTION                                       |                     |
  SBPA SupplierRiskReview                        v                     v
  Hold New POs | Monitor | Override       V_SUPPLIER_RISK_LATEST   4 GOVERNED REUSE
- required comment                        AM_SUPPLIER_RISK_LATEST  V_SDR_PRODUCT -> T_SDR_PRODUCT
-                                                |                   | share
-                                                v                   v
+ required comment                        AM_SUPPLIER_RISK_LATEST  V_SDR_PRODUCT -> DF_SDR_PRODUCT
+                                                |                   -> T_SDR_PRODUCT
+                                                v                   | share
                                         SAC "UC4 Supplier Risk     FIN_LAB_FILES (Object Store)
-                                         Control Tower"            SUPPLIER_DELIVERY_RISK (Delta)
+                                         Control Tower"            TF_LAND_SDR -> SUPPLIER_DELIVERY_RISK
                                                                     |
                                                                     v
                                                   BDC data product SUPPLIER_DELIVERY_RISK_DP v1.0.0
@@ -212,7 +212,7 @@ The solution already worked inside Datasphere. BDC turned the curated result int
 
 ## Get and deploy
 
-Everything for this scenario lives in this folder. Click a folder to open it. The only exception is the AI Core training and serving code, which stays at the AI Core Git sync path in the same repository.
+Most artifacts for this scenario live in this folder. Click a folder to open it. AI Core training and serving code remains at the AI Core Git sync path, and the SBPA project is documented but not exported.
 
 | Folder | What it holds | Release |
 |---|---|---|
