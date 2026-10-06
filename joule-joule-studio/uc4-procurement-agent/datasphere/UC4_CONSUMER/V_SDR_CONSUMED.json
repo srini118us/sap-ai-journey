@@ -1,0 +1,228 @@
+{
+  "definitions": {
+    "V_SDR_CONSUMED": {
+      "kind": "entity",
+      "elements": {
+        "Supplier": {
+          "@EndUserText.label": "Supplier",
+          "type": "cds.String",
+          "length": 10,
+          "key": true,
+          "notNull": true
+        },
+        "RiskBand": {
+          "@EndUserText.label": "RiskBand",
+          "type": "cds.String",
+          "length": 10
+        },
+        "LateProbability": {
+          "@EndUserText.label": "LateProbability",
+          "precision": 6,
+          "scale": 4,
+          "type": "cds.Decimal"
+        },
+        "OntimeProbability": {
+          "@EndUserText.label": "OntimeProbability",
+          "precision": 6,
+          "scale": 4,
+          "type": "cds.Decimal"
+        },
+        "Confidence": {
+          "@EndUserText.label": "Confidence",
+          "type": "cds.String",
+          "length": 10
+        },
+        "TopRiskFactor": {
+          "@EndUserText.label": "TopRiskFactor",
+          "type": "cds.String",
+          "length": 60
+        },
+        "ScoringStatus": {
+          "@EndUserText.label": "ScoringStatus",
+          "type": "cds.String",
+          "length": 10
+        },
+        "DelayedLineCount": {
+          "@EndUserText.label": "DelayedLineCount",
+          "type": "cds.Integer",
+          "@AnalyticsDetails.measureType": {
+            "#": "BASE"
+          },
+          "@Aggregation.default": {
+            "#": "SUM"
+          }
+        },
+        "DelayedPOCount": {
+          "@EndUserText.label": "DelayedPOCount",
+          "type": "cds.Integer",
+          "@AnalyticsDetails.measureType": {
+            "#": "BASE"
+          },
+          "@Aggregation.default": {
+            "#": "SUM"
+          }
+        },
+        "DelayedPOValueUSD": {
+          "@EndUserText.label": "DelayedPOValueUSD",
+          "precision": 23,
+          "scale": 2,
+          "type": "cds.Decimal",
+          "@AnalyticsDetails.measureType": {
+            "#": "BASE"
+          },
+          "@Aggregation.default": {
+            "#": "SUM"
+          }
+        },
+        "HistoricalOntimeRate": {
+          "@EndUserText.label": "HistoricalOntimeRate",
+          "precision": 6,
+          "scale": 4,
+          "type": "cds.Decimal"
+        },
+        "AvgLeadTimeDays": {
+          "@EndUserText.label": "AvgLeadTimeDays",
+          "precision": 10,
+          "scale": 1,
+          "type": "cds.Decimal"
+        },
+        "ModelId": {
+          "@EndUserText.label": "ModelId",
+          "type": "cds.String",
+          "length": 40
+        },
+        "RunId": {
+          "@EndUserText.label": "RunId",
+          "type": "cds.String",
+          "length": 36
+        },
+        "ScoredAt": {
+          "@EndUserText.label": "ScoredAt",
+          "type": "cds.String",
+          "length": 19
+        }
+      },
+      "query": {
+        "SELECT": {
+          "from": {
+            "ref": [
+              "SAPMTDS7.saceu10.SUPPLIER_DELIVERY_RISK_DP.DELTA_SHARING:v1.SUPPLIER_DELIVERY_RISK"
+            ],
+            "as": "SUPPLIER_DELIVERY_RISK"
+          },
+          "columns": [
+            {
+              "key": true,
+              "ref": [
+                "Supplier"
+              ]
+            },
+            {
+              "ref": [
+                "RiskBand"
+              ]
+            },
+            {
+              "ref": [
+                "LateProbability"
+              ]
+            },
+            {
+              "ref": [
+                "OntimeProbability"
+              ]
+            },
+            {
+              "ref": [
+                "Confidence"
+              ]
+            },
+            {
+              "ref": [
+                "TopRiskFactor"
+              ]
+            },
+            {
+              "ref": [
+                "ScoringStatus"
+              ]
+            },
+            {
+              "ref": [
+                "DelayedLineCount"
+              ]
+            },
+            {
+              "ref": [
+                "DelayedPOCount"
+              ]
+            },
+            {
+              "ref": [
+                "DelayedPOValueUSD"
+              ]
+            },
+            {
+              "ref": [
+                "HistoricalOntimeRate"
+              ]
+            },
+            {
+              "ref": [
+                "AvgLeadTimeDays"
+              ]
+            },
+            {
+              "ref": [
+                "ModelId"
+              ]
+            },
+            {
+              "ref": [
+                "RunId"
+              ]
+            },
+            {
+              "ref": [
+                "ScoredAt"
+              ]
+            }
+          ]
+        }
+      },
+      "@ObjectModel.supportedCapabilities": [
+        {
+          "#": "DATA_STRUCTURE"
+        }
+      ],
+      "@EndUserText.label": "Supplier Delivery Risk Consumed",
+      "@ObjectModel.modelingPattern": {
+        "#": "ANALYTICAL_FACT"
+      },
+      "@DataWarehouse.consumption.external": true
+    },
+    "SAPMTDS7": {
+      "kind": "context",
+      "@EndUserText.label": "SAPMTDS7 (SAP-Managed)",
+      "@DataWarehouse.space.schema": "SAPMTDS7",
+      "@DataWarehouse.space.name": "SAPMTDS7"
+    }
+  },
+  "editorSettings": {
+    "V_SDR_CONSUMED": {
+      "editor": {
+        "lastModifier": "GRAPHICALVIEWBUILDER",
+        "default": "GRAPHICALVIEWBUILDER"
+      },
+      "uiModel": "{\"contents\":{\"100dc7ae-c13b-4d70-8a26-49aa17cd3b3f\":{\"classDefinition\":\"sap.cdw.querybuilder.Model\",\"name\":\"V_SDR_CONSUMED\",\"label\":\"Supplier Delivery Risk Consumed\",\"modificationDate\":1791243496562,\"deploymentDate\":1791243508855,\"#objectStatus\":\"1\",\"output\":\"500544c9-65e6-42ba-b672-2ec69f7a6766\",\"nodes\":{\"500544c9-65e6-42ba-b672-2ec69f7a6766\":{\"name\":\"V_SDR_CONSUMED\"},\"7320399c-14c6-4133-a5e2-b8348d81cecf\":{\"name\":\"SAPMTDS7.saceu10.SUPPLIER_DELIVERY_RISK_DP.DELTA_SHARING:v1.SUPPLIER_DELIVERY_RISK\"}},\"contexts\":{\"e199fe9f-f125-4146-9307-c24307d529d4\":{\"name\":\"SAPMTDS7\"}},\"diagrams\":{\"00213f13-b42d-47c3-9730-089cfa50dc0a\":{}}},\"500544c9-65e6-42ba-b672-2ec69f7a6766\":{\"classDefinition\":\"sap.cdw.querybuilder.Output\",\"name\":\"V_SDR_CONSUMED\",\"type\":\"graphicView\",\"isDeltaOutboundOn\":false,\"isDeletionVector\":false,\"isPinToMemoryEnabled\":false,\"dataCategory\":\"SQLFACT\",\"modificationDate\":1791243496562,\"deploymentDate\":1791243508855,\"#objectStatus\":\"1\",\"elements\":{\"d8cc834f-b0f2-461e-8fc8-5b32724586eb\":{\"name\":\"Supplier\"},\"69942e72-a6c9-472e-bfde-5af14292976d\":{\"name\":\"RiskBand\"},\"e09a479c-f78a-4734-9b9f-3702580bb6fc\":{\"name\":\"LateProbability\"},\"be52e036-6a51-4f0c-8f36-301be2e5f8a9\":{\"name\":\"OntimeProbability\"},\"f96a895e-5a0f-4377-ae45-eb17c6310e54\":{\"name\":\"Confidence\"},\"5bed23e8-9c5d-47ed-98cd-66bea64b697c\":{\"name\":\"TopRiskFactor\"},\"6041c120-b7e1-4142-9ddc-feb67b786210\":{\"name\":\"ScoringStatus\"},\"6a0df6f4-a4ed-404c-96de-5b50da32a8c8\":{\"name\":\"DelayedLineCount\"},\"59bf18bc-c23f-467f-b860-4b3a77caa9b9\":{\"name\":\"DelayedPOCount\"},\"2d25f46a-c8b8-4c3a-b2f3-c19d25939a0c\":{\"name\":\"DelayedPOValueUSD\"},\"4ddd682a-8bb0-4284-86bf-29afd27fc308\":{\"name\":\"HistoricalOntimeRate\"},\"3ec8da6e-742a-477f-9461-01bb99110bc5\":{\"name\":\"AvgLeadTimeDays\"},\"aa6721c3-9eb0-4614-94cd-00d1772f3211\":{\"name\":\"ModelId\"},\"b08ed1b2-d98b-48c5-bdb7-08611982c1d5\":{\"name\":\"RunId\"},\"68432bff-5c48-42bf-841d-7abbda606864\":{\"name\":\"ScoredAt\"}}},\"7320399c-14c6-4133-a5e2-b8348d81cecf\":{\"classDefinition\":\"sap.cdw.querybuilder.Entity\",\"name\":\"SAPMTDS7.saceu10.SUPPLIER_DELIVERY_RISK_DP.DELTA_SHARING:v1.SUPPLIER_DELIVERY_RISK\",\"label\":\"Supplier Delivery Risk\",\"type\":3,\"isDeltaOutboundOn\":false,\"isDeletionVector\":false,\"isPersistenceExists\":true,\"isPinToMemoryEnabled\":false,\"isHiddenInUi\":false,\"modificationDate\":1791242835667,\"deploymentDate\":1791242853223,\"#objectStatus\":\"1\",\"alias\":\"SUPPLIER_DELIVERY_RISK\",\"context\":\"e199fe9f-f125-4146-9307-c24307d529d4\",\"elements\":{\"c8bbfee8-66bd-495a-8e11-33d25be775f7\":{\"name\":\"Supplier\"},\"676d3733-9e3c-4556-b442-34d5e9f27e1d\":{\"name\":\"RiskBand\"},\"2926d352-1e65-4fb8-8ce5-8db22e2faf60\":{\"name\":\"LateProbability\"},\"3ec2c9fd-67b4-41b9-bb7c-241196b9abec\":{\"name\":\"OntimeProbability\"},\"5f96b91f-e10b-48ec-9bc1-d8651afaef84\":{\"name\":\"Confidence\"},\"e84de2e5-ee8b-4d35-9a11-6ec9c074460d\":{\"name\":\"TopRiskFactor\"},\"3bc367a2-c09e-41bb-af5f-b953991ee5b4\":{\"name\":\"ScoringStatus\"},\"d27e8d31-d99a-4fc4-9a03-1c50c20bc533\":{\"name\":\"DelayedLineCount\"},\"1ebe2e2e-f48e-4f47-b2da-08d231f679ac\":{\"name\":\"DelayedPOCount\"},\"61c187e0-5446-4f44-9d2c-6660b4abf45a\":{\"name\":\"DelayedPOValueUSD\"},\"732465e9-f62c-4b6c-8ea8-cb5586605935\":{\"name\":\"HistoricalOntimeRate\"},\"ddf0c123-78d4-48c0-8c8c-ccea2ceed49f\":{\"name\":\"AvgLeadTimeDays\"},\"4ad2be00-b486-4cf4-948a-ecf284562310\":{\"name\":\"ModelId\"},\"32dcb026-4db1-47a1-881c-cf533ed300e3\":{\"name\":\"RunId\"},\"a8fb2ce9-65cb-4bec-956d-f920bf59db77\":{\"name\":\"ScoredAt\"}},\"successorNode\":\"500544c9-65e6-42ba-b672-2ec69f7a6766\"},\"e199fe9f-f125-4146-9307-c24307d529d4\":{\"classDefinition\":\"sap.cdw.commonmodel.Context\",\"name\":\"SAPMTDS7\",\"label\":\"SAPMTDS7 (SAP-Managed)\",\"crossSpace\":{\"schema\":\"SAPMTDS7\",\"space\":\"SAPMTDS7\"}},\"00213f13-b42d-47c3-9730-089cfa50dc0a\":{\"classDefinition\":\"sap.cdw.querybuilder.ui.Diagram\",\"symbols\":{\"745868c3-483d-478a-bd9f-5758cb21e56e\":{},\"eea84438-51c1-4910-9734-41aeb444686a\":{\"name\":\"Entity Symbol 1\"},\"524e3ecc-27c1-4334-a40c-aaeca896f41c\":{}}},\"d8cc834f-b0f2-461e-8fc8-5b32724586eb\":{\"classDefinition\":\"sap.cdw.querybuilder.Element\",\"name\":\"Supplier\",\"label\":\"Supplier\",\"newName\":\"Supplier\",\"indexOrder\":0,\"isKey\":true,\"length\":10,\"precision\":0,\"scale\":0,\"isMeasureBeforeAI\":false,\"isMeasureAI\":false,\"isNotNullBeforeAI\":false,\"isKeyBeforeAI\":false,\"isKeyAI\":false,\"isNotNull\":true},\"69942e72-a6c9-472e-bfde-5af14292976d\":{\"classDefinition\":\"sap.cdw.querybuilder.Element\",\"name\":\"RiskBand\",\"label\":\"RiskBand\",\"newName\":\"RiskBand\",\"indexOrder\":1,\"length\":10,\"precision\":0,\"scale\":0,\"isMeasureBeforeAI\":false,\"isMeasureAI\":false,\"isNotNullBeforeAI\":false,\"isKeyBeforeAI\":false,\"isKeyAI\":false},\"e09a479c-f78a-4734-9b9f-3702580bb6fc\":{\"classDefinition\":\"sap.cdw.querybuilder.Element\",\"name\":\"LateProbability\",\"label\":\"LateProbability\",\"newName\":\"LateProbability\",\"indexOrder\":2,\"dataType\":\"cds.Decimal\",\"length\":0,\"precision\":6,\"scale\":4,\"isMeasureBeforeAI\":false,\"isMeasureAI\":false,\"isNotNullBeforeAI\":false,\"isKeyBeforeAI\":false,\"isKeyAI\":false},\"be52e036-6a51-4f0c-8f36-301be2e5f8a9\":{\"classDefinition\":\"sap.cdw.querybuilder.Element\",\"name\":\"OntimeProbability\",\"label\":\"OntimeProbability\",\"newName\":\"OntimeProbability\",\"indexOrder\":3,\"dataType\":\"cds.Decimal\",\"length\":0,\"precision\":6,\"scale\":4,\"isMeasureBeforeAI\":false,\"isMeasureAI\":false,\"isNotNullBeforeAI\":false,\"isKeyBeforeAI\":false,\"isKeyAI\":false},\"f96a895e-5a0f-4377-ae45-eb17c6310e54\":{\"classDefinition\":\"sap.cdw.querybuilder.Element\",\"name\":\"Confidence\",\"label\":\"Confidence\",\"newName\":\"Confidence\",\"indexOrder\":4,\"length\":10,\"precision\":0,\"scale\":0,\"isMeasureBeforeAI\":false,\"isMeasureAI\":false,\"isNotNullBeforeAI\":false,\"isKeyBeforeAI\":false,\"isKeyAI\":false},\"5bed23e8-9c5d-47ed-98cd-66bea64b697c\":{\"classDefinition\":\"sap.cdw.querybuilder.Element\",\"name\":\"TopRiskFactor\",\"label\":\"TopRiskFactor\",\"newName\":\"TopRiskFactor\",\"indexOrder\":5,\"length\":60,\"precision\":0,\"scale\":0,\"isMeasureBeforeAI\":false,\"isMeasureAI\":false,\"isNotNullBeforeAI\":false,\"isKeyBeforeAI\":false,\"isKeyAI\":false},\"6041c120-b7e1-4142-9ddc-feb67b786210\":{\"classDefinition\":\"sap.cdw.querybuilder.Element\",\"name\":\"ScoringStatus\",\"label\":\"ScoringStatus\",\"newName\":\"ScoringStatus\",\"indexOrder\":6,\"length\":10,\"precision\":0,\"scale\":0,\"isMeasureBeforeAI\":false,\"isMeasureAI\":false,\"isNotNullBeforeAI\":false,\"isKeyBeforeAI\":false,\"isKeyAI\":false},\"6a0df6f4-a4ed-404c-96de-5b50da32a8c8\":{\"classDefinition\":\"sap.cdw.querybuilder.Element\",\"name\":\"DelayedLineCount\",\"label\":\"DelayedLineCount\",\"newName\":\"DelayedLineCount\",\"indexOrder\":7,\"defaultAggregation\":\"SUM\",\"dataType\":\"cds.Integer\",\"length\":0,\"precision\":0,\"scale\":0,\"isMeasureBeforeAI\":false,\"isMeasureAI\":false,\"isNotNullBeforeAI\":false,\"isKeyBeforeAI\":false,\"isKeyAI\":false,\"isMeasure\":true},\"59bf18bc-c23f-467f-b860-4b3a77caa9b9\":{\"classDefinition\":\"sap.cdw.querybuilder.Element\",\"name\":\"DelayedPOCount\",\"label\":\"DelayedPOCount\",\"newName\":\"DelayedPOCount\",\"indexOrder\":8,\"defaultAggregation\":\"SUM\",\"dataType\":\"cds.Integer\",\"length\":0,\"precision\":0,\"scale\":0,\"isMeasureBeforeAI\":false,\"isMeasureAI\":false,\"isNotNullBeforeAI\":false,\"isKeyBeforeAI\":false,\"isKeyAI\":false,\"isMeasure\":true},\"2d25f46a-c8b8-4c3a-b2f3-c19d25939a0c\":{\"classDefinition\":\"sap.cdw.querybuilder.Element\",\"name\":\"DelayedPOValueUSD\",\"label\":\"DelayedPOValueUSD\",\"newName\":\"DelayedPOValueUSD\",\"indexOrder\":9,\"defaultAggregation\":\"SUM\",\"dataType\":\"cds.Decimal\",\"length\":0,\"precision\":23,\"scale\":2,\"isMeasureBeforeAI\":false,\"isMeasureAI\":false,\"isNotNullBeforeAI\":false,\"isKeyBeforeAI\":false,\"isKeyAI\":false,\"isMeasure\":true},\"4ddd682a-8bb0-4284-86bf-29afd27fc308\":{\"classDefinition\":\"sap.cdw.querybuilder.Element\",\"name\":\"HistoricalOntimeRate\",\"label\":\"HistoricalOntimeRate\",\"newName\":\"HistoricalOntimeRate\",\"indexOrder\":10,\"dataType\":\"cds.Decimal\",\"length\":0,\"precision\":6,\"scale\":4,\"isMeasureBeforeAI\":false,\"isMeasureAI\":false,\"isNotNullBeforeAI\":false,\"isKeyBeforeAI\":false,\"isKeyAI\":false},\"3ec8da6e-742a-477f-9461-01bb99110bc5\":{\"classDefinition\":\"sap.cdw.querybuilder.Element\",\"name\":\"AvgLeadTimeDays\",\"label\":\"AvgLeadTimeDays\",\"newName\":\"AvgLeadTimeDays\",\"indexOrder\":11,\"dataType\":\"cds.Decimal\",\"length\":0,\"precision\":10,\"scale\":1,\"isMeasureBeforeAI\":false,\"isMeasureAI\":false,\"isNotNullBeforeAI\":false,\"isKeyBeforeAI\":false,\"isKeyAI\":false},\"aa6721c3-9eb0-4614-94cd-00d1772f3211\":{\"classDefinition\":\"sap.cdw.querybuilder.Element\",\"name\":\"ModelId\",\"label\":\"ModelId\",\"newName\":\"ModelId\",\"indexOrder\":12,\"length\":40,\"precision\":0,\"scale\":0,\"isMeasureBeforeAI\":false,\"isMeasureAI\":false,\"isNotNullBeforeAI\":false,\"isKeyBeforeAI\":false,\"isKeyAI\":false},\"b08ed1b2-d98b-48c5-bdb7-08611982c1d5\":{\"classDefinition\":\"sap.cdw.querybuilder.Element\",\"name\":\"RunId\",\"label\":\"RunId\",\"newName\":\"RunId\",\"indexOrder\":13,\"length\":36,\"precision\":0,\"scale\":0,\"isMeasureBeforeAI\":false,\"isMeasureAI\":false,\"isNotNullBeforeAI\":false,\"isKeyBeforeAI\":false,\"isKeyAI\":false},\"68432bff-5c48-42bf-841d-7abbda606864\":{\"classDefinition\":\"sap.cdw.querybuilder.Element\",\"name\":\"ScoredAt\",\"label\":\"ScoredAt\",\"newName\":\"ScoredAt\",\"indexOrder\":14,\"length\":19,\"precision\":0,\"scale\":0,\"isMeasureBeforeAI\":false,\"isMeasureAI\":false,\"isNotNullBeforeAI\":false,\"isKeyBeforeAI\":false,\"isKeyAI\":false},\"745868c3-483d-478a-bd9f-5758cb21e56e\":{\"classDefinition\":\"sap.cdw.querybuilder.ui.OutputSymbol\",\"x\":47,\"y\":-20,\"width\":140,\"height\":40,\"object\":\"500544c9-65e6-42ba-b672-2ec69f7a6766\"},\"eea84438-51c1-4910-9734-41aeb444686a\":{\"classDefinition\":\"sap.cdw.querybuilder.ui.EntitySymbol\",\"name\":\"Entity Symbol 1\",\"x\":-163,\"y\":-20,\"width\":160,\"displayName\":\"Entity Symbol 1\",\"object\":\"7320399c-14c6-4133-a5e2-b8348d81cecf\"},\"524e3ecc-27c1-4334-a40c-aaeca896f41c\":{\"classDefinition\":\"sap.cdw.querybuilder.ui.AssociationSymbol\",\"points\":\"-3,0 47,0\",\"contentOffsetX\":5,\"contentOffsetY\":5,\"sourceSymbol\":\"eea84438-51c1-4910-9734-41aeb444686a\",\"targetSymbol\":\"745868c3-483d-478a-bd9f-5758cb21e56e\"},\"c8bbfee8-66bd-495a-8e11-33d25be775f7\":{\"classDefinition\":\"sap.cdw.querybuilder.Element\",\"name\":\"Supplier\",\"label\":\"Supplier\",\"newName\":\"Supplier\",\"indexOrder\":0,\"isKey\":true,\"length\":10,\"precision\":0,\"scale\":0,\"isMeasureBeforeAI\":false,\"isMeasureAI\":false,\"isNotNullBeforeAI\":false,\"isKeyBeforeAI\":false,\"isKeyAI\":false,\"isNotNull\":true,\"successorElement\":\"d8cc834f-b0f2-461e-8fc8-5b32724586eb\"},\"676d3733-9e3c-4556-b442-34d5e9f27e1d\":{\"classDefinition\":\"sap.cdw.querybuilder.Element\",\"name\":\"RiskBand\",\"label\":\"RiskBand\",\"newName\":\"RiskBand\",\"indexOrder\":1,\"length\":10,\"precision\":0,\"scale\":0,\"isMeasureBeforeAI\":false,\"isMeasureAI\":false,\"isNotNullBeforeAI\":false,\"isKeyBeforeAI\":false,\"isKeyAI\":false,\"successorElement\":\"69942e72-a6c9-472e-bfde-5af14292976d\"},\"2926d352-1e65-4fb8-8ce5-8db22e2faf60\":{\"classDefinition\":\"sap.cdw.querybuilder.Element\",\"name\":\"LateProbability\",\"label\":\"LateProbability\",\"newName\":\"LateProbability\",\"indexOrder\":2,\"dataType\":\"cds.Decimal\",\"length\":0,\"precision\":6,\"scale\":4,\"isMeasureBeforeAI\":false,\"isMeasureAI\":false,\"isNotNullBeforeAI\":false,\"isKeyBeforeAI\":false,\"isKeyAI\":false,\"successorElement\":\"e09a479c-f78a-4734-9b9f-3702580bb6fc\"},\"3ec2c9fd-67b4-41b9-bb7c-241196b9abec\":{\"classDefinition\":\"sap.cdw.querybuilder.Element\",\"name\":\"OntimeProbability\",\"label\":\"OntimeProbability\",\"newName\":\"OntimeProbability\",\"indexOrder\":3,\"dataType\":\"cds.Decimal\",\"length\":0,\"precision\":6,\"scale\":4,\"isMeasureBeforeAI\":false,\"isMeasureAI\":false,\"isNotNullBeforeAI\":false,\"isKeyBeforeAI\":false,\"isKeyAI\":false,\"successorElement\":\"be52e036-6a51-4f0c-8f36-301be2e5f8a9\"},\"5f96b91f-e10b-48ec-9bc1-d8651afaef84\":{\"classDefinition\":\"sap.cdw.querybuilder.Element\",\"name\":\"Confidence\",\"label\":\"Confidence\",\"newName\":\"Confidence\",\"indexOrder\":4,\"length\":10,\"precision\":0,\"scale\":0,\"isMeasureBeforeAI\":false,\"isMeasureAI\":false,\"isNotNullBeforeAI\":false,\"isKeyBeforeAI\":false,\"isKeyAI\":false,\"successorElement\":\"f96a895e-5a0f-4377-ae45-eb17c6310e54\"},\"e84de2e5-ee8b-4d35-9a11-6ec9c074460d\":{\"classDefinition\":\"sap.cdw.querybuilder.Element\",\"name\":\"TopRiskFactor\",\"label\":\"TopRiskFactor\",\"newName\":\"TopRiskFactor\",\"indexOrder\":5,\"length\":60,\"precision\":0,\"scale\":0,\"isMeasureBeforeAI\":false,\"isMeasureAI\":false,\"isNotNullBeforeAI\":false,\"isKeyBeforeAI\":false,\"isKeyAI\":false,\"successorElement\":\"5bed23e8-9c5d-47ed-98cd-66bea64b697c\"},\"3bc367a2-c09e-41bb-af5f-b953991ee5b4\":{\"classDefinition\":\"sap.cdw.querybuilder.Element\",\"name\":\"ScoringStatus\",\"label\":\"ScoringStatus\",\"newName\":\"ScoringStatus\",\"indexOrder\":6,\"length\":10,\"precision\":0,\"scale\":0,\"isMeasureBeforeAI\":false,\"isMeasureAI\":false,\"isNotNullBeforeAI\":false,\"isKeyBeforeAI\":false,\"isKeyAI\":false,\"successorElement\":\"6041c120-b7e1-4142-9ddc-feb67b786210\"},\"d27e8d31-d99a-4fc4-9a03-1c50c20bc533\":{\"classDefinition\":\"sap.cdw.querybuilder.Element\",\"name\":\"DelayedLineCount\",\"label\":\"DelayedLineCount\",\"newName\":\"DelayedLineCount\",\"indexOrder\":7,\"dataType\":\"cds.Integer\",\"length\":0,\"precision\":0,\"scale\":0,\"isMeasureBeforeAI\":false,\"isMeasureAI\":false,\"isNotNullBeforeAI\":false,\"isKeyBeforeAI\":false,\"isKeyAI\":false,\"successorElement\":\"6a0df6f4-a4ed-404c-96de-5b50da32a8c8\"},\"1ebe2e2e-f48e-4f47-b2da-08d231f679ac\":{\"classDefinition\":\"sap.cdw.querybuilder.Element\",\"name\":\"DelayedPOCount\",\"label\":\"DelayedPOCount\",\"newName\":\"DelayedPOCount\",\"indexOrder\":8,\"dataType\":\"cds.Integer\",\"length\":0,\"precision\":0,\"scale\":0,\"isMeasureBeforeAI\":false,\"isMeasureAI\":false,\"isNotNullBeforeAI\":false,\"isKeyBeforeAI\":false,\"isKeyAI\":false,\"successorElement\":\"59bf18bc-c23f-467f-b860-4b3a77caa9b9\"},\"61c187e0-5446-4f44-9d2c-6660b4abf45a\":{\"classDefinition\":\"sap.cdw.querybuilder.Element\",\"name\":\"DelayedPOValueUSD\",\"label\":\"DelayedPOValueUSD\",\"newName\":\"DelayedPOValueUSD\",\"indexOrder\":9,\"dataType\":\"cds.Decimal\",\"length\":0,\"precision\":23,\"scale\":2,\"isMeasureBeforeAI\":false,\"isMeasureAI\":false,\"isNotNullBeforeAI\":false,\"isKeyBeforeAI\":false,\"isKeyAI\":false,\"successorElement\":\"2d25f46a-c8b8-4c3a-b2f3-c19d25939a0c\"},\"732465e9-f62c-4b6c-8ea8-cb5586605935\":{\"classDefinition\":\"sap.cdw.querybuilder.Element\",\"name\":\"HistoricalOntimeRate\",\"label\":\"HistoricalOntimeRate\",\"newName\":\"HistoricalOntimeRate\",\"indexOrder\":10,\"dataType\":\"cds.Decimal\",\"length\":0,\"precision\":6,\"scale\":4,\"isMeasureBeforeAI\":false,\"isMeasureAI\":false,\"isNotNullBeforeAI\":false,\"isKeyBeforeAI\":false,\"isKeyAI\":false,\"successorElement\":\"4ddd682a-8bb0-4284-86bf-29afd27fc308\"},\"ddf0c123-78d4-48c0-8c8c-ccea2ceed49f\":{\"classDefinition\":\"sap.cdw.querybuilder.Element\",\"name\":\"AvgLeadTimeDays\",\"label\":\"AvgLeadTimeDays\",\"newName\":\"AvgLeadTimeDays\",\"indexOrder\":11,\"dataType\":\"cds.Decimal\",\"length\":0,\"precision\":10,\"scale\":1,\"isMeasureBeforeAI\":false,\"isMeasureAI\":false,\"isNotNullBeforeAI\":false,\"isKeyBeforeAI\":false,\"isKeyAI\":false,\"successorElement\":\"3ec8da6e-742a-477f-9461-01bb99110bc5\"},\"4ad2be00-b486-4cf4-948a-ecf284562310\":{\"classDefinition\":\"sap.cdw.querybuilder.Element\",\"name\":\"ModelId\",\"label\":\"ModelId\",\"newName\":\"ModelId\",\"indexOrder\":12,\"length\":40,\"precision\":0,\"scale\":0,\"isMeasureBeforeAI\":false,\"isMeasureAI\":false,\"isNotNullBeforeAI\":false,\"isKeyBeforeAI\":false,\"isKeyAI\":false,\"successorElement\":\"aa6721c3-9eb0-4614-94cd-00d1772f3211\"},\"32dcb026-4db1-47a1-881c-cf533ed300e3\":{\"classDefinition\":\"sap.cdw.querybuilder.Element\",\"name\":\"RunId\",\"label\":\"RunId\",\"newName\":\"RunId\",\"indexOrder\":13,\"length\":36,\"precision\":0,\"scale\":0,\"isMeasureBeforeAI\":false,\"isMeasureAI\":false,\"isNotNullBeforeAI\":false,\"isKeyBeforeAI\":false,\"isKeyAI\":false,\"successorElement\":\"b08ed1b2-d98b-48c5-bdb7-08611982c1d5\"},\"a8fb2ce9-65cb-4bec-956d-f920bf59db77\":{\"classDefinition\":\"sap.cdw.querybuilder.Element\",\"name\":\"ScoredAt\",\"label\":\"ScoredAt\",\"newName\":\"ScoredAt\",\"indexOrder\":14,\"length\":19,\"precision\":0,\"scale\":0,\"isMeasureBeforeAI\":false,\"isMeasureAI\":false,\"isNotNullBeforeAI\":false,\"isKeyBeforeAI\":false,\"isKeyAI\":false,\"successorElement\":\"68432bff-5c48-42bf-841d-7abbda606864\"}}}"
+    }
+  },
+  "sourceSystems": {
+    "SAPMTDS7": {
+      "@DataWarehouse.systemTenantId": "62a720d0-8528-4f92-868d-bbcf271bcd81",
+      "@DataWarehouse.listOfApiOrdIds": [
+        "sap.dpm.saceu10.finailabform:apiResource:SUPPLIER_DELIVERY_RISK_DP.DELTA_SHARING:v1"
+      ]
+    }
+  }
+}

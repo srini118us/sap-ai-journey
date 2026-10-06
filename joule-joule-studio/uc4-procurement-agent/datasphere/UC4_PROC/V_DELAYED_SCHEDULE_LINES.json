@@ -1,0 +1,385 @@
+{
+  "definitions": {
+    "V_DELAYED_SCHEDULE_LINES": {
+      "kind": "entity",
+      "elements": {
+        "PurchaseOrder": {
+          "@EndUserText.label": "Purchasing document number",
+          "type": "cds.String",
+          "length": 10,
+          "key": true,
+          "notNull": true
+        },
+        "PurchaseOrderItem": {
+          "@EndUserText.label": "Item number of purchasing document",
+          "type": "cds.String",
+          "length": 5,
+          "key": true,
+          "notNull": true
+        },
+        "PurchaseOrderScheduleLine": {
+          "@EndUserText.label": "Delivery schedule line counter",
+          "type": "cds.String",
+          "length": 4,
+          "key": true,
+          "notNull": true
+        },
+        "Supplier": {
+          "@EndUserText.label": "Supplier",
+          "type": "cds.String",
+          "length": 10
+        },
+        "Material": {
+          "@EndUserText.label": "Material number",
+          "type": "cds.String",
+          "length": 40
+        },
+        "Plant": {
+          "@EndUserText.label": "Plant",
+          "type": "cds.String",
+          "length": 4
+        },
+        "DeliveryDate": {
+          "@EndUserText.label": "DeliveryDate",
+          "type": "cds.Date"
+        },
+        "OrderedQty": {
+          "@EndUserText.label": "Scheduled quantity",
+          "precision": 13,
+          "scale": 3,
+          "type": "cds.Decimal",
+          "notNull": true,
+          "@AnalyticsDetails.measureType": {
+            "#": "BASE"
+          },
+          "@Aggregation.default": {
+            "#": "SUM"
+          }
+        },
+        "ReceivedQty": {
+          "@EndUserText.label": "Quantity of goods received",
+          "precision": 13,
+          "scale": 3,
+          "type": "cds.Decimal",
+          "notNull": true,
+          "@AnalyticsDetails.measureType": {
+            "#": "BASE"
+          },
+          "@Aggregation.default": {
+            "#": "SUM"
+          }
+        },
+        "OpenQty": {
+          "@EndUserText.label": "OpenQty",
+          "precision": 13,
+          "scale": 3,
+          "type": "cds.Decimal",
+          "notNull": true,
+          "@AnalyticsDetails.measureType": {
+            "#": "BASE"
+          },
+          "@Aggregation.default": {
+            "#": "SUM"
+          }
+        },
+        "Unit": {
+          "@EndUserText.label": "Purchase order unit of measure",
+          "type": "cds.String",
+          "length": 3,
+          "notNull": true
+        },
+        "DaysLate": {
+          "@EndUserText.label": "DaysLate",
+          "type": "cds.Integer",
+          "notNull": true,
+          "@AnalyticsDetails.measureType": {
+            "#": "BASE"
+          },
+          "@Aggregation.default": {
+            "#": "SUM"
+          }
+        },
+        "DelayedLineCount": {
+          "@EndUserText.label": "DelayedLineCount",
+          "type": "cds.Integer",
+          "@AnalyticsDetails.measureType": {
+            "#": "BASE"
+          },
+          "@Aggregation.default": {
+            "#": "SUM"
+          }
+        }
+      },
+      "query": {
+        "SELECT": {
+          "from": {
+            "join": "inner",
+            "args": [
+              {
+                "join": "inner",
+                "args": [
+                  {
+                    "ref": [
+                      "C_PURORDSCHEDULELINEDEX"
+                    ],
+                    "as": "sl"
+                  },
+                  {
+                    "ref": [
+                      "C_PURCHASEORDERITEMDEX"
+                    ],
+                    "as": "it"
+                  }
+                ],
+                "on": [
+                  {
+                    "ref": [
+                      "it",
+                      "PurchaseOrder"
+                    ]
+                  },
+                  "=",
+                  {
+                    "ref": [
+                      "sl",
+                      "PurchaseOrder"
+                    ]
+                  },
+                  "and",
+                  {
+                    "ref": [
+                      "it",
+                      "PurchaseOrderItem"
+                    ]
+                  },
+                  "=",
+                  {
+                    "ref": [
+                      "sl",
+                      "PurchaseOrderItem"
+                    ]
+                  }
+                ]
+              },
+              {
+                "ref": [
+                  "C_PURCHASEORDERDEX"
+                ],
+                "as": "hd"
+              }
+            ],
+            "on": [
+              {
+                "ref": [
+                  "hd",
+                  "PurchaseOrder"
+                ]
+              },
+              "=",
+              {
+                "ref": [
+                  "sl",
+                  "PurchaseOrder"
+                ]
+              }
+            ]
+          },
+          "columns": [
+            {
+              "ref": [
+                "sl",
+                "PurchaseOrder"
+              ]
+            },
+            {
+              "ref": [
+                "sl",
+                "PurchaseOrderItem"
+              ]
+            },
+            {
+              "ref": [
+                "sl",
+                "PurchaseOrderScheduleLine"
+              ]
+            },
+            {
+              "ref": [
+                "hd",
+                "Supplier"
+              ]
+            },
+            {
+              "ref": [
+                "it",
+                "Material"
+              ]
+            },
+            {
+              "ref": [
+                "it",
+                "Plant"
+              ]
+            },
+            {
+              "func": "TO_DATE",
+              "args": [
+                {
+                  "ref": [
+                    "sl",
+                    "ScheduleLineDeliveryDate"
+                  ]
+                },
+                {
+                  "val": "YYYYMMDD"
+                }
+              ],
+              "as": "DeliveryDate"
+            },
+            {
+              "ref": [
+                "sl",
+                "ScheduleLineOrderQuantity"
+              ],
+              "as": "OrderedQty"
+            },
+            {
+              "ref": [
+                "sl",
+                "RoughGoodsReceiptQty"
+              ],
+              "as": "ReceivedQty"
+            },
+            {
+              "xpr": [
+                {
+                  "ref": [
+                    "sl",
+                    "ScheduleLineOrderQuantity"
+                  ]
+                },
+                "-",
+                {
+                  "ref": [
+                    "sl",
+                    "RoughGoodsReceiptQty"
+                  ]
+                }
+              ],
+              "as": "OpenQty"
+            },
+            {
+              "ref": [
+                "sl",
+                "PurchaseOrderQuantityUnit"
+              ],
+              "as": "Unit"
+            },
+            {
+              "func": "DAYS_BETWEEN",
+              "args": [
+                {
+                  "func": "TO_DATE",
+                  "args": [
+                    {
+                      "ref": [
+                        "sl",
+                        "ScheduleLineDeliveryDate"
+                      ]
+                    },
+                    {
+                      "val": "YYYYMMDD"
+                    }
+                  ]
+                },
+                {
+                  "func": "CURRENT_DATE"
+                }
+              ],
+              "as": "DaysLate"
+            },
+            {
+              "val": 1,
+              "as": "DelayedLineCount"
+            }
+          ],
+          "where": [
+            {
+              "ref": [
+                "sl",
+                "ScheduleLineDeliveryDate"
+              ]
+            },
+            "<>",
+            {
+              "val": "00000000"
+            },
+            "and",
+            {
+              "func": "TO_DATE",
+              "args": [
+                {
+                  "ref": [
+                    "sl",
+                    "ScheduleLineDeliveryDate"
+                  ]
+                },
+                {
+                  "val": "YYYYMMDD"
+                }
+              ]
+            },
+            "<",
+            {
+              "func": "CURRENT_DATE"
+            },
+            "and",
+            {
+              "ref": [
+                "sl",
+                "RoughGoodsReceiptQty"
+              ]
+            },
+            "<",
+            {
+              "ref": [
+                "sl",
+                "ScheduleLineOrderQuantity"
+              ]
+            },
+            "and",
+            {
+              "func": "COALESCE",
+              "args": [
+                {
+                  "ref": [
+                    "sl",
+                    "PurchasingDocumentDeletionCode"
+                  ]
+                },
+                {
+                  "val": ""
+                }
+              ]
+            },
+            "=",
+            {
+              "val": ""
+            }
+          ]
+        }
+      },
+      "@EndUserText.label": "Delayed Schedule Lines",
+      "@ObjectModel.modelingPattern": {
+        "#": "ANALYTICAL_FACT"
+      },
+      "@ObjectModel.supportedCapabilities": [
+        {
+          "#": "DATA_STRUCTURE"
+        }
+      ],
+      "@DataWarehouse.consumption.external": true,
+      "@DataWarehouse.sqlEditor.query": "SELECT\r\n    sl.\"PurchaseOrder\",\r\n    sl.\"PurchaseOrderItem\",\r\n    sl.\"PurchaseOrderScheduleLine\",\r\n    hd.\"Supplier\",\r\n    it.\"Material\",\r\n    it.\"Plant\",\r\n    TO_DATE(sl.\"ScheduleLineDeliveryDate\", 'YYYYMMDD')            AS \"DeliveryDate\",\r\n    sl.\"ScheduleLineOrderQuantity\"                                  AS \"OrderedQty\",\r\n    sl.\"RoughGoodsReceiptQty\"                                       AS \"ReceivedQty\",\r\n    sl.\"ScheduleLineOrderQuantity\" - sl.\"RoughGoodsReceiptQty\"      AS \"OpenQty\",\r\n    sl.\"PurchaseOrderQuantityUnit\"                                  AS \"Unit\",\r\n    DAYS_BETWEEN(TO_DATE(sl.\"ScheduleLineDeliveryDate\",'YYYYMMDD'), CURRENT_DATE) AS \"DaysLate\",\r\n    1                                                               AS \"DelayedLineCount\"\r\nFROM \"C_PURORDSCHEDULELINEDEX\" sl\r\nJOIN \"C_PURCHASEORDERITEMDEX\"  it\r\n  ON it.\"PurchaseOrder\" = sl.\"PurchaseOrder\"\r\n AND it.\"PurchaseOrderItem\" = sl.\"PurchaseOrderItem\"\r\nJOIN \"C_PURCHASEORDERDEX\" hd\r\n  ON hd.\"PurchaseOrder\" = sl.\"PurchaseOrder\"\r\nWHERE sl.\"ScheduleLineDeliveryDate\" <> '00000000'\r\n  AND TO_DATE(sl.\"ScheduleLineDeliveryDate\", 'YYYYMMDD') < CURRENT_DATE\r\n  AND sl.\"RoughGoodsReceiptQty\" < sl.\"ScheduleLineOrderQuantity\"\r\n  AND COALESCE(sl.\"PurchasingDocumentDeletionCode\", '') = ''"
+    }
+  }
+}

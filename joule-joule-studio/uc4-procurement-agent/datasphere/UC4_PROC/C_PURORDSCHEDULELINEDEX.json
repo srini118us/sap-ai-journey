@@ -1,0 +1,424 @@
+{
+  "definitions": {
+    "C_PURORDSCHEDULELINEDEX": {
+      "kind": "entity",
+      "@ObjectModel.supportedCapabilities": [
+        {
+          "#": "DATA_STRUCTURE"
+        }
+      ],
+      "elements": {
+        "PurchaseOrder": {
+          "@EndUserText.label": "Purchasing document number",
+          "type": "cds.String",
+          "length": 10,
+          "key": true,
+          "notNull": true
+        },
+        "PurchaseOrderItem": {
+          "@EndUserText.label": "Item number of purchasing document",
+          "type": "cds.String",
+          "length": 5,
+          "key": true,
+          "notNull": true
+        },
+        "PurchaseOrderScheduleLine": {
+          "@EndUserText.label": "Delivery schedule line counter",
+          "type": "cds.String",
+          "length": 4,
+          "key": true,
+          "notNull": true
+        },
+        "ScheduleLineDeliveryDate": {
+          "@EndUserText.label": "Item delivery date",
+          "type": "cds.String",
+          "length": 8
+        },
+        "SchedLineStscDeliveryDate": {
+          "@EndUserText.label": "Statistics-relevant delivery date",
+          "type": "cds.String",
+          "length": 8
+        },
+        "ScheduleLineDeliveryTime": {
+          "@EndUserText.label": "Delivery date time-spot",
+          "type": "cds.String",
+          "length": 6
+        },
+        "PurchaseRequisition": {
+          "@EndUserText.label": "Purchase requisition number",
+          "type": "cds.String",
+          "length": 10
+        },
+        "PurchaseRequisitionItem": {
+          "@EndUserText.label": "Item number of purchase requisition",
+          "type": "cds.String",
+          "length": 5
+        },
+        "Batch": {
+          "@EndUserText.label": "Batch number",
+          "type": "cds.String",
+          "length": 10
+        },
+        "PurchasingSchdLnNrOfReminders": {
+          "@EndUserText.label": "No. of reminders/expediters for schedule line",
+          "precision": 3,
+          "scale": 0,
+          "type": "cds.Decimal"
+        },
+        "RequisitionerName": {
+          "@EndUserText.label": "Name of requisitioner/requester",
+          "type": "cds.String",
+          "length": 12
+        },
+        "RetailPromotion": {
+          "@EndUserText.label": "Retail promotion",
+          "type": "cds.String",
+          "length": 10
+        },
+        "ArticleCategory": {
+          "@EndUserText.label": "Material category",
+          "type": "cds.String",
+          "length": 2
+        },
+        "PurchasingOrderReason": {
+          "@EndUserText.label": "Reason for ordering",
+          "type": "cds.String",
+          "length": 3
+        },
+        "IsCompletelyDelivered": {
+          "@EndUserText.label": "\"delivery completed\" indicator",
+          "type": "cds.String",
+          "length": 1
+        },
+        "ManufacturerMaterial": {
+          "@EndUserText.label": "Material number",
+          "type": "cds.String",
+          "length": 40
+        },
+        "IsFinallyInvoiced": {
+          "@EndUserText.label": "Final invoice indicator",
+          "type": "cds.String",
+          "length": 1
+        },
+        "PurchaseContract": {
+          "@EndUserText.label": "Number of principal purchase agreement",
+          "type": "cds.String",
+          "length": 10
+        },
+        "PurchaseContractItem": {
+          "@EndUserText.label": "Item number of principal purchase agreement",
+          "type": "cds.String",
+          "length": 5
+        },
+        "StorageLocation": {
+          "@EndUserText.label": "Storage location",
+          "type": "cds.String",
+          "length": 4
+        },
+        "BaseUnit": {
+          "@EndUserText.label": "Base unit of measure",
+          "type": "cds.String",
+          "length": 3
+        },
+        "MaterialGroup": {
+          "@EndUserText.label": "Material group",
+          "type": "cds.String",
+          "length": 9
+        },
+        "Material": {
+          "@EndUserText.label": "Material number",
+          "type": "cds.String",
+          "length": 40
+        },
+        "PurchaseOrderQuantityUnit": {
+          "@EndUserText.label": "Purchase order unit of measure",
+          "type": "cds.String",
+          "length": 3
+        },
+        "PurchaseOrderItemCategory": {
+          "@EndUserText.label": "Item category in purchasing document",
+          "type": "cds.String",
+          "length": 1
+        },
+        "IssuingStorageLocation": {
+          "@EndUserText.label": "Issuing storage location for stock transport order",
+          "type": "cds.String",
+          "length": 4
+        },
+        "PurchaseOrderItemText": {
+          "@EndUserText.label": "Short text",
+          "type": "cds.String",
+          "length": 40
+        },
+        "PurchasingParentItem": {
+          "@EndUserText.label": "Higher-level item in purchasing documents",
+          "type": "cds.String",
+          "length": 5
+        },
+        "OrderItemQtyToBaseQtyDnmntr": {
+          "@EndUserText.label": "Denominator for conversion of order unit to base unit",
+          "precision": 5,
+          "scale": 0,
+          "type": "cds.Decimal"
+        },
+        "OrderItemQtyToBaseQtyNmrtr": {
+          "@EndUserText.label": "Numerator for conversion of order unit to base unit",
+          "precision": 5,
+          "scale": 0,
+          "type": "cds.Decimal"
+        },
+        "InvoiceIsGoodsReceiptBased": {
+          "@EndUserText.label": "Indicator: gr-based invoice verification",
+          "type": "cds.String",
+          "length": 1
+        },
+        "GoodsReceiptIsExpected": {
+          "@EndUserText.label": "Goods receipt indicator",
+          "type": "cds.String",
+          "length": 1
+        },
+        "Plant": {
+          "@EndUserText.label": "Plant",
+          "type": "cds.String",
+          "length": 4
+        },
+        "EvaldRcptSettlmtIsAllowed": {
+          "@EndUserText.label": "Evaluated receipt settlement (ers)",
+          "type": "cds.String",
+          "length": 1
+        },
+        "PurchaseOrderDate": {
+          "@EndUserText.label": "Purchase order date",
+          "type": "cds.String",
+          "length": 8
+        },
+        "PurchaseOrderType": {
+          "@EndUserText.label": "Purchasing document type",
+          "type": "cds.String",
+          "length": 4
+        },
+        "PurchasingGroup": {
+          "@EndUserText.label": "Purchasing group",
+          "type": "cds.String",
+          "length": 3
+        },
+        "PurchasingOrganization": {
+          "@EndUserText.label": "Purchasing organization",
+          "type": "cds.String",
+          "length": 4
+        },
+        "ValidityStartDate": {
+          "@EndUserText.label": "Start of validity period",
+          "type": "cds.String",
+          "length": 8
+        },
+        "ValidityEndDate": {
+          "@EndUserText.label": "End of validity period",
+          "type": "cds.String",
+          "length": 8
+        },
+        "Supplier": {
+          "@EndUserText.label": "Supplier",
+          "type": "cds.String",
+          "length": 10
+        },
+        "InvoicingParty": {
+          "@EndUserText.label": "Different invoicing party",
+          "type": "cds.String",
+          "length": 10
+        },
+        "SupplyingSupplier": {
+          "@EndUserText.label": "Goods supplier",
+          "type": "cds.String",
+          "length": 10
+        },
+        "SupplyingPlant": {
+          "@EndUserText.label": "Supplying (issuing) plant in case of stock transport order",
+          "type": "cds.String",
+          "length": 4
+        },
+        "PurchasingDocumentOrigin": {
+          "@EndUserText.label": "Status of purchasing document",
+          "type": "cds.String",
+          "length": 1
+        },
+        "DocumentCurrency": {
+          "@EndUserText.label": "Currency key",
+          "type": "cds.String",
+          "length": 5
+        },
+        "ExchangeRate": {
+          "@EndUserText.label": "Exchange rate",
+          "precision": 9,
+          "scale": 5,
+          "type": "cds.Decimal"
+        },
+        "DelivDateCategory": {
+          "@EndUserText.label": "Category of delivery date",
+          "type": "cds.String",
+          "length": 1
+        },
+        "ScheduleLineOrderQuantity": {
+          "@EndUserText.label": "Scheduled quantity",
+          "precision": 13,
+          "scale": 3,
+          "type": "cds.Decimal"
+        },
+        "PrevDelivQtyOfScheduleLine": {
+          "@EndUserText.label": "Previous quantity (delivery schedule lines)",
+          "precision": 13,
+          "scale": 3,
+          "type": "cds.Decimal"
+        },
+        "RoughGoodsReceiptQty": {
+          "@EndUserText.label": "Quantity of goods received",
+          "precision": 13,
+          "scale": 3,
+          "type": "cds.Decimal"
+        },
+        "ScheduleLineIssuedQuantity": {
+          "@EndUserText.label": "Issued quantity",
+          "precision": 13,
+          "scale": 3,
+          "type": "cds.Decimal"
+        },
+        "SourceOfCreation": {
+          "@EndUserText.label": "Creation indicator (purchase requisition/schedule lines)",
+          "type": "cds.String",
+          "length": 1
+        },
+        "Reservation": {
+          "@EndUserText.label": "Number of reservation/dependent requirements",
+          "type": "cds.String",
+          "length": 10
+        },
+        "ScheduleLineIsFixed": {
+          "@EndUserText.label": "Schedule line is \"fixed\"",
+          "type": "cds.String",
+          "length": 1
+        },
+        "StockTransferDeliveredQuantity": {
+          "@EndUserText.label": "Quantity delivered (stock transfer)",
+          "precision": 13,
+          "scale": 3,
+          "type": "cds.Decimal"
+        },
+        "ScheduleLineCommittedQuantity": {
+          "@EndUserText.label": "Committed quantity",
+          "precision": 13,
+          "scale": 3,
+          "type": "cds.Decimal"
+        },
+        "ProductAvailabilityDate": {
+          "@EndUserText.label": "Material staging/availability date",
+          "type": "cds.String",
+          "length": 8
+        },
+        "ProductAvailabilityTime": {
+          "@EndUserText.label": "Material staging time (local, relating to a plant)",
+          "type": "cds.String",
+          "length": 6
+        },
+        "LoadingDate": {
+          "@EndUserText.label": "Loading date",
+          "type": "cds.String",
+          "length": 8
+        },
+        "LoadingTime": {
+          "@EndUserText.label": "Loading time (local time relating to a shipping point)",
+          "type": "cds.String",
+          "length": 6
+        },
+        "TransportationPlanningDate": {
+          "@EndUserText.label": "Transportation planning date",
+          "type": "cds.String",
+          "length": 8
+        },
+        "TransportationPlanningTime": {
+          "@EndUserText.label": "Transp. planning time (local, relating to a shipping point)",
+          "type": "cds.String",
+          "length": 6
+        },
+        "GoodsIssueDate": {
+          "@EndUserText.label": "Goods issue date",
+          "type": "cds.String",
+          "length": 8
+        },
+        "GoodsIssueTime": {
+          "@EndUserText.label": "Time of goods issue (local, relating to a plant)",
+          "type": "cds.String",
+          "length": 6
+        },
+        "STOLatestPossibleGRDate": {
+          "@EndUserText.label": "Goods receipt end date",
+          "type": "cds.String",
+          "length": 8
+        },
+        "STOLatestPossibleGRTime": {
+          "@EndUserText.label": "Goods receipt end time (local, relating to a plant)",
+          "type": "cds.String",
+          "length": 6
+        },
+        "OpenPurchaseOrderNetAmount": {
+          "@EndUserText.label": "OpenPurchaseOrderNetAmount",
+          "type": "cds.DecimalFloat"
+        },
+        "IsReturnsItem": {
+          "@EndUserText.label": "Returns item",
+          "type": "cds.String",
+          "length": 1
+        },
+        "CompanyCode": {
+          "@EndUserText.label": "Company code",
+          "type": "cds.String",
+          "length": 4
+        },
+        "ProductTypeCode": {
+          "@EndUserText.label": "Product type group",
+          "type": "cds.String",
+          "length": 2
+        },
+        "PurchasingDocumentDeletionCode": {
+          "@EndUserText.label": "Purchase order deletion code",
+          "type": "cds.String",
+          "length": 1
+        },
+        "PurgDocumentItemDeletionCode": {
+          "@EndUserText.label": "Deletion indicator in purchasing document",
+          "type": "cds.String",
+          "length": 1
+        },
+        "ReleaseIsNotCompleted": {
+          "@EndUserText.label": "Release not yet completely effected",
+          "type": "cds.String",
+          "length": 1
+        },
+        "PurchasingCompletenessStatus": {
+          "@EndUserText.label": "Purchase order not yet complete",
+          "type": "cds.String",
+          "length": 1
+        },
+        "SupplierConfirmationControlKey": {
+          "@EndUserText.label": "Confirmation control key",
+          "type": "cds.String",
+          "length": 4
+        },
+        "IsStatisticalItem": {
+          "@EndUserText.label": "Item is statistical",
+          "type": "cds.String",
+          "length": 1
+        },
+        "ScheduleLineOpenQuantity": {
+          "@EndUserText.label": "ScheduleLineOpenQuantity",
+          "precision": 15,
+          "scale": 3,
+          "type": "cds.Decimal"
+        }
+      },
+      "@EndUserText.label": "Data extraction for purchase order schedule lines",
+      "@ObjectModel.modelingPattern": {
+        "#": "DATA_STRUCTURE"
+      }
+    }
+  }
+}

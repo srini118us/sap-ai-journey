@@ -1,0 +1,347 @@
+{
+  "definitions": {
+    "AM_SUPPLIER_PERFORMANCE_360": {
+      "kind": "entity",
+      "@EndUserText.label": "Supplier Performance 360",
+      "elements": {
+        "PurchaseOrder": {
+          "@EndUserText.label": "Purchasing document number"
+        },
+        "PurchaseOrderItem": {
+          "@EndUserText.label": "Item number of purchasing document"
+        },
+        "PurchaseOrderScheduleLine": {
+          "@EndUserText.label": "Delivery schedule line counter"
+        },
+        "Supplier": {
+          "@EndUserText.label": "Supplier"
+        },
+        "Material": {
+          "@EndUserText.label": "Material number"
+        },
+        "Plant": {
+          "@EndUserText.label": "Plant"
+        },
+        "DeliveryDate": {
+          "@EndUserText.label": "DeliveryDate"
+        },
+        "Unit": {
+          "@EndUserText.label": "Purchase order unit of measure"
+        },
+        "OrderedQty": {
+          "@EndUserText.label": "Scheduled quantity",
+          "@AnalyticsDetails.measureType": {
+            "#": "BASE"
+          }
+        },
+        "ReceivedQty": {
+          "@EndUserText.label": "Quantity of goods received",
+          "@AnalyticsDetails.measureType": {
+            "#": "BASE"
+          }
+        },
+        "Delayed_Lines": {
+          "@EndUserText.label": "Delayed Lines",
+          "@AnalyticsDetails.measureType": {
+            "#": "BASE"
+          }
+        },
+        "Open_Quantity": {
+          "@EndUserText.label": "Open Quantity",
+          "@AnalyticsDetails.measureType": {
+            "#": "BASE"
+          }
+        },
+        "Worst_Delay_days": {
+          "@EndUserText.label": "Worst Delay (days)",
+          "@AnalyticsDetails.measureType": {
+            "#": "BASE"
+          },
+          "@Aggregation.default": {
+            "#": "MAX"
+          }
+        }
+      },
+      "@ObjectModel.modelingPattern": {
+        "#": "ANALYTICAL_CUBE"
+      },
+      "@ObjectModel.supportedCapabilities": [
+        {
+          "#": "ANALYTICAL_PROVIDER"
+        },
+        {
+          "#": "_DWC_AM_EDITABLE_DIMENSION_NAMES"
+        }
+      ],
+      "@DataWarehouse.editorType": {
+        "#": "DWCQueryModelEditor"
+      },
+      "@DataWarehouse.hanaCatalog.viewType": {
+        "#": "CALCULATION_VIEW"
+      },
+      "query": {
+        "SELECT": {
+          "from": {
+            "ref": [
+              "V_DELAYED_SCHEDULE_LINES"
+            ],
+            "as": "V_DELAYED_SCHEDULE_L"
+          },
+          "columns": [
+            {
+              "ref": [
+                "V_DELAYED_SCHEDULE_L",
+                "PurchaseOrder"
+              ],
+              "as": "PurchaseOrder"
+            },
+            {
+              "ref": [
+                "V_DELAYED_SCHEDULE_L",
+                "PurchaseOrderItem"
+              ],
+              "as": "PurchaseOrderItem"
+            },
+            {
+              "ref": [
+                "V_DELAYED_SCHEDULE_L",
+                "PurchaseOrderScheduleLine"
+              ],
+              "as": "PurchaseOrderScheduleLine"
+            },
+            {
+              "ref": [
+                "V_DELAYED_SCHEDULE_L",
+                "Supplier"
+              ],
+              "as": "Supplier"
+            },
+            {
+              "ref": [
+                "V_DELAYED_SCHEDULE_L",
+                "Material"
+              ],
+              "as": "Material"
+            },
+            {
+              "ref": [
+                "V_DELAYED_SCHEDULE_L",
+                "Plant"
+              ],
+              "as": "Plant"
+            },
+            {
+              "ref": [
+                "V_DELAYED_SCHEDULE_L",
+                "DeliveryDate"
+              ],
+              "as": "DeliveryDate"
+            },
+            {
+              "ref": [
+                "V_DELAYED_SCHEDULE_L",
+                "Unit"
+              ],
+              "as": "Unit"
+            },
+            {
+              "ref": [
+                "V_DELAYED_SCHEDULE_L",
+                "OrderedQty"
+              ],
+              "as": "OrderedQty"
+            },
+            {
+              "ref": [
+                "V_DELAYED_SCHEDULE_L",
+                "ReceivedQty"
+              ],
+              "as": "ReceivedQty"
+            },
+            {
+              "ref": [
+                "V_DELAYED_SCHEDULE_L",
+                "DelayedLineCount"
+              ],
+              "as": "Delayed_Lines"
+            },
+            {
+              "ref": [
+                "V_DELAYED_SCHEDULE_L",
+                "OpenQty"
+              ],
+              "as": "Open_Quantity"
+            },
+            {
+              "ref": [
+                "V_DELAYED_SCHEDULE_L",
+                "DaysLate"
+              ],
+              "as": "Worst_Delay_days"
+            }
+          ],
+          "mixin": {}
+        }
+      }
+    }
+  },
+  "businessLayerDefinitions": {
+    "AM_SUPPLIER_PERFORMANCE_360": {
+      "identifier": {
+        "key": "AM_SUPPLIER_PERFORMANCE_360"
+      },
+      "text": "Supplier Performance 360",
+      "sourceModel": {
+        "factSources": {
+          "V_DELAYED_SCHEDULE_L": {
+            "text": "Delayed Schedule Lines",
+            "dataEntity": {
+              "key": "V_DELAYED_SCHEDULE_LINES"
+            }
+          }
+        },
+        "dimensionSources": {}
+      },
+      "exposedAssociations": {},
+      "attributes": {
+        "PurchaseOrder": {
+          "attributeType": "AnalyticModelAttributeType.FactSourceAttribute",
+          "attributeMapping": {
+            "V_DELAYED_SCHEDULE_L": {
+              "key": "PurchaseOrder"
+            }
+          },
+          "text": "Purchasing document number",
+          "duplicated": false
+        },
+        "PurchaseOrderItem": {
+          "attributeType": "AnalyticModelAttributeType.FactSourceAttribute",
+          "attributeMapping": {
+            "V_DELAYED_SCHEDULE_L": {
+              "key": "PurchaseOrderItem"
+            }
+          },
+          "text": "Item number of purchasing document",
+          "duplicated": false
+        },
+        "PurchaseOrderScheduleLine": {
+          "attributeType": "AnalyticModelAttributeType.FactSourceAttribute",
+          "attributeMapping": {
+            "V_DELAYED_SCHEDULE_L": {
+              "key": "PurchaseOrderScheduleLine"
+            }
+          },
+          "text": "Delivery schedule line counter",
+          "duplicated": false
+        },
+        "Supplier": {
+          "attributeType": "AnalyticModelAttributeType.FactSourceAttribute",
+          "attributeMapping": {
+            "V_DELAYED_SCHEDULE_L": {
+              "key": "Supplier"
+            }
+          },
+          "text": "Supplier",
+          "duplicated": false
+        },
+        "Material": {
+          "attributeType": "AnalyticModelAttributeType.FactSourceAttribute",
+          "attributeMapping": {
+            "V_DELAYED_SCHEDULE_L": {
+              "key": "Material"
+            }
+          },
+          "text": "Material number",
+          "duplicated": false
+        },
+        "Plant": {
+          "attributeType": "AnalyticModelAttributeType.FactSourceAttribute",
+          "attributeMapping": {
+            "V_DELAYED_SCHEDULE_L": {
+              "key": "Plant"
+            }
+          },
+          "text": "Plant",
+          "duplicated": false
+        },
+        "DeliveryDate": {
+          "attributeType": "AnalyticModelAttributeType.FactSourceAttribute",
+          "attributeMapping": {
+            "V_DELAYED_SCHEDULE_L": {
+              "key": "DeliveryDate"
+            }
+          },
+          "text": "DeliveryDate",
+          "duplicated": false
+        },
+        "Unit": {
+          "attributeType": "AnalyticModelAttributeType.FactSourceAttribute",
+          "attributeMapping": {
+            "V_DELAYED_SCHEDULE_L": {
+              "key": "Unit"
+            }
+          },
+          "text": "Purchase order unit of measure",
+          "duplicated": false
+        }
+      },
+      "measures": {
+        "OrderedQty": {
+          "measureType": "AnalyticModelMeasureType.FactSourceMeasure",
+          "measureMapping": {
+            "V_DELAYED_SCHEDULE_L": {
+              "key": "OrderedQty"
+            }
+          },
+          "text": "Scheduled quantity",
+          "isAuxiliary": false
+        },
+        "ReceivedQty": {
+          "measureType": "AnalyticModelMeasureType.FactSourceMeasure",
+          "measureMapping": {
+            "V_DELAYED_SCHEDULE_L": {
+              "key": "ReceivedQty"
+            }
+          },
+          "text": "Quantity of goods received",
+          "isAuxiliary": false
+        },
+        "Delayed_Lines": {
+          "measureType": "AnalyticModelMeasureType.FactSourceMeasure",
+          "measureMapping": {
+            "V_DELAYED_SCHEDULE_L": {
+              "key": "DelayedLineCount"
+            }
+          },
+          "text": "Delayed Lines",
+          "isAuxiliary": false
+        },
+        "Open_Quantity": {
+          "measureType": "AnalyticModelMeasureType.FactSourceMeasure",
+          "measureMapping": {
+            "V_DELAYED_SCHEDULE_L": {
+              "key": "OpenQty"
+            }
+          },
+          "text": "Open Quantity",
+          "isAuxiliary": false
+        },
+        "Worst_Delay_days": {
+          "measureType": "AnalyticModelMeasureType.FactSourceMeasure",
+          "measureMapping": {
+            "V_DELAYED_SCHEDULE_L": {
+              "key": "DaysLate"
+            }
+          },
+          "text": "Worst Delay (days)",
+          "isAuxiliary": false,
+          "aggregation": "AnalyticModelAggregationTypes.MAX"
+        }
+      },
+      "crossCalculations": {},
+      "version": "1.7.2",
+      "supportedCapabilities": {},
+      "variables": {}
+    }
+  }
+}

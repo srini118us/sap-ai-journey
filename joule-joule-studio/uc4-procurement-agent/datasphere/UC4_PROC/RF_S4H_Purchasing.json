@@ -1,0 +1,3688 @@
+{
+  "replicationflows": {
+    "RF_S4H_Purchasing": {
+      "kind": "sap.dis.replicationflow",
+      "@EndUserText.label": "RF S4H Purchasing",
+      "contents": {
+        "description": "RF_S4H_Purchasing",
+        "sourceSystem": [
+          {
+            "connectionId": "S4H_ONPREM_ABAP",
+            "connectionType": "ABAP",
+            "container": "/CDS_EXTRACTION",
+            "maxConnections": 10,
+            "isGeneric": false,
+            "metadata": {}
+          }
+        ],
+        "targetSystem": [
+          {
+            "connectionId": "$DWC",
+            "connectionType": "HANA",
+            "container": "",
+            "maxConnections": 10,
+            "isGeneric": false,
+            "metadata": {
+              "connectionMetaschema": {
+                "sources": [
+                  "SAP"
+                ]
+              }
+            }
+          }
+        ],
+        "vTypes": {
+          "scalar": {
+            "string_10": {
+              "name": "string_10",
+              "description": "String(10)",
+              "vflow.type": "scalar",
+              "template": "string",
+              "value.length": 10
+            },
+            "string_4": {
+              "name": "string_4",
+              "description": "String(4)",
+              "vflow.type": "scalar",
+              "template": "string",
+              "value.length": 4
+            },
+            "string_1": {
+              "name": "string_1",
+              "description": "String(1)",
+              "vflow.type": "scalar",
+              "template": "string",
+              "value.length": 1
+            },
+            "string_12": {
+              "name": "string_12",
+              "description": "String(12)",
+              "vflow.type": "scalar",
+              "template": "string",
+              "value.length": 12
+            },
+            "string_8": {
+              "name": "string_8",
+              "description": "String(8)",
+              "vflow.type": "scalar",
+              "template": "string",
+              "value.length": 8
+            },
+            "string_2": {
+              "name": "string_2",
+              "description": "String(2)",
+              "vflow.type": "scalar",
+              "template": "string",
+              "value.length": 2
+            },
+            "string_3": {
+              "name": "string_3",
+              "description": "String(3)",
+              "vflow.type": "scalar",
+              "template": "string",
+              "value.length": 3
+            },
+            "string_30": {
+              "name": "string_30",
+              "description": "String(30)",
+              "vflow.type": "scalar",
+              "template": "string",
+              "value.length": 30
+            },
+            "string_16": {
+              "name": "string_16",
+              "description": "String(16)",
+              "vflow.type": "scalar",
+              "template": "string",
+              "value.length": 16
+            },
+            "decimal_3_0": {
+              "name": "decimal_3_0",
+              "description": "Decimal(3,0)",
+              "vflow.type": "scalar",
+              "template": "decimal",
+              "value.precision": 3,
+              "value.scale": 0
+            },
+            "decimal_5_3": {
+              "name": "decimal_5_3",
+              "description": "Decimal(5,3)",
+              "vflow.type": "scalar",
+              "template": "decimal",
+              "value.precision": 5,
+              "value.scale": 3
+            },
+            "decimal_5_2": {
+              "name": "decimal_5_2",
+              "description": "Decimal(5,2)",
+              "vflow.type": "scalar",
+              "template": "decimal",
+              "value.precision": 5,
+              "value.scale": 2
+            },
+            "string_28": {
+              "name": "string_28",
+              "description": "String(28)",
+              "vflow.type": "scalar",
+              "template": "string",
+              "value.length": 28
+            },
+            "string_70": {
+              "name": "string_70",
+              "description": "String(70)",
+              "vflow.type": "scalar",
+              "template": "string",
+              "value.length": 70
+            },
+            "string_6": {
+              "name": "string_6",
+              "description": "String(6)",
+              "vflow.type": "scalar",
+              "template": "string",
+              "value.length": 6
+            },
+            "string_5": {
+              "name": "string_5",
+              "description": "String(5)",
+              "vflow.type": "scalar",
+              "template": "string",
+              "value.length": 5
+            },
+            "decimal_9_5": {
+              "name": "decimal_9_5",
+              "description": "Decimal(9,5)",
+              "vflow.type": "scalar",
+              "template": "decimal",
+              "value.precision": 9,
+              "value.scale": 5
+            },
+            "decimal_21_7": {
+              "name": "decimal_21_7",
+              "description": "Decimal(21,7)",
+              "vflow.type": "scalar",
+              "template": "decimal",
+              "value.precision": 21,
+              "value.scale": 7
+            },
+            "string_40": {
+              "name": "string_40",
+              "description": "String(40)",
+              "vflow.type": "scalar",
+              "template": "string",
+              "value.length": 40
+            },
+            "string_9": {
+              "name": "string_9",
+              "description": "String(9)",
+              "vflow.type": "scalar",
+              "template": "string",
+              "value.length": 9
+            },
+            "decimal_5_0": {
+              "name": "decimal_5_0",
+              "description": "Decimal(5,0)",
+              "vflow.type": "scalar",
+              "template": "decimal",
+              "value.precision": 5,
+              "value.scale": 0
+            },
+            "decimal_13_3": {
+              "name": "decimal_13_3",
+              "description": "Decimal(13,3)",
+              "vflow.type": "scalar",
+              "template": "decimal",
+              "value.precision": 13,
+              "value.scale": 3
+            },
+            "decimal_15_3": {
+              "name": "decimal_15_3",
+              "description": "Decimal(15,3)",
+              "vflow.type": "scalar",
+              "template": "decimal",
+              "value.precision": 15,
+              "value.scale": 3
+            },
+            "decimal_3_1": {
+              "name": "decimal_3_1",
+              "description": "Decimal(3,1)",
+              "vflow.type": "scalar",
+              "template": "decimal",
+              "value.precision": 3,
+              "value.scale": 1
+            },
+            "string_35": {
+              "name": "string_35",
+              "description": "String(35)",
+              "vflow.type": "scalar",
+              "template": "string",
+              "value.length": 35
+            }
+          }
+        },
+        "replicationTasks": [
+          {
+            "name": "replicationtask1",
+            "loadType": "INITIAL",
+            "priority": 50,
+            "truncate": true,
+            "sourceObject": {
+              "name": "C_PURCHASEORDERDEX",
+              "definition": {
+                "columns": [
+                  {
+                    "name": "PurchaseOrder",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "key": true,
+                    "businessName": "Purchase order number",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchaseOrderType",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_4",
+                    "businessName": "Purchasing document type",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchaseOrderSubtype",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Control indicator for purchasing document type",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchasingDocumentOrigin",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Status of purchasing document",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "CreatedByUser",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_12",
+                    "businessName": "User of person who created a purchasing document",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "CreationDate",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_8",
+                    "businessName": "Creation date of purchasing document",
+                    "metadata": {
+                      "nativeType": {
+                        "datatype": "string",
+                        "length": 8
+                      },
+                      "TemplateType": {
+                        "datatype": "date"
+                      }
+                    }
+                  },
+                  {
+                    "name": "PurchaseOrderDate",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_8",
+                    "businessName": "Purchase order date",
+                    "metadata": {
+                      "nativeType": {
+                        "datatype": "string",
+                        "length": 8
+                      },
+                      "TemplateType": {
+                        "datatype": "date"
+                      }
+                    }
+                  },
+                  {
+                    "name": "Language",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_2",
+                    "businessName": "Language key",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "CorrespncExternalReference",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_12",
+                    "businessName": "Your reference",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "CorrespncInternalReference",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_12",
+                    "businessName": "Our reference",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchasingDocumentDeletionCode",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Purchase order deletion code",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ReleaseIsNotCompleted",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Release not yet completely effected",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchasingCompletenessStatus",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Purchase order not yet complete",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchasingProcessingStatus",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_2",
+                    "businessName": "Purchasing document processing state",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurgReleaseSequenceStatus",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_8",
+                    "businessName": "Release state",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ReleaseCode",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Release indicator: purchasing document",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "CompanyCode",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_4",
+                    "businessName": "Company code",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchasingOrganization",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_4",
+                    "businessName": "Purchasing organization",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchasingGroup",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_3",
+                    "businessName": "Purchasing group",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "Supplier",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "businessName": "Supplier",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ManualSupplierAddressID",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "businessName": "Address number",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "SupplierRespSalesPersonName",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_30",
+                    "businessName": "Responsible salesperson at supplier's office",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "SupplierPhoneNumber",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_16",
+                    "businessName": "Supplier's phone number",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "SupplyingSupplier",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "businessName": "Goods supplier",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "SupplyingPlant",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_4",
+                    "businessName": "Supplying (issuing) plant in case of stock transport order",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "InvoicingParty",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "businessName": "Different invoicing party",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "Customer",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "businessName": "Customer number",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "SupplierQuotationExternalID",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "businessName": "Quotation number",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PaymentTerms",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_4",
+                    "businessName": "Terms of payment key",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "CashDiscount1Days",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_3_0",
+                    "businessName": "Cash discount days 1",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "CashDiscount2Days",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_3_0",
+                    "businessName": "Cash discount days 2",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "NetPaymentDays",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_3_0",
+                    "businessName": "Net payment terms period",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "CashDiscount1Percent",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_5_3",
+                    "businessName": "Cash discount percentage 1",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "CashDiscount2Percent",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_5_3",
+                    "businessName": "Cash discount percentage 2",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "DownPaymentType",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_4",
+                    "businessName": "Down payment indicator",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "DownPaymentPercentageOfTotAmt",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_5_2",
+                    "businessName": "Down payment percentage",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "DownPaymentAmount",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "com.sap.core.decfloat34",
+                    "businessName": "Down payment amount in document currency",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "DownPaymentDueDate",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_8",
+                    "businessName": "Due date for down payment",
+                    "metadata": {
+                      "nativeType": {
+                        "datatype": "string",
+                        "length": 8
+                      },
+                      "TemplateType": {
+                        "datatype": "date"
+                      }
+                    }
+                  },
+                  {
+                    "name": "IncotermsClassification",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_3",
+                    "businessName": "Incoterms (part 1)",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "IncotermsTransferLocation",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_28",
+                    "businessName": "Incoterms (part 2)",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "IncotermsVersion",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_4",
+                    "businessName": "Incoterms version",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "IncotermsLocation1",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_70",
+                    "businessName": "Incoterms location 1",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "IncotermsLocation2",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_70",
+                    "businessName": "Incoterms location 2",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "IsIntrastatReportingRelevant",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Relevant for intrastat reporting",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "IsIntrastatReportingExcluded",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Exclude from intrastat reporting",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PricingDocument",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "businessName": "Number of the document condition",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PricingProcedure",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_6",
+                    "businessName": "Procedure (pricing, output control, acct. det., costing,...)",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "DocumentCurrency",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_5",
+                    "businessName": "Currency key",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ValidityStartDate",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_8",
+                    "businessName": "Start of validity period",
+                    "metadata": {
+                      "nativeType": {
+                        "datatype": "string",
+                        "length": 8
+                      },
+                      "TemplateType": {
+                        "datatype": "date"
+                      }
+                    }
+                  },
+                  {
+                    "name": "ValidityEndDate",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_8",
+                    "businessName": "End of validity period",
+                    "metadata": {
+                      "nativeType": {
+                        "datatype": "string",
+                        "length": 8
+                      },
+                      "TemplateType": {
+                        "datatype": "date"
+                      }
+                    }
+                  },
+                  {
+                    "name": "ExchangeRate",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_9_5",
+                    "businessName": "Exchange rate",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ExchangeRateIsFixed",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Indicator for fixed exchange rate",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "LastChangeDateTime",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_21_7",
+                    "businessName": "Change time stamp",
+                    "metadata": {
+                      "nativeType": {
+                        "datatype": "decimal",
+                        "precision": 21,
+                        "scale": 7
+                      },
+                      "TemplateType": {
+                        "datatype": "timestamp"
+                      }
+                    }
+                  },
+                  {
+                    "name": "TaxReturnCountry",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_3",
+                    "businessName": "Country/region for tax report",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "VATRegistrationCountry",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_3",
+                    "businessName": "Country/region of sales tax id number",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurgReasonForDocCancellation",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_2",
+                    "businessName": "Reason for cancellation",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurgReleaseTimeTotalAmount",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "com.sap.core.decfloat34",
+                    "businessName": "Total value at time of release",
+                    "metadata": {}
+                  }
+                ],
+                "keys": [
+                  "PurchaseOrder"
+                ]
+              },
+              "metadata": {
+                "type": "tabular",
+                "invalidColumns": [
+                  "/1DH/OPERATION"
+                ]
+              },
+              "businessName": "Data extraction for purchase order"
+            },
+            "targetObject": {
+              "name": "C_PURCHASEORDERDEX",
+              "definition": {
+                "columns": [
+                  {
+                    "name": "PurchaseOrder",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "key": true,
+                    "businessName": "Purchase order number",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchaseOrderType",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_4",
+                    "businessName": "Purchasing document type",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchaseOrderSubtype",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Control indicator for purchasing document type",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchasingDocumentOrigin",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Status of purchasing document",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "CreatedByUser",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_12",
+                    "businessName": "User of person who created a purchasing document",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "CreationDate",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_8",
+                    "businessName": "Creation date of purchasing document",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchaseOrderDate",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_8",
+                    "businessName": "Purchase order date",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "Language",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_2",
+                    "businessName": "Language key",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "CorrespncExternalReference",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_12",
+                    "businessName": "Your reference",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "CorrespncInternalReference",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_12",
+                    "businessName": "Our reference",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchasingDocumentDeletionCode",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Purchase order deletion code",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ReleaseIsNotCompleted",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Release not yet completely effected",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchasingCompletenessStatus",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Purchase order not yet complete",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchasingProcessingStatus",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_2",
+                    "businessName": "Purchasing document processing state",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurgReleaseSequenceStatus",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_8",
+                    "businessName": "Release state",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ReleaseCode",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Release indicator: purchasing document",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "CompanyCode",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_4",
+                    "businessName": "Company code",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchasingOrganization",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_4",
+                    "businessName": "Purchasing organization",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchasingGroup",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_3",
+                    "businessName": "Purchasing group",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "Supplier",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "businessName": "Supplier",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ManualSupplierAddressID",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "businessName": "Address number",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "SupplierRespSalesPersonName",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_30",
+                    "businessName": "Responsible salesperson at supplier's office",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "SupplierPhoneNumber",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_16",
+                    "businessName": "Supplier's phone number",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "SupplyingSupplier",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "businessName": "Goods supplier",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "SupplyingPlant",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_4",
+                    "businessName": "Supplying (issuing) plant in case of stock transport order",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "InvoicingParty",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "businessName": "Different invoicing party",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "Customer",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "businessName": "Customer number",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "SupplierQuotationExternalID",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "businessName": "Quotation number",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PaymentTerms",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_4",
+                    "businessName": "Terms of payment key",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "CashDiscount1Days",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_3_0",
+                    "businessName": "Cash discount days 1",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "CashDiscount2Days",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_3_0",
+                    "businessName": "Cash discount days 2",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "NetPaymentDays",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_3_0",
+                    "businessName": "Net payment terms period",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "CashDiscount1Percent",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_5_3",
+                    "businessName": "Cash discount percentage 1",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "CashDiscount2Percent",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_5_3",
+                    "businessName": "Cash discount percentage 2",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "DownPaymentType",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_4",
+                    "businessName": "Down payment indicator",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "DownPaymentPercentageOfTotAmt",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_5_2",
+                    "businessName": "Down payment percentage",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "DownPaymentAmount",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "com.sap.core.decfloat34",
+                    "businessName": "Down payment amount in document currency",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "DownPaymentDueDate",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_8",
+                    "businessName": "Due date for down payment",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "IncotermsClassification",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_3",
+                    "businessName": "Incoterms (part 1)",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "IncotermsTransferLocation",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_28",
+                    "businessName": "Incoterms (part 2)",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "IncotermsVersion",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_4",
+                    "businessName": "Incoterms version",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "IncotermsLocation1",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_70",
+                    "businessName": "Incoterms location 1",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "IncotermsLocation2",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_70",
+                    "businessName": "Incoterms location 2",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "IsIntrastatReportingRelevant",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Relevant for intrastat reporting",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "IsIntrastatReportingExcluded",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Exclude from intrastat reporting",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PricingDocument",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "businessName": "Number of the document condition",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PricingProcedure",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_6",
+                    "businessName": "Procedure (pricing, output control, acct. det., costing,...)",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "DocumentCurrency",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_5",
+                    "businessName": "Currency key",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ValidityStartDate",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_8",
+                    "businessName": "Start of validity period",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ValidityEndDate",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_8",
+                    "businessName": "End of validity period",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ExchangeRate",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_9_5",
+                    "businessName": "Exchange rate",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ExchangeRateIsFixed",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Indicator for fixed exchange rate",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "LastChangeDateTime",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_21_7",
+                    "businessName": "Change time stamp",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "TaxReturnCountry",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_3",
+                    "businessName": "Country/region for tax report",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "VATRegistrationCountry",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_3",
+                    "businessName": "Country/region of sales tax id number",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurgReasonForDocCancellation",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_2",
+                    "businessName": "Reason for cancellation",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurgReleaseTimeTotalAmount",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "com.sap.core.decfloat34",
+                    "businessName": "Total value at time of release",
+                    "metadata": {}
+                  }
+                ],
+                "keys": [
+                  "PurchaseOrder"
+                ]
+              },
+              "metadata": {
+                "isNew": false
+              },
+              "businessName": "Data extraction for purchase order"
+            }
+          },
+          {
+            "name": "replicationtask11",
+            "loadType": "INITIAL",
+            "priority": 50,
+            "truncate": true,
+            "sourceObject": {
+              "name": "C_PURORDSCHEDULELINEDEX",
+              "definition": {
+                "columns": [
+                  {
+                    "name": "PurchaseOrder",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "key": true,
+                    "businessName": "Purchasing document number",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchaseOrderItem",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_5",
+                    "key": true,
+                    "businessName": "Item number of purchasing document",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchaseOrderScheduleLine",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_4",
+                    "key": true,
+                    "businessName": "Delivery schedule line counter",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ScheduleLineDeliveryDate",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_8",
+                    "businessName": "Item delivery date",
+                    "metadata": {
+                      "nativeType": {
+                        "datatype": "string",
+                        "length": 8
+                      },
+                      "TemplateType": {
+                        "datatype": "date"
+                      }
+                    }
+                  },
+                  {
+                    "name": "SchedLineStscDeliveryDate",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_8",
+                    "businessName": "Statistics-relevant delivery date",
+                    "metadata": {
+                      "nativeType": {
+                        "datatype": "string",
+                        "length": 8
+                      },
+                      "TemplateType": {
+                        "datatype": "date"
+                      }
+                    }
+                  },
+                  {
+                    "name": "ScheduleLineDeliveryTime",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_6",
+                    "businessName": "Delivery date time-spot",
+                    "metadata": {
+                      "nativeType": {
+                        "datatype": "string",
+                        "length": 6
+                      },
+                      "TemplateType": {
+                        "datatype": "time"
+                      }
+                    }
+                  },
+                  {
+                    "name": "PurchaseRequisition",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "businessName": "Purchase requisition number",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchaseRequisitionItem",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_5",
+                    "businessName": "Item number of purchase requisition",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "Batch",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "businessName": "Batch number",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchasingSchdLnNrOfReminders",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_3_0",
+                    "businessName": "No. of reminders/expediters for schedule line",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "RequisitionerName",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_12",
+                    "businessName": "Name of requisitioner/requester",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "RetailPromotion",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "businessName": "Retail promotion",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ArticleCategory",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_2",
+                    "businessName": "Material category",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchasingOrderReason",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_3",
+                    "businessName": "Reason for ordering",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "IsCompletelyDelivered",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "\"delivery completed\" indicator",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ManufacturerMaterial",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_40",
+                    "businessName": "Material number",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "IsFinallyInvoiced",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Final invoice indicator",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchaseContract",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "businessName": "Number of principal purchase agreement",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchaseContractItem",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_5",
+                    "businessName": "Item number of principal purchase agreement",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "StorageLocation",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_4",
+                    "businessName": "Storage location",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "BaseUnit",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_3",
+                    "businessName": "Base unit of measure",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "MaterialGroup",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_9",
+                    "businessName": "Material group",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "Material",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_40",
+                    "businessName": "Material number",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchaseOrderQuantityUnit",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_3",
+                    "businessName": "Purchase order unit of measure",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchaseOrderItemCategory",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Item category in purchasing document",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "IssuingStorageLocation",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_4",
+                    "businessName": "Issuing storage location for stock transport order",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchaseOrderItemText",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_40",
+                    "businessName": "Short text",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchasingParentItem",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_5",
+                    "businessName": "Higher-level item in purchasing documents",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "OrderItemQtyToBaseQtyDnmntr",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_5_0",
+                    "businessName": "Denominator for conversion of order unit to base unit",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "OrderItemQtyToBaseQtyNmrtr",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_5_0",
+                    "businessName": "Numerator for conversion of order unit to base unit",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "InvoiceIsGoodsReceiptBased",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Indicator: gr-based invoice verification",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "GoodsReceiptIsExpected",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Goods receipt indicator",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "Plant",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_4",
+                    "businessName": "Plant",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "EvaldRcptSettlmtIsAllowed",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Evaluated receipt settlement (ers)",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchaseOrderDate",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_8",
+                    "businessName": "Purchase order date",
+                    "metadata": {
+                      "nativeType": {
+                        "datatype": "string",
+                        "length": 8
+                      },
+                      "TemplateType": {
+                        "datatype": "date"
+                      }
+                    }
+                  },
+                  {
+                    "name": "PurchaseOrderType",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_4",
+                    "businessName": "Purchasing document type",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchasingGroup",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_3",
+                    "businessName": "Purchasing group",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchasingOrganization",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_4",
+                    "businessName": "Purchasing organization",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ValidityStartDate",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_8",
+                    "businessName": "Start of validity period",
+                    "metadata": {
+                      "nativeType": {
+                        "datatype": "string",
+                        "length": 8
+                      },
+                      "TemplateType": {
+                        "datatype": "date"
+                      }
+                    }
+                  },
+                  {
+                    "name": "ValidityEndDate",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_8",
+                    "businessName": "End of validity period",
+                    "metadata": {
+                      "nativeType": {
+                        "datatype": "string",
+                        "length": 8
+                      },
+                      "TemplateType": {
+                        "datatype": "date"
+                      }
+                    }
+                  },
+                  {
+                    "name": "Supplier",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "businessName": "Supplier",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "InvoicingParty",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "businessName": "Different invoicing party",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "SupplyingSupplier",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "businessName": "Goods supplier",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "SupplyingPlant",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_4",
+                    "businessName": "Supplying (issuing) plant in case of stock transport order",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchasingDocumentOrigin",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Status of purchasing document",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "DocumentCurrency",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_5",
+                    "businessName": "Currency key",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ExchangeRate",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_9_5",
+                    "businessName": "Exchange rate",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "DelivDateCategory",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Category of delivery date",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ScheduleLineOrderQuantity",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_13_3",
+                    "businessName": "Scheduled quantity",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PrevDelivQtyOfScheduleLine",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_13_3",
+                    "businessName": "Previous quantity (delivery schedule lines)",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "RoughGoodsReceiptQty",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_13_3",
+                    "businessName": "Quantity of goods received",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ScheduleLineIssuedQuantity",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_13_3",
+                    "businessName": "Issued quantity",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "SourceOfCreation",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Creation indicator (purchase requisition/schedule lines)",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "Reservation",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "businessName": "Number of reservation/dependent requirements",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ScheduleLineIsFixed",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Schedule line is \"fixed\"",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "StockTransferDeliveredQuantity",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_13_3",
+                    "businessName": "Quantity delivered (stock transfer)",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ScheduleLineCommittedQuantity",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_13_3",
+                    "businessName": "Committed quantity",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ProductAvailabilityDate",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_8",
+                    "businessName": "Material staging/availability date",
+                    "metadata": {
+                      "nativeType": {
+                        "datatype": "string",
+                        "length": 8
+                      },
+                      "TemplateType": {
+                        "datatype": "date"
+                      }
+                    }
+                  },
+                  {
+                    "name": "ProductAvailabilityTime",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_6",
+                    "businessName": "Material staging time (local, relating to a plant)",
+                    "metadata": {
+                      "nativeType": {
+                        "datatype": "string",
+                        "length": 6
+                      },
+                      "TemplateType": {
+                        "datatype": "time"
+                      }
+                    }
+                  },
+                  {
+                    "name": "LoadingDate",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_8",
+                    "businessName": "Loading date",
+                    "metadata": {
+                      "nativeType": {
+                        "datatype": "string",
+                        "length": 8
+                      },
+                      "TemplateType": {
+                        "datatype": "date"
+                      }
+                    }
+                  },
+                  {
+                    "name": "LoadingTime",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_6",
+                    "businessName": "Loading time (local time relating to a shipping point)",
+                    "metadata": {
+                      "nativeType": {
+                        "datatype": "string",
+                        "length": 6
+                      },
+                      "TemplateType": {
+                        "datatype": "time"
+                      }
+                    }
+                  },
+                  {
+                    "name": "TransportationPlanningDate",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_8",
+                    "businessName": "Transportation planning date",
+                    "metadata": {
+                      "nativeType": {
+                        "datatype": "string",
+                        "length": 8
+                      },
+                      "TemplateType": {
+                        "datatype": "date"
+                      }
+                    }
+                  },
+                  {
+                    "name": "TransportationPlanningTime",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_6",
+                    "businessName": "Transp. planning time (local, relating to a shipping point)",
+                    "metadata": {
+                      "nativeType": {
+                        "datatype": "string",
+                        "length": 6
+                      },
+                      "TemplateType": {
+                        "datatype": "time"
+                      }
+                    }
+                  },
+                  {
+                    "name": "GoodsIssueDate",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_8",
+                    "businessName": "Goods issue date",
+                    "metadata": {
+                      "nativeType": {
+                        "datatype": "string",
+                        "length": 8
+                      },
+                      "TemplateType": {
+                        "datatype": "date"
+                      }
+                    }
+                  },
+                  {
+                    "name": "GoodsIssueTime",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_6",
+                    "businessName": "Time of goods issue (local, relating to a plant)",
+                    "metadata": {
+                      "nativeType": {
+                        "datatype": "string",
+                        "length": 6
+                      },
+                      "TemplateType": {
+                        "datatype": "time"
+                      }
+                    }
+                  },
+                  {
+                    "name": "STOLatestPossibleGRDate",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_8",
+                    "businessName": "Goods receipt end date",
+                    "metadata": {
+                      "nativeType": {
+                        "datatype": "string",
+                        "length": 8
+                      },
+                      "TemplateType": {
+                        "datatype": "date"
+                      }
+                    }
+                  },
+                  {
+                    "name": "STOLatestPossibleGRTime",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_6",
+                    "businessName": "Goods receipt end time (local, relating to a plant)",
+                    "metadata": {
+                      "nativeType": {
+                        "datatype": "string",
+                        "length": 6
+                      },
+                      "TemplateType": {
+                        "datatype": "time"
+                      }
+                    }
+                  },
+                  {
+                    "name": "OpenPurchaseOrderNetAmount",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "com.sap.core.decfloat34",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "IsReturnsItem",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Returns item",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "CompanyCode",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_4",
+                    "businessName": "Company code",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ProductTypeCode",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_2",
+                    "businessName": "Product type group",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchasingDocumentDeletionCode",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Purchase order deletion code",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurgDocumentItemDeletionCode",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Deletion indicator in purchasing document",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ReleaseIsNotCompleted",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Release not yet completely effected",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchasingCompletenessStatus",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Purchase order not yet complete",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "SupplierConfirmationControlKey",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_4",
+                    "businessName": "Confirmation control key",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "IsStatisticalItem",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Item is statistical",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ScheduleLineOpenQuantity",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_15_3",
+                    "metadata": {}
+                  }
+                ],
+                "keys": [
+                  "PurchaseOrder",
+                  "PurchaseOrderItem",
+                  "PurchaseOrderScheduleLine"
+                ]
+              },
+              "metadata": {
+                "type": "tabular",
+                "invalidColumns": [
+                  "/1DH/OPERATION"
+                ]
+              },
+              "businessName": "Data extraction for purchase order schedule lines"
+            },
+            "targetObject": {
+              "name": "C_PURORDSCHEDULELINEDEX",
+              "definition": {
+                "columns": [
+                  {
+                    "name": "PurchaseOrder",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "key": true,
+                    "businessName": "Purchasing document number",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchaseOrderItem",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_5",
+                    "key": true,
+                    "businessName": "Item number of purchasing document",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchaseOrderScheduleLine",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_4",
+                    "key": true,
+                    "businessName": "Delivery schedule line counter",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ScheduleLineDeliveryDate",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_8",
+                    "businessName": "Item delivery date",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "SchedLineStscDeliveryDate",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_8",
+                    "businessName": "Statistics-relevant delivery date",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ScheduleLineDeliveryTime",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_6",
+                    "businessName": "Delivery date time-spot",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchaseRequisition",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "businessName": "Purchase requisition number",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchaseRequisitionItem",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_5",
+                    "businessName": "Item number of purchase requisition",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "Batch",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "businessName": "Batch number",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchasingSchdLnNrOfReminders",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_3_0",
+                    "businessName": "No. of reminders/expediters for schedule line",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "RequisitionerName",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_12",
+                    "businessName": "Name of requisitioner/requester",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "RetailPromotion",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "businessName": "Retail promotion",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ArticleCategory",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_2",
+                    "businessName": "Material category",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchasingOrderReason",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_3",
+                    "businessName": "Reason for ordering",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "IsCompletelyDelivered",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "\"delivery completed\" indicator",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ManufacturerMaterial",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_40",
+                    "businessName": "Material number",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "IsFinallyInvoiced",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Final invoice indicator",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchaseContract",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "businessName": "Number of principal purchase agreement",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchaseContractItem",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_5",
+                    "businessName": "Item number of principal purchase agreement",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "StorageLocation",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_4",
+                    "businessName": "Storage location",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "BaseUnit",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_3",
+                    "businessName": "Base unit of measure",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "MaterialGroup",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_9",
+                    "businessName": "Material group",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "Material",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_40",
+                    "businessName": "Material number",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchaseOrderQuantityUnit",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_3",
+                    "businessName": "Purchase order unit of measure",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchaseOrderItemCategory",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Item category in purchasing document",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "IssuingStorageLocation",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_4",
+                    "businessName": "Issuing storage location for stock transport order",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchaseOrderItemText",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_40",
+                    "businessName": "Short text",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchasingParentItem",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_5",
+                    "businessName": "Higher-level item in purchasing documents",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "OrderItemQtyToBaseQtyDnmntr",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_5_0",
+                    "businessName": "Denominator for conversion of order unit to base unit",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "OrderItemQtyToBaseQtyNmrtr",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_5_0",
+                    "businessName": "Numerator for conversion of order unit to base unit",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "InvoiceIsGoodsReceiptBased",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Indicator: gr-based invoice verification",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "GoodsReceiptIsExpected",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Goods receipt indicator",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "Plant",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_4",
+                    "businessName": "Plant",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "EvaldRcptSettlmtIsAllowed",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Evaluated receipt settlement (ers)",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchaseOrderDate",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_8",
+                    "businessName": "Purchase order date",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchaseOrderType",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_4",
+                    "businessName": "Purchasing document type",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchasingGroup",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_3",
+                    "businessName": "Purchasing group",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchasingOrganization",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_4",
+                    "businessName": "Purchasing organization",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ValidityStartDate",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_8",
+                    "businessName": "Start of validity period",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ValidityEndDate",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_8",
+                    "businessName": "End of validity period",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "Supplier",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "businessName": "Supplier",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "InvoicingParty",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "businessName": "Different invoicing party",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "SupplyingSupplier",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "businessName": "Goods supplier",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "SupplyingPlant",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_4",
+                    "businessName": "Supplying (issuing) plant in case of stock transport order",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchasingDocumentOrigin",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Status of purchasing document",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "DocumentCurrency",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_5",
+                    "businessName": "Currency key",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ExchangeRate",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_9_5",
+                    "businessName": "Exchange rate",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "DelivDateCategory",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Category of delivery date",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ScheduleLineOrderQuantity",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_13_3",
+                    "businessName": "Scheduled quantity",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PrevDelivQtyOfScheduleLine",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_13_3",
+                    "businessName": "Previous quantity (delivery schedule lines)",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "RoughGoodsReceiptQty",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_13_3",
+                    "businessName": "Quantity of goods received",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ScheduleLineIssuedQuantity",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_13_3",
+                    "businessName": "Issued quantity",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "SourceOfCreation",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Creation indicator (purchase requisition/schedule lines)",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "Reservation",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "businessName": "Number of reservation/dependent requirements",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ScheduleLineIsFixed",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Schedule line is \"fixed\"",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "StockTransferDeliveredQuantity",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_13_3",
+                    "businessName": "Quantity delivered (stock transfer)",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ScheduleLineCommittedQuantity",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_13_3",
+                    "businessName": "Committed quantity",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ProductAvailabilityDate",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_8",
+                    "businessName": "Material staging/availability date",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ProductAvailabilityTime",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_6",
+                    "businessName": "Material staging time (local, relating to a plant)",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "LoadingDate",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_8",
+                    "businessName": "Loading date",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "LoadingTime",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_6",
+                    "businessName": "Loading time (local time relating to a shipping point)",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "TransportationPlanningDate",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_8",
+                    "businessName": "Transportation planning date",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "TransportationPlanningTime",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_6",
+                    "businessName": "Transp. planning time (local, relating to a shipping point)",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "GoodsIssueDate",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_8",
+                    "businessName": "Goods issue date",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "GoodsIssueTime",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_6",
+                    "businessName": "Time of goods issue (local, relating to a plant)",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "STOLatestPossibleGRDate",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_8",
+                    "businessName": "Goods receipt end date",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "STOLatestPossibleGRTime",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_6",
+                    "businessName": "Goods receipt end time (local, relating to a plant)",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "OpenPurchaseOrderNetAmount",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "com.sap.core.decfloat34",
+                    "businessName": "OpenPurchaseOrderNetAmount",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "IsReturnsItem",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Returns item",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "CompanyCode",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_4",
+                    "businessName": "Company code",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ProductTypeCode",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_2",
+                    "businessName": "Product type group",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchasingDocumentDeletionCode",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Purchase order deletion code",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurgDocumentItemDeletionCode",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Deletion indicator in purchasing document",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ReleaseIsNotCompleted",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Release not yet completely effected",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchasingCompletenessStatus",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Purchase order not yet complete",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "SupplierConfirmationControlKey",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_4",
+                    "businessName": "Confirmation control key",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "IsStatisticalItem",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Item is statistical",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ScheduleLineOpenQuantity",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_15_3",
+                    "businessName": "ScheduleLineOpenQuantity",
+                    "metadata": {}
+                  }
+                ],
+                "keys": [
+                  "PurchaseOrder",
+                  "PurchaseOrderItem",
+                  "PurchaseOrderScheduleLine"
+                ]
+              },
+              "metadata": {
+                "isNew": false
+              },
+              "businessName": "Data extraction for purchase order schedule lines"
+            }
+          },
+          {
+            "name": "replicationtask12",
+            "loadType": "INITIAL",
+            "priority": 50,
+            "truncate": true,
+            "sourceObject": {
+              "name": "C_PURCHASEORDERITEMDEX",
+              "definition": {
+                "columns": [
+                  {
+                    "name": "PurchaseOrder",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "key": true,
+                    "businessName": "Purchase order number",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchaseOrderItem",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_5",
+                    "key": true,
+                    "businessName": "Item number of purchase order",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchaseOrderType",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_4",
+                    "businessName": "Purchasing document type",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchasingGroup",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_3",
+                    "businessName": "Purchasing group",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchasingOrganization",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_4",
+                    "businessName": "Purchasing organization",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchasingDocumentOrigin",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Status of purchasing document",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "Supplier",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "businessName": "Supplier",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "SupplyingSupplier",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "businessName": "Goods supplier",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "SupplyingPlant",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_4",
+                    "businessName": "Supplying (issuing) plant in case of stock transport order",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "DocumentCurrency",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_5",
+                    "businessName": "Currency key",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ExchangeRate",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_9_5",
+                    "businessName": "Exchange rate",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "InvoicingParty",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "businessName": "Different invoicing party",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchaseOrderDate",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_8",
+                    "businessName": "Purchase order date",
+                    "metadata": {
+                      "nativeType": {
+                        "datatype": "string",
+                        "length": 8
+                      },
+                      "TemplateType": {
+                        "datatype": "date"
+                      }
+                    }
+                  },
+                  {
+                    "name": "ValidityStartDate",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_8",
+                    "businessName": "Start of validity period",
+                    "metadata": {
+                      "nativeType": {
+                        "datatype": "string",
+                        "length": 8
+                      },
+                      "TemplateType": {
+                        "datatype": "date"
+                      }
+                    }
+                  },
+                  {
+                    "name": "ValidityEndDate",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_8",
+                    "businessName": "End of validity period",
+                    "metadata": {
+                      "nativeType": {
+                        "datatype": "string",
+                        "length": 8
+                      },
+                      "TemplateType": {
+                        "datatype": "date"
+                      }
+                    }
+                  },
+                  {
+                    "name": "CreationDate",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_8",
+                    "businessName": "Creation date of purchasing document",
+                    "metadata": {
+                      "nativeType": {
+                        "datatype": "string",
+                        "length": 8
+                      },
+                      "TemplateType": {
+                        "datatype": "date"
+                      }
+                    }
+                  },
+                  {
+                    "name": "LastChangeDateTime",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_21_7",
+                    "businessName": "Change time stamp",
+                    "metadata": {
+                      "nativeType": {
+                        "datatype": "decimal",
+                        "precision": 21,
+                        "scale": 7
+                      },
+                      "TemplateType": {
+                        "datatype": "timestamp"
+                      }
+                    }
+                  },
+                  {
+                    "name": "PurgDocumentItemDeletionCode",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Deletion indicator in purchasing document",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "MaterialGroup",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_9",
+                    "businessName": "Material group",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "Material",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_40",
+                    "businessName": "Material number",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ManufacturerMaterial",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_40",
+                    "businessName": "Material number",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchaseOrderCategory",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Purchasing document category",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchasingOrderReason",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_3",
+                    "businessName": "Reason for ordering",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchaseOrderItemText",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_40",
+                    "businessName": "Short text",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchaseOrderItemCategory",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Item category in purchasing document",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "CompanyCode",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_4",
+                    "businessName": "Company code",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "Plant",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_4",
+                    "businessName": "Plant",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "StorageLocation",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_4",
+                    "businessName": "Storage location",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchaseContract",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "businessName": "Number of principal purchase agreement",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchaseContractItem",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_5",
+                    "businessName": "Item number of principal purchase agreement",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "BaseUnit",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_3",
+                    "businessName": "Base unit of measure",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "OrderQuantity",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_13_3",
+                    "businessName": "Purchase order quantity",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchaseOrderQuantityUnit",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_3",
+                    "businessName": "Purchase order unit of measure",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "NetPriceAmount",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "com.sap.core.decfloat34",
+                    "businessName": "Net price in purchasing document (in document currency)",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "NetAmount",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "com.sap.core.decfloat34",
+                    "businessName": "Net order value in po currency",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "LocalCurrency",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_5",
+                    "businessName": "Currency key",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "NetPriceQuantity",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_5_0",
+                    "businessName": "Price unit",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "OrderPriceUnit",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_3",
+                    "businessName": "Order price unit (purchasing)",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "RequisitionerName",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_12",
+                    "businessName": "Name of requisitioner/requester",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "RetailPromotion",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "businessName": "Retail promotion",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "IsCompletelyDelivered",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "\"delivery completed\" indicator",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "IsReturnsItem",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Returns item",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "IsFinallyInvoiced",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Final invoice indicator",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "InvoiceIsExpected",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Invoice receipt indicator",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "OrderItemQtyToBaseQtyDnmntr",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_5_0",
+                    "businessName": "Denominator for conversion of order unit to base unit",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "OrderItemQtyToBaseQtyNmrtr",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_5_0",
+                    "businessName": "Numerator for conversion of order unit to base unit",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "InvoiceIsGoodsReceiptBased",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Indicator: gr-based invoice verification",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "GoodsReceiptIsExpected",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Goods receipt indicator",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "EvaldRcptSettlmtIsAllowed",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Evaluated receipt settlement (ers)",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "AccountAssignmentCategory",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Account assignment category",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "GoodsReceiptIsNonValuated",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Goods receipt, non-valuated",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "MaterialType",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_4",
+                    "businessName": "Material type",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "OverdelivTolrtdLmtRatioInPct",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_3_1",
+                    "businessName": "Overdelivery tolerance",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ServicePerformer",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "businessName": "Service performer",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "TaxCode",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_2",
+                    "businessName": "Tax on sales/purchases code",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "UnderdelivTolrtdLmtRatioInPct",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_3_1",
+                    "businessName": "Underdelivery tolerance",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "UnlimitedOverdeliveryIsAllowed",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Unlimited overdelivery allowed",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "SupplierMaterialNumber",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_35",
+                    "businessName": "Material number used by supplier",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ProductTypeCode",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_2",
+                    "businessName": "Product type group",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "CreatedByUser",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_12",
+                    "businessName": "User of person who created a purchasing document",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ExpectedOverallLimitAmount",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "com.sap.core.decfloat34",
+                    "businessName": "Expected value of overall limit",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "OverallLimitAmount",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "com.sap.core.decfloat34",
+                    "businessName": "Overall limit",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "RequirementSegment",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_40",
+                    "businessName": "Requirement segment",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ReleaseIsNotCompleted",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Release not yet completely effected",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchasingCompletenessStatus",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Purchase order not yet complete",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "IsStatisticalItem",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Item is statistical",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "MultipleAcctAssgmtDistribution",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Distribution indicator for multiple account assignment",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchaseRequisition",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "businessName": "Purchase requisition number",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchaseRequisitionItem",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_5",
+                    "businessName": "Item number of purchase requisition",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "SupplierConfirmationControlKey",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_4",
+                    "businessName": "Confirmation control key",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchasingDocumentDeletionCode",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Purchase order deletion code",
+                    "metadata": {}
+                  }
+                ],
+                "keys": [
+                  "PurchaseOrder",
+                  "PurchaseOrderItem"
+                ]
+              },
+              "metadata": {
+                "type": "tabular",
+                "invalidColumns": [
+                  "/1DH/OPERATION"
+                ]
+              },
+              "businessName": "Data extraction view for po item"
+            },
+            "targetObject": {
+              "name": "C_PURCHASEORDERITEMDEX",
+              "definition": {
+                "columns": [
+                  {
+                    "name": "PurchaseOrder",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "key": true,
+                    "businessName": "Purchase order number",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchaseOrderItem",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_5",
+                    "key": true,
+                    "businessName": "Item number of purchase order",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchaseOrderType",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_4",
+                    "businessName": "Purchasing document type",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchasingGroup",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_3",
+                    "businessName": "Purchasing group",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchasingOrganization",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_4",
+                    "businessName": "Purchasing organization",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchasingDocumentOrigin",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Status of purchasing document",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "Supplier",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "businessName": "Supplier",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "SupplyingSupplier",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "businessName": "Goods supplier",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "SupplyingPlant",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_4",
+                    "businessName": "Supplying (issuing) plant in case of stock transport order",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "DocumentCurrency",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_5",
+                    "businessName": "Currency key",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ExchangeRate",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_9_5",
+                    "businessName": "Exchange rate",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "InvoicingParty",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "businessName": "Different invoicing party",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchaseOrderDate",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_8",
+                    "businessName": "Purchase order date",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ValidityStartDate",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_8",
+                    "businessName": "Start of validity period",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ValidityEndDate",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_8",
+                    "businessName": "End of validity period",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "CreationDate",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_8",
+                    "businessName": "Creation date of purchasing document",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "LastChangeDateTime",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_21_7",
+                    "businessName": "Change time stamp",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurgDocumentItemDeletionCode",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Deletion indicator in purchasing document",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "MaterialGroup",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_9",
+                    "businessName": "Material group",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "Material",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_40",
+                    "businessName": "Material number",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ManufacturerMaterial",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_40",
+                    "businessName": "Material number",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchaseOrderCategory",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Purchasing document category",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchasingOrderReason",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_3",
+                    "businessName": "Reason for ordering",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchaseOrderItemText",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_40",
+                    "businessName": "Short text",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchaseOrderItemCategory",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Item category in purchasing document",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "CompanyCode",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_4",
+                    "businessName": "Company code",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "Plant",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_4",
+                    "businessName": "Plant",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "StorageLocation",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_4",
+                    "businessName": "Storage location",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchaseContract",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "businessName": "Number of principal purchase agreement",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchaseContractItem",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_5",
+                    "businessName": "Item number of principal purchase agreement",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "BaseUnit",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_3",
+                    "businessName": "Base unit of measure",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "OrderQuantity",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_13_3",
+                    "businessName": "Purchase order quantity",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchaseOrderQuantityUnit",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_3",
+                    "businessName": "Purchase order unit of measure",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "NetPriceAmount",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "com.sap.core.decfloat34",
+                    "businessName": "Net price in purchasing document (in document currency)",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "NetAmount",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "com.sap.core.decfloat34",
+                    "businessName": "Net order value in po currency",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "LocalCurrency",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_5",
+                    "businessName": "Currency key",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "NetPriceQuantity",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_5_0",
+                    "businessName": "Price unit",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "OrderPriceUnit",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_3",
+                    "businessName": "Order price unit (purchasing)",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "RequisitionerName",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_12",
+                    "businessName": "Name of requisitioner/requester",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "RetailPromotion",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "businessName": "Retail promotion",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "IsCompletelyDelivered",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "\"delivery completed\" indicator",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "IsReturnsItem",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Returns item",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "IsFinallyInvoiced",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Final invoice indicator",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "InvoiceIsExpected",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Invoice receipt indicator",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "OrderItemQtyToBaseQtyDnmntr",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_5_0",
+                    "businessName": "Denominator for conversion of order unit to base unit",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "OrderItemQtyToBaseQtyNmrtr",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_5_0",
+                    "businessName": "Numerator for conversion of order unit to base unit",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "InvoiceIsGoodsReceiptBased",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Indicator: gr-based invoice verification",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "GoodsReceiptIsExpected",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Goods receipt indicator",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "EvaldRcptSettlmtIsAllowed",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Evaluated receipt settlement (ers)",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "AccountAssignmentCategory",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Account assignment category",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "GoodsReceiptIsNonValuated",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Goods receipt, non-valuated",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "MaterialType",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_4",
+                    "businessName": "Material type",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "OverdelivTolrtdLmtRatioInPct",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_3_1",
+                    "businessName": "Overdelivery tolerance",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ServicePerformer",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "businessName": "Service performer",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "TaxCode",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_2",
+                    "businessName": "Tax on sales/purchases code",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "UnderdelivTolrtdLmtRatioInPct",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.decimal_3_1",
+                    "businessName": "Underdelivery tolerance",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "UnlimitedOverdeliveryIsAllowed",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Unlimited overdelivery allowed",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "SupplierMaterialNumber",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_35",
+                    "businessName": "Material number used by supplier",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ProductTypeCode",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_2",
+                    "businessName": "Product type group",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "CreatedByUser",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_12",
+                    "businessName": "User of person who created a purchasing document",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ExpectedOverallLimitAmount",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "com.sap.core.decfloat34",
+                    "businessName": "Expected value of overall limit",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "OverallLimitAmount",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "com.sap.core.decfloat34",
+                    "businessName": "Overall limit",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "RequirementSegment",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_40",
+                    "businessName": "Requirement segment",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "ReleaseIsNotCompleted",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Release not yet completely effected",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchasingCompletenessStatus",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Purchase order not yet complete",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "IsStatisticalItem",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Item is statistical",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "MultipleAcctAssgmtDistribution",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Distribution indicator for multiple account assignment",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchaseRequisition",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_10",
+                    "businessName": "Purchase requisition number",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchaseRequisitionItem",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_5",
+                    "businessName": "Item number of purchase requisition",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "SupplierConfirmationControlKey",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_4",
+                    "businessName": "Confirmation control key",
+                    "metadata": {}
+                  },
+                  {
+                    "name": "PurchasingDocumentDeletionCode",
+                    "vflow.type": "scalar",
+                    "vtype-ID": "$DYNAMIC.string_1",
+                    "businessName": "Purchase order deletion code",
+                    "metadata": {}
+                  }
+                ],
+                "keys": [
+                  "PurchaseOrder",
+                  "PurchaseOrderItem"
+                ]
+              },
+              "metadata": {
+                "isNew": false
+              },
+              "businessName": "Data extraction view for po item"
+            }
+          }
+        ],
+        "replicationTaskSetting": {
+          "hasSkipMappingCapability": true
+        },
+        "replicationFlowSetting": {
+          "ABAPcontentTypeDisabled": false,
+          "ABAPcontentType": "Native Type"
+        },
+        "deltaLoadTrigger": "ON_DELTA_INTERVAL"
+      },
+      "sources": {},
+      "targets": {
+        "C_PURCHASEORDERDEX": {
+          "elements": {
+            "PurchaseOrder": {},
+            "PurchaseOrderType": {},
+            "PurchaseOrderSubtype": {},
+            "PurchasingDocumentOrigin": {},
+            "CreatedByUser": {},
+            "CreationDate": {},
+            "PurchaseOrderDate": {},
+            "Language": {},
+            "CorrespncExternalReference": {},
+            "CorrespncInternalReference": {},
+            "PurchasingDocumentDeletionCode": {},
+            "ReleaseIsNotCompleted": {},
+            "PurchasingCompletenessStatus": {},
+            "PurchasingProcessingStatus": {},
+            "PurgReleaseSequenceStatus": {},
+            "ReleaseCode": {},
+            "CompanyCode": {},
+            "PurchasingOrganization": {},
+            "PurchasingGroup": {},
+            "Supplier": {},
+            "ManualSupplierAddressID": {},
+            "SupplierRespSalesPersonName": {},
+            "SupplierPhoneNumber": {},
+            "SupplyingSupplier": {},
+            "SupplyingPlant": {},
+            "InvoicingParty": {},
+            "Customer": {},
+            "SupplierQuotationExternalID": {},
+            "PaymentTerms": {},
+            "CashDiscount1Days": {},
+            "CashDiscount2Days": {},
+            "NetPaymentDays": {},
+            "CashDiscount1Percent": {},
+            "CashDiscount2Percent": {},
+            "DownPaymentType": {},
+            "DownPaymentPercentageOfTotAmt": {},
+            "DownPaymentAmount": {},
+            "DownPaymentDueDate": {},
+            "IncotermsClassification": {},
+            "IncotermsTransferLocation": {},
+            "IncotermsVersion": {},
+            "IncotermsLocation1": {},
+            "IncotermsLocation2": {},
+            "IsIntrastatReportingRelevant": {},
+            "IsIntrastatReportingExcluded": {},
+            "PricingDocument": {},
+            "PricingProcedure": {},
+            "DocumentCurrency": {},
+            "ValidityStartDate": {},
+            "ValidityEndDate": {},
+            "ExchangeRate": {},
+            "ExchangeRateIsFixed": {},
+            "LastChangeDateTime": {},
+            "TaxReturnCountry": {},
+            "VATRegistrationCountry": {},
+            "PurgReasonForDocCancellation": {},
+            "PurgReleaseTimeTotalAmount": {}
+          }
+        },
+        "C_PURORDSCHEDULELINEDEX": {
+          "elements": {
+            "PurchaseOrder": {},
+            "PurchaseOrderItem": {},
+            "PurchaseOrderScheduleLine": {},
+            "ScheduleLineDeliveryDate": {},
+            "SchedLineStscDeliveryDate": {},
+            "ScheduleLineDeliveryTime": {},
+            "PurchaseRequisition": {},
+            "PurchaseRequisitionItem": {},
+            "Batch": {},
+            "PurchasingSchdLnNrOfReminders": {},
+            "RequisitionerName": {},
+            "RetailPromotion": {},
+            "ArticleCategory": {},
+            "PurchasingOrderReason": {},
+            "IsCompletelyDelivered": {},
+            "ManufacturerMaterial": {},
+            "IsFinallyInvoiced": {},
+            "PurchaseContract": {},
+            "PurchaseContractItem": {},
+            "StorageLocation": {},
+            "BaseUnit": {},
+            "MaterialGroup": {},
+            "Material": {},
+            "PurchaseOrderQuantityUnit": {},
+            "PurchaseOrderItemCategory": {},
+            "IssuingStorageLocation": {},
+            "PurchaseOrderItemText": {},
+            "PurchasingParentItem": {},
+            "OrderItemQtyToBaseQtyDnmntr": {},
+            "OrderItemQtyToBaseQtyNmrtr": {},
+            "InvoiceIsGoodsReceiptBased": {},
+            "GoodsReceiptIsExpected": {},
+            "Plant": {},
+            "EvaldRcptSettlmtIsAllowed": {},
+            "PurchaseOrderDate": {},
+            "PurchaseOrderType": {},
+            "PurchasingGroup": {},
+            "PurchasingOrganization": {},
+            "ValidityStartDate": {},
+            "ValidityEndDate": {},
+            "Supplier": {},
+            "InvoicingParty": {},
+            "SupplyingSupplier": {},
+            "SupplyingPlant": {},
+            "PurchasingDocumentOrigin": {},
+            "DocumentCurrency": {},
+            "ExchangeRate": {},
+            "DelivDateCategory": {},
+            "ScheduleLineOrderQuantity": {},
+            "PrevDelivQtyOfScheduleLine": {},
+            "RoughGoodsReceiptQty": {},
+            "ScheduleLineIssuedQuantity": {},
+            "SourceOfCreation": {},
+            "Reservation": {},
+            "ScheduleLineIsFixed": {},
+            "StockTransferDeliveredQuantity": {},
+            "ScheduleLineCommittedQuantity": {},
+            "ProductAvailabilityDate": {},
+            "ProductAvailabilityTime": {},
+            "LoadingDate": {},
+            "LoadingTime": {},
+            "TransportationPlanningDate": {},
+            "TransportationPlanningTime": {},
+            "GoodsIssueDate": {},
+            "GoodsIssueTime": {},
+            "STOLatestPossibleGRDate": {},
+            "STOLatestPossibleGRTime": {},
+            "OpenPurchaseOrderNetAmount": {},
+            "IsReturnsItem": {},
+            "CompanyCode": {},
+            "ProductTypeCode": {},
+            "PurchasingDocumentDeletionCode": {},
+            "PurgDocumentItemDeletionCode": {},
+            "ReleaseIsNotCompleted": {},
+            "PurchasingCompletenessStatus": {},
+            "SupplierConfirmationControlKey": {},
+            "IsStatisticalItem": {},
+            "ScheduleLineOpenQuantity": {}
+          }
+        },
+        "C_PURCHASEORDERITEMDEX": {
+          "elements": {
+            "PurchaseOrder": {},
+            "PurchaseOrderItem": {},
+            "PurchaseOrderType": {},
+            "PurchasingGroup": {},
+            "PurchasingOrganization": {},
+            "PurchasingDocumentOrigin": {},
+            "Supplier": {},
+            "SupplyingSupplier": {},
+            "SupplyingPlant": {},
+            "DocumentCurrency": {},
+            "ExchangeRate": {},
+            "InvoicingParty": {},
+            "PurchaseOrderDate": {},
+            "ValidityStartDate": {},
+            "ValidityEndDate": {},
+            "CreationDate": {},
+            "LastChangeDateTime": {},
+            "PurgDocumentItemDeletionCode": {},
+            "MaterialGroup": {},
+            "Material": {},
+            "ManufacturerMaterial": {},
+            "PurchaseOrderCategory": {},
+            "PurchasingOrderReason": {},
+            "PurchaseOrderItemText": {},
+            "PurchaseOrderItemCategory": {},
+            "CompanyCode": {},
+            "Plant": {},
+            "StorageLocation": {},
+            "PurchaseContract": {},
+            "PurchaseContractItem": {},
+            "BaseUnit": {},
+            "OrderQuantity": {},
+            "PurchaseOrderQuantityUnit": {},
+            "NetPriceAmount": {},
+            "NetAmount": {},
+            "LocalCurrency": {},
+            "NetPriceQuantity": {},
+            "OrderPriceUnit": {},
+            "RequisitionerName": {},
+            "RetailPromotion": {},
+            "IsCompletelyDelivered": {},
+            "IsReturnsItem": {},
+            "IsFinallyInvoiced": {},
+            "InvoiceIsExpected": {},
+            "OrderItemQtyToBaseQtyDnmntr": {},
+            "OrderItemQtyToBaseQtyNmrtr": {},
+            "InvoiceIsGoodsReceiptBased": {},
+            "GoodsReceiptIsExpected": {},
+            "EvaldRcptSettlmtIsAllowed": {},
+            "AccountAssignmentCategory": {},
+            "GoodsReceiptIsNonValuated": {},
+            "MaterialType": {},
+            "OverdelivTolrtdLmtRatioInPct": {},
+            "ServicePerformer": {},
+            "TaxCode": {},
+            "UnderdelivTolrtdLmtRatioInPct": {},
+            "UnlimitedOverdeliveryIsAllowed": {},
+            "SupplierMaterialNumber": {},
+            "ProductTypeCode": {},
+            "CreatedByUser": {},
+            "ExpectedOverallLimitAmount": {},
+            "OverallLimitAmount": {},
+            "RequirementSegment": {},
+            "ReleaseIsNotCompleted": {},
+            "PurchasingCompletenessStatus": {},
+            "IsStatisticalItem": {},
+            "MultipleAcctAssgmtDistribution": {},
+            "PurchaseRequisition": {},
+            "PurchaseRequisitionItem": {},
+            "SupplierConfirmationControlKey": {},
+            "PurchasingDocumentDeletionCode": {}
+          }
+        }
+      },
+      "connections": {
+        "S4H_ONPREM_ABAP": {}
+      }
+    }
+  }
+}

@@ -1,0 +1,473 @@
+{
+  "definitions": {
+    "AM_SUPPLIER_RISK_LATEST": {
+      "kind": "entity",
+      "@EndUserText.label": "Supplier Risk Latest Model",
+      "elements": {
+        "RUN_ID": {
+          "@EndUserText.label": "RUN_ID"
+        },
+        "SUPPLIER": {
+          "@EndUserText.label": "SUPPLIER"
+        },
+        "STATUS": {
+          "@EndUserText.label": "STATUS"
+        },
+        "PREDICTION": {
+          "@EndUserText.label": "PREDICTION"
+        },
+        "CONFIDENCE": {
+          "@EndUserText.label": "CONFIDENCE"
+        },
+        "RISK_BAND": {
+          "@EndUserText.label": "RISK_BAND"
+        },
+        "TOP_FACTOR": {
+          "@EndUserText.label": "TOP_FACTOR"
+        },
+        "MODEL_ID": {
+          "@EndUserText.label": "MODEL_ID"
+        },
+        "DEPLOYMENT_ID": {
+          "@EndUserText.label": "DEPLOYMENT_ID"
+        },
+        "FEATURES_JSON": {
+          "@EndUserText.label": "FEATURES_JSON"
+        },
+        "ERROR_MESSAGE": {
+          "@EndUserText.label": "ERROR_MESSAGE"
+        },
+        "SCORED_AT": {
+          "@EndUserText.label": "SCORED_AT"
+        },
+        "LATE_PROBABILITY": {
+          "@EndUserText.label": "LATE_PROBABILITY",
+          "@AnalyticsDetails.measureType": {
+            "#": "BASE"
+          }
+        },
+        "ONTIME_PROBABILITY": {
+          "@EndUserText.label": "ONTIME_PROBABILITY",
+          "@AnalyticsDetails.measureType": {
+            "#": "BASE"
+          }
+        },
+        "Supplier_Count": {
+          "@EndUserText.label": "Supplier Count",
+          "@AnalyticsDetails.measureType": {
+            "#": "BASE"
+          },
+          "@Aggregation.default": {
+            "#": "COUNT_DISTINCT"
+          },
+          "@Aggregation.referenceElement": [
+            "SUPPLIER"
+          ],
+          "type": "cds.Integer"
+        },
+        "AVG_LATE_PROBABILITY": {
+          "@EndUserText.label": "Avg Late Probability",
+          "@AnalyticsDetails.measureType": {
+            "#": "CALCULATION"
+          },
+          "@Aggregation.default": {
+            "#": "FORMULA"
+          }
+        },
+        "SCORED_SUPPLIER_COUNT": {
+          "@EndUserText.label": "Scored Supplier Count",
+          "@AnalyticsDetails.measureType": {
+            "#": "RESTRICTION"
+          }
+        }
+      },
+      "@ObjectModel.modelingPattern": {
+        "#": "ANALYTICAL_CUBE"
+      },
+      "@ObjectModel.supportedCapabilities": [
+        {
+          "#": "ANALYTICAL_PROVIDER"
+        },
+        {
+          "#": "_DWC_AM_EDITABLE_DIMENSION_NAMES"
+        }
+      ],
+      "@DataWarehouse.editorType": {
+        "#": "DWCQueryModelEditor"
+      },
+      "@DataWarehouse.hanaCatalog.viewType": {
+        "#": "CALCULATION_VIEW"
+      },
+      "query": {
+        "SELECT": {
+          "from": {
+            "ref": [
+              "V_SUPPLIER_RISK_LATEST"
+            ],
+            "as": "V_SUPPLIER_RISK_LATE"
+          },
+          "columns": [
+            {
+              "ref": [
+                "V_SUPPLIER_RISK_LATE",
+                "RUN_ID"
+              ],
+              "as": "RUN_ID"
+            },
+            {
+              "ref": [
+                "V_SUPPLIER_RISK_LATE",
+                "SUPPLIER"
+              ],
+              "as": "SUPPLIER"
+            },
+            {
+              "ref": [
+                "V_SUPPLIER_RISK_LATE",
+                "STATUS"
+              ],
+              "as": "STATUS"
+            },
+            {
+              "ref": [
+                "V_SUPPLIER_RISK_LATE",
+                "PREDICTION"
+              ],
+              "as": "PREDICTION"
+            },
+            {
+              "ref": [
+                "V_SUPPLIER_RISK_LATE",
+                "CONFIDENCE"
+              ],
+              "as": "CONFIDENCE"
+            },
+            {
+              "ref": [
+                "V_SUPPLIER_RISK_LATE",
+                "RISK_BAND"
+              ],
+              "as": "RISK_BAND"
+            },
+            {
+              "ref": [
+                "V_SUPPLIER_RISK_LATE",
+                "TOP_FACTOR"
+              ],
+              "as": "TOP_FACTOR"
+            },
+            {
+              "ref": [
+                "V_SUPPLIER_RISK_LATE",
+                "MODEL_ID"
+              ],
+              "as": "MODEL_ID"
+            },
+            {
+              "ref": [
+                "V_SUPPLIER_RISK_LATE",
+                "DEPLOYMENT_ID"
+              ],
+              "as": "DEPLOYMENT_ID"
+            },
+            {
+              "ref": [
+                "V_SUPPLIER_RISK_LATE",
+                "FEATURES_JSON"
+              ],
+              "as": "FEATURES_JSON"
+            },
+            {
+              "ref": [
+                "V_SUPPLIER_RISK_LATE",
+                "ERROR_MESSAGE"
+              ],
+              "as": "ERROR_MESSAGE"
+            },
+            {
+              "ref": [
+                "V_SUPPLIER_RISK_LATE",
+                "SCORED_AT"
+              ],
+              "as": "SCORED_AT"
+            },
+            {
+              "ref": [
+                "V_SUPPLIER_RISK_LATE",
+                "LATE_PROBABILITY"
+              ],
+              "as": "LATE_PROBABILITY"
+            },
+            {
+              "ref": [
+                "V_SUPPLIER_RISK_LATE",
+                "ONTIME_PROBABILITY"
+              ],
+              "as": "ONTIME_PROBABILITY"
+            },
+            {
+              "val": null,
+              "as": "Supplier_Count"
+            },
+            {
+              "xpr": [
+                {
+                  "ref": [
+                    "$projection",
+                    "LATE_PROBABILITY"
+                  ]
+                },
+                "/",
+                {
+                  "ref": [
+                    "$projection",
+                    "SCORED_SUPPLIER_COUNT"
+                  ]
+                }
+              ],
+              "as": "AVG_LATE_PROBABILITY"
+            },
+            {
+              "xpr": [
+                "case",
+                "when",
+                {
+                  "ref": [
+                    "$projection",
+                    "STATUS"
+                  ]
+                },
+                "=",
+                {
+                  "val": "OK"
+                },
+                "then",
+                {
+                  "ref": [
+                    "$projection",
+                    "Supplier_Count"
+                  ]
+                },
+                "end"
+              ],
+              "as": "SCORED_SUPPLIER_COUNT"
+            }
+          ],
+          "mixin": {}
+        }
+      }
+    }
+  },
+  "businessLayerDefinitions": {
+    "AM_SUPPLIER_RISK_LATEST": {
+      "identifier": {
+        "key": "AM_SUPPLIER_RISK_LATEST"
+      },
+      "text": "Supplier Risk Latest Model",
+      "sourceModel": {
+        "factSources": {
+          "V_SUPPLIER_RISK_LATE": {
+            "text": "Supplier Risk Latest",
+            "dataEntity": {
+              "key": "V_SUPPLIER_RISK_LATEST"
+            }
+          }
+        },
+        "dimensionSources": {}
+      },
+      "exposedAssociations": {},
+      "attributes": {
+        "RUN_ID": {
+          "attributeType": "AnalyticModelAttributeType.FactSourceAttribute",
+          "attributeMapping": {
+            "V_SUPPLIER_RISK_LATE": {
+              "key": "RUN_ID"
+            }
+          },
+          "text": "RUN_ID",
+          "duplicated": false
+        },
+        "SUPPLIER": {
+          "attributeType": "AnalyticModelAttributeType.FactSourceAttribute",
+          "attributeMapping": {
+            "V_SUPPLIER_RISK_LATE": {
+              "key": "SUPPLIER"
+            }
+          },
+          "text": "SUPPLIER",
+          "duplicated": false
+        },
+        "STATUS": {
+          "attributeType": "AnalyticModelAttributeType.FactSourceAttribute",
+          "attributeMapping": {
+            "V_SUPPLIER_RISK_LATE": {
+              "key": "STATUS"
+            }
+          },
+          "text": "STATUS",
+          "duplicated": false
+        },
+        "PREDICTION": {
+          "attributeType": "AnalyticModelAttributeType.FactSourceAttribute",
+          "attributeMapping": {
+            "V_SUPPLIER_RISK_LATE": {
+              "key": "PREDICTION"
+            }
+          },
+          "text": "PREDICTION",
+          "duplicated": false
+        },
+        "CONFIDENCE": {
+          "attributeType": "AnalyticModelAttributeType.FactSourceAttribute",
+          "attributeMapping": {
+            "V_SUPPLIER_RISK_LATE": {
+              "key": "CONFIDENCE"
+            }
+          },
+          "text": "CONFIDENCE",
+          "duplicated": false
+        },
+        "RISK_BAND": {
+          "attributeType": "AnalyticModelAttributeType.FactSourceAttribute",
+          "attributeMapping": {
+            "V_SUPPLIER_RISK_LATE": {
+              "key": "RISK_BAND"
+            }
+          },
+          "text": "RISK_BAND",
+          "duplicated": false
+        },
+        "TOP_FACTOR": {
+          "attributeType": "AnalyticModelAttributeType.FactSourceAttribute",
+          "attributeMapping": {
+            "V_SUPPLIER_RISK_LATE": {
+              "key": "TOP_FACTOR"
+            }
+          },
+          "text": "TOP_FACTOR",
+          "duplicated": false
+        },
+        "MODEL_ID": {
+          "attributeType": "AnalyticModelAttributeType.FactSourceAttribute",
+          "attributeMapping": {
+            "V_SUPPLIER_RISK_LATE": {
+              "key": "MODEL_ID"
+            }
+          },
+          "text": "MODEL_ID",
+          "duplicated": false
+        },
+        "DEPLOYMENT_ID": {
+          "attributeType": "AnalyticModelAttributeType.FactSourceAttribute",
+          "attributeMapping": {
+            "V_SUPPLIER_RISK_LATE": {
+              "key": "DEPLOYMENT_ID"
+            }
+          },
+          "text": "DEPLOYMENT_ID",
+          "duplicated": false
+        },
+        "FEATURES_JSON": {
+          "attributeType": "AnalyticModelAttributeType.FactSourceAttribute",
+          "attributeMapping": {
+            "V_SUPPLIER_RISK_LATE": {
+              "key": "FEATURES_JSON"
+            }
+          },
+          "text": "FEATURES_JSON",
+          "duplicated": false
+        },
+        "ERROR_MESSAGE": {
+          "attributeType": "AnalyticModelAttributeType.FactSourceAttribute",
+          "attributeMapping": {
+            "V_SUPPLIER_RISK_LATE": {
+              "key": "ERROR_MESSAGE"
+            }
+          },
+          "text": "ERROR_MESSAGE",
+          "duplicated": false
+        },
+        "SCORED_AT": {
+          "attributeType": "AnalyticModelAttributeType.FactSourceAttribute",
+          "attributeMapping": {
+            "V_SUPPLIER_RISK_LATE": {
+              "key": "SCORED_AT"
+            }
+          },
+          "text": "SCORED_AT",
+          "duplicated": false
+        }
+      },
+      "measures": {
+        "LATE_PROBABILITY": {
+          "measureType": "AnalyticModelMeasureType.FactSourceMeasure",
+          "measureMapping": {
+            "V_SUPPLIER_RISK_LATE": {
+              "key": "LATE_PROBABILITY"
+            }
+          },
+          "text": "LATE_PROBABILITY",
+          "isAuxiliary": false
+        },
+        "ONTIME_PROBABILITY": {
+          "measureType": "AnalyticModelMeasureType.FactSourceMeasure",
+          "measureMapping": {
+            "V_SUPPLIER_RISK_LATE": {
+              "key": "ONTIME_PROBABILITY"
+            }
+          },
+          "text": "ONTIME_PROBABILITY",
+          "isAuxiliary": false
+        },
+        "Supplier_Count": {
+          "countDistinctAttributes": [
+            "SUPPLIER"
+          ],
+          "measureType": "AnalyticModelMeasureType.CountDistinct",
+          "text": "Supplier Count",
+          "isAuxiliary": false
+        },
+        "AVG_LATE_PROBABILITY": {
+          "text": "Avg Late Probability",
+          "measureType": "AnalyticModelMeasureType.CalculatedMeasure",
+          "isAuxiliary": false,
+          "formulaRaw": "LATE_PROBABILITY / SCORED_SUPPLIER_COUNT",
+          "formula": "[0]/[1]",
+          "elements": {
+            "0": {
+              "operandType": "AnalyticModelCalculatedMeasureOperandType.Element",
+              "key": "LATE_PROBABILITY"
+            },
+            "1": {
+              "operandType": "AnalyticModelCalculatedMeasureOperandType.Element",
+              "key": "SCORED_SUPPLIER_COUNT"
+            }
+          }
+        },
+        "SCORED_SUPPLIER_COUNT": {
+          "text": "Scored Supplier Count",
+          "measureType": "AnalyticModelMeasureType.RestrictedMeasure",
+          "isAuxiliary": false,
+          "key": "Supplier_Count",
+          "constantSelectionType": "AnalyticModelConstantSelectionType.None",
+          "formula": "[0] = [1]",
+          "formulaRaw": "STATUS = 'OK'",
+          "elements": {
+            "0": {
+              "operandType": "AnalyticModelRestrictedMeasureOperandType.Attribute",
+              "key": "STATUS"
+            },
+            "1": {
+              "operandType": "AnalyticModelRestrictedMeasureOperandType.ConstantValue",
+              "value": "OK"
+            }
+          }
+        }
+      },
+      "crossCalculations": {},
+      "version": "1.7.4",
+      "supportedCapabilities": {},
+      "variables": {}
+    }
+  }
+}

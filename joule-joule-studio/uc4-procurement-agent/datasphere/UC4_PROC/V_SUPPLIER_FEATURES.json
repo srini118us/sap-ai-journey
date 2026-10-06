@@ -1,0 +1,734 @@
+{
+  "definitions": {
+    "V_SUPPLIER_FEATURES": {
+      "kind": "entity",
+      "elements": {
+        "Supplier": {
+          "@EndUserText.label": "Supplier",
+          "type": "cds.String",
+          "length": 10
+        },
+        "vendor_category": {
+          "@EndUserText.label": "vendor_category",
+          "type": "cds.String",
+          "length": 3
+        },
+        "vendor_country": {
+          "@EndUserText.label": "vendor_country",
+          "type": "cds.String",
+          "length": 2
+        },
+        "historical_ontime_rate": {
+          "@EndUserText.label": "historical_ontime_rate",
+          "precision": 30,
+          "scale": 24,
+          "type": "cds.Decimal"
+        },
+        "avg_lead_time_days": {
+          "@EndUserText.label": "avg_lead_time_days",
+          "type": "cds.Double"
+        },
+        "lead_time_variance": {
+          "@EndUserText.label": "lead_time_variance",
+          "type": "cds.Double"
+        },
+        "po_count_last_quarter": {
+          "@EndUserText.label": "po_count_last_quarter",
+          "type": "cds.Integer64",
+          "@AnalyticsDetails.measureType": {
+            "#": "BASE"
+          },
+          "@Aggregation.default": {
+            "#": "SUM"
+          }
+        },
+        "po_amount": {
+          "@EndUserText.label": "po_amount",
+          "type": "cds.DecimalFloat"
+        },
+        "concurrent_pos": {
+          "@EndUserText.label": "concurrent_pos",
+          "type": "cds.Integer64",
+          "@AnalyticsDetails.measureType": {
+            "#": "BASE"
+          },
+          "@Aggregation.default": {
+            "#": "SUM"
+          }
+        },
+        "material_complexity": {
+          "@EndUserText.label": "material_complexity",
+          "type": "cds.Integer"
+        },
+        "expected_lead_time_days": {
+          "@EndUserText.label": "expected_lead_time_days",
+          "type": "cds.Double"
+        },
+        "delivery_day_of_week": {
+          "@EndUserText.label": "delivery_day_of_week",
+          "type": "cds.Integer"
+        },
+        "is_quarter_end": {
+          "@EndUserText.label": "is_quarter_end",
+          "type": "cds.Integer"
+        },
+        "is_peak_season": {
+          "@EndUserText.label": "is_peak_season",
+          "type": "cds.Integer"
+        }
+      },
+      "query": {
+        "SELECT": {
+          "from": {
+            "join": "inner",
+            "args": [
+              {
+                "join": "inner",
+                "args": [
+                  {
+                    "ref": [
+                      "C_PURORDSCHEDULELINEDEX"
+                    ],
+                    "as": "sl"
+                  },
+                  {
+                    "ref": [
+                      "C_PURCHASEORDERITEMDEX"
+                    ],
+                    "as": "it"
+                  }
+                ],
+                "on": [
+                  {
+                    "ref": [
+                      "it",
+                      "PurchaseOrder"
+                    ]
+                  },
+                  "=",
+                  {
+                    "ref": [
+                      "sl",
+                      "PurchaseOrder"
+                    ]
+                  },
+                  "and",
+                  {
+                    "ref": [
+                      "it",
+                      "PurchaseOrderItem"
+                    ]
+                  },
+                  "=",
+                  {
+                    "ref": [
+                      "sl",
+                      "PurchaseOrderItem"
+                    ]
+                  }
+                ]
+              },
+              {
+                "ref": [
+                  "C_PURCHASEORDERDEX"
+                ],
+                "as": "hd"
+              }
+            ],
+            "on": [
+              {
+                "ref": [
+                  "hd",
+                  "PurchaseOrder"
+                ]
+              },
+              "=",
+              {
+                "ref": [
+                  "sl",
+                  "PurchaseOrder"
+                ]
+              }
+            ]
+          },
+          "columns": [
+            {
+              "ref": [
+                "hd",
+                "Supplier"
+              ]
+            },
+            {
+              "val": "RAW",
+              "as": "vendor_category"
+            },
+            {
+              "val": "US",
+              "as": "vendor_country"
+            },
+            {
+              "func": "ROUND",
+              "args": [
+                {
+                  "xpr": [
+                    {
+                      "val": 1
+                    },
+                    "-",
+                    {
+                      "func": "SUM",
+                      "args": [
+                        {
+                          "xpr": [
+                            "case",
+                            "when",
+                            {
+                              "func": "TO_DATE",
+                              "args": [
+                                {
+                                  "ref": [
+                                    "sl",
+                                    "ScheduleLineDeliveryDate"
+                                  ]
+                                },
+                                {
+                                  "val": "YYYYMMDD"
+                                }
+                              ]
+                            },
+                            "<",
+                            {
+                              "func": "CURRENT_DATE"
+                            },
+                            "and",
+                            {
+                              "ref": [
+                                "sl",
+                                "RoughGoodsReceiptQty"
+                              ]
+                            },
+                            "<",
+                            {
+                              "ref": [
+                                "sl",
+                                "ScheduleLineOrderQuantity"
+                              ]
+                            },
+                            "then",
+                            {
+                              "val": 1
+                            },
+                            "else",
+                            {
+                              "val": 0
+                            },
+                            "end"
+                          ]
+                        }
+                      ],
+                      "cast": {
+                        "type": "cds.Decimal",
+                        "precision": 10,
+                        "scale": 4
+                      }
+                    },
+                    "/",
+                    {
+                      "func": "COUNT",
+                      "args": [
+                        "*"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "val": 4
+                }
+              ],
+              "as": "historical_ontime_rate"
+            },
+            {
+              "func": "GREATEST",
+              "args": [
+                {
+                  "func": "ROUND",
+                  "args": [
+                    {
+                      "func": "AVG",
+                      "args": [
+                        {
+                          "func": "DAYS_BETWEEN",
+                          "args": [
+                            {
+                              "func": "TO_DATE",
+                              "args": [
+                                {
+                                  "ref": [
+                                    "hd",
+                                    "PurchaseOrderDate"
+                                  ]
+                                },
+                                {
+                                  "val": "YYYYMMDD"
+                                }
+                              ]
+                            },
+                            {
+                              "func": "TO_DATE",
+                              "args": [
+                                {
+                                  "ref": [
+                                    "sl",
+                                    "ScheduleLineDeliveryDate"
+                                  ]
+                                },
+                                {
+                                  "val": "YYYYMMDD"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "val": 1
+                    }
+                  ]
+                },
+                {
+                  "val": 1
+                }
+              ],
+              "as": "avg_lead_time_days"
+            },
+            {
+              "func": "ROUND",
+              "args": [
+                {
+                  "func": "COALESCE",
+                  "args": [
+                    {
+                      "func": "STDDEV",
+                      "args": [
+                        {
+                          "func": "DAYS_BETWEEN",
+                          "args": [
+                            {
+                              "func": "TO_DATE",
+                              "args": [
+                                {
+                                  "ref": [
+                                    "hd",
+                                    "PurchaseOrderDate"
+                                  ]
+                                },
+                                {
+                                  "val": "YYYYMMDD"
+                                }
+                              ]
+                            },
+                            {
+                              "func": "TO_DATE",
+                              "args": [
+                                {
+                                  "ref": [
+                                    "sl",
+                                    "ScheduleLineDeliveryDate"
+                                  ]
+                                },
+                                {
+                                  "val": "YYYYMMDD"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "val": 0
+                    }
+                  ]
+                },
+                {
+                  "val": 1
+                }
+              ],
+              "as": "lead_time_variance"
+            },
+            {
+              "func": "COUNT",
+              "args": [
+                {
+                  "xpr": [
+                    "distinct",
+                    "case",
+                    "when",
+                    {
+                      "func": "TO_DATE",
+                      "args": [
+                        {
+                          "ref": [
+                            "hd",
+                            "PurchaseOrderDate"
+                          ]
+                        },
+                        {
+                          "val": "YYYYMMDD"
+                        }
+                      ]
+                    },
+                    ">=",
+                    {
+                      "func": "ADD_DAYS",
+                      "args": [
+                        {
+                          "func": "CURRENT_DATE"
+                        },
+                        {
+                          "val": -90
+                        }
+                      ]
+                    },
+                    "then",
+                    {
+                      "ref": [
+                        "hd",
+                        "PurchaseOrder"
+                      ]
+                    },
+                    "end"
+                  ]
+                }
+              ],
+              "as": "po_count_last_quarter"
+            },
+            {
+              "func": "ROUND",
+              "args": [
+                {
+                  "func": "AVG",
+                  "args": [
+                    {
+                      "ref": [
+                        "it",
+                        "NetAmount"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "val": 2
+                }
+              ],
+              "as": "po_amount"
+            },
+            {
+              "func": "COUNT",
+              "args": [
+                {
+                  "xpr": [
+                    "distinct",
+                    "case",
+                    "when",
+                    {
+                      "ref": [
+                        "sl",
+                        "RoughGoodsReceiptQty"
+                      ]
+                    },
+                    "<",
+                    {
+                      "ref": [
+                        "sl",
+                        "ScheduleLineOrderQuantity"
+                      ]
+                    },
+                    "then",
+                    {
+                      "ref": [
+                        "sl",
+                        "PurchaseOrder"
+                      ]
+                    },
+                    "end"
+                  ]
+                }
+              ],
+              "as": "concurrent_pos"
+            },
+            {
+              "xpr": [
+                "case",
+                "when",
+                {
+                  "func": "COUNT",
+                  "args": [
+                    {
+                      "xpr": [
+                        "distinct",
+                        {
+                          "ref": [
+                            "it",
+                            "Material"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                ">",
+                {
+                  "val": 10
+                },
+                "then",
+                {
+                  "val": 3
+                },
+                "when",
+                {
+                  "func": "COUNT",
+                  "args": [
+                    {
+                      "xpr": [
+                        "distinct",
+                        {
+                          "ref": [
+                            "it",
+                            "Material"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                ">",
+                {
+                  "val": 3
+                },
+                "then",
+                {
+                  "val": 2
+                },
+                "else",
+                {
+                  "val": 1
+                },
+                "end"
+              ],
+              "as": "material_complexity"
+            },
+            {
+              "func": "GREATEST",
+              "args": [
+                {
+                  "func": "ROUND",
+                  "args": [
+                    {
+                      "func": "AVG",
+                      "args": [
+                        {
+                          "func": "DAYS_BETWEEN",
+                          "args": [
+                            {
+                              "func": "TO_DATE",
+                              "args": [
+                                {
+                                  "ref": [
+                                    "hd",
+                                    "PurchaseOrderDate"
+                                  ]
+                                },
+                                {
+                                  "val": "YYYYMMDD"
+                                }
+                              ]
+                            },
+                            {
+                              "func": "TO_DATE",
+                              "args": [
+                                {
+                                  "ref": [
+                                    "sl",
+                                    "ScheduleLineDeliveryDate"
+                                  ]
+                                },
+                                {
+                                  "val": "YYYYMMDD"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "val": 0
+                    }
+                  ]
+                },
+                {
+                  "val": 1
+                }
+              ],
+              "as": "expected_lead_time_days"
+            },
+            {
+              "val": 4,
+              "as": "delivery_day_of_week"
+            },
+            {
+              "xpr": [
+                "case",
+                "when",
+                {
+                  "func": "MONTH",
+                  "args": [
+                    {
+                      "func": "CURRENT_DATE"
+                    }
+                  ]
+                },
+                "in",
+                {
+                  "list": [
+                    {
+                      "val": 3
+                    },
+                    {
+                      "val": 6
+                    },
+                    {
+                      "val": 9
+                    },
+                    {
+                      "val": 12
+                    }
+                  ]
+                },
+                "then",
+                {
+                  "val": 1
+                },
+                "else",
+                {
+                  "val": 0
+                },
+                "end"
+              ],
+              "as": "is_quarter_end"
+            },
+            {
+              "xpr": [
+                "case",
+                "when",
+                {
+                  "func": "MONTH",
+                  "args": [
+                    {
+                      "func": "CURRENT_DATE"
+                    }
+                  ]
+                },
+                "in",
+                {
+                  "list": [
+                    {
+                      "val": 11
+                    },
+                    {
+                      "val": 12
+                    }
+                  ]
+                },
+                "then",
+                {
+                  "val": 1
+                },
+                "else",
+                {
+                  "val": 0
+                },
+                "end"
+              ],
+              "as": "is_peak_season"
+            }
+          ],
+          "groupBy": [
+            {
+              "ref": [
+                "hd",
+                "Supplier"
+              ]
+            }
+          ],
+          "where": [
+            {
+              "ref": [
+                "sl",
+                "ScheduleLineDeliveryDate"
+              ]
+            },
+            "<>",
+            {
+              "val": "00000000"
+            },
+            "and",
+            {
+              "ref": [
+                "hd",
+                "PurchaseOrderDate"
+              ]
+            },
+            "<>",
+            {
+              "val": "00000000"
+            },
+            "and",
+            {
+              "func": "COALESCE",
+              "args": [
+                {
+                  "ref": [
+                    "sl",
+                    "PurchasingDocumentDeletionCode"
+                  ]
+                },
+                {
+                  "val": ""
+                }
+              ]
+            },
+            "=",
+            {
+              "val": ""
+            },
+            "and",
+            {
+              "ref": [
+                "hd",
+                "Supplier"
+              ]
+            },
+            "<>",
+            {
+              "val": ""
+            }
+          ]
+        }
+      },
+      "@ObjectModel.supportedCapabilities": [
+        {
+          "#": "DATA_STRUCTURE"
+        }
+      ],
+      "@EndUserText.label": "Supplier Features",
+      "@ObjectModel.modelingPattern": {
+        "#": "ANALYTICAL_FACT"
+      },
+      "@DataWarehouse.consumption.external": true,
+      "@DataWarehouse.sqlEditor.query": "SELECT hd.\"Supplier\",\r\n  'RAW' AS \"vendor_category\",\r\n  'US'  AS \"vendor_country\",\r\n  ROUND(1 - CAST(SUM(CASE WHEN TO_DATE(sl.\"ScheduleLineDeliveryDate\",'YYYYMMDD') < CURRENT_DATE\r\n        AND sl.\"RoughGoodsReceiptQty\" < sl.\"ScheduleLineOrderQuantity\" THEN 1 ELSE 0 END) AS DECIMAL(10,4))\r\n        / COUNT(*), 4) AS \"historical_ontime_rate\",\r\n  GREATEST(ROUND(AVG(DAYS_BETWEEN(TO_DATE(hd.\"PurchaseOrderDate\",'YYYYMMDD'),\r\n        TO_DATE(sl.\"ScheduleLineDeliveryDate\",'YYYYMMDD'))), 1), 1) AS \"avg_lead_time_days\",\r\n  ROUND(COALESCE(STDDEV(DAYS_BETWEEN(TO_DATE(hd.\"PurchaseOrderDate\",'YYYYMMDD'),\r\n        TO_DATE(sl.\"ScheduleLineDeliveryDate\",'YYYYMMDD'))), 0), 1) AS \"lead_time_variance\",\r\n  COUNT(DISTINCT CASE WHEN TO_DATE(hd.\"PurchaseOrderDate\",'YYYYMMDD') >= ADD_DAYS(CURRENT_DATE,-90)\r\n        THEN hd.\"PurchaseOrder\" END) AS \"po_count_last_quarter\",\r\n  ROUND(AVG(it.\"NetAmount\"), 2) AS \"po_amount\",\r\n  COUNT(DISTINCT CASE WHEN sl.\"RoughGoodsReceiptQty\" < sl.\"ScheduleLineOrderQuantity\"\r\n        THEN sl.\"PurchaseOrder\" END) AS \"concurrent_pos\",\r\n  CASE WHEN COUNT(DISTINCT it.\"Material\") > 10 THEN 3\r\n       WHEN COUNT(DISTINCT it.\"Material\") > 3 THEN 2 ELSE 1 END AS \"material_complexity\",\r\n  GREATEST(ROUND(AVG(DAYS_BETWEEN(TO_DATE(hd.\"PurchaseOrderDate\",'YYYYMMDD'),\r\n        TO_DATE(sl.\"ScheduleLineDeliveryDate\",'YYYYMMDD'))), 0), 1) AS \"expected_lead_time_days\",\r\n  4 AS \"delivery_day_of_week\",\r\n  CASE WHEN MONTH(CURRENT_DATE) IN (3,6,9,12) THEN 1 ELSE 0 END AS \"is_quarter_end\",\r\n  CASE WHEN MONTH(CURRENT_DATE) IN (11,12) THEN 1 ELSE 0 END AS \"is_peak_season\"\r\nFROM \"C_PURORDSCHEDULELINEDEX\" sl\r\nJOIN \"C_PURCHASEORDERITEMDEX\" it\r\n  ON it.\"PurchaseOrder\" = sl.\"PurchaseOrder\" AND it.\"PurchaseOrderItem\" = sl.\"PurchaseOrderItem\"\r\nJOIN \"C_PURCHASEORDERDEX\" hd ON hd.\"PurchaseOrder\" = sl.\"PurchaseOrder\"\r\nWHERE sl.\"ScheduleLineDeliveryDate\" <> '00000000'\r\n  AND hd.\"PurchaseOrderDate\" <> '00000000'\r\n  AND COALESCE(sl.\"PurchasingDocumentDeletionCode\",'') = ''\r\n  AND hd.\"Supplier\" <> ''\r\nGROUP BY hd.\"Supplier\""
+    }
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "definitions": {
+    "supplier_risk_scores": {
+      "kind": "entity",
+      "@ObjectModel.modelingPattern": {
+        "#": "DATA_STRUCTURE"
+      },
+      "@ObjectModel.supportedCapabilities": [
+        {
+          "#": "DATA_STRUCTURE"
+        }
+      ],
+      "@DataWarehouse.dataSource.schema": "UC4_PROC#WRG_ZRONVXHQ62NA4DF3",
+      "@DataWarehouse.dataSource.entity": "sap.dataset.conf_2f2c0aeb-bfc5-40eb-bc05-7abdf898920a_view",
+      "@EndUserText.label": "supplier_risk_scores",
+      "elements": {
+        "Supplier": {
+          "type": "cds.String",
+          "length": 5000,
+          "@EndUserText.label": "Supplier"
+        },
+        "Prediction": {
+          "type": "cds.String",
+          "length": 5000,
+          "@EndUserText.label": "Prediction"
+        },
+        "LateProbability": {
+          "type": "cds.Decimal",
+          "precision": 38,
+          "scale": 19,
+          "@EndUserText.label": "LateProbability"
+        },
+        "OnTimeProbability": {
+          "type": "cds.Decimal",
+          "precision": 38,
+          "scale": 19,
+          "@EndUserText.label": "OnTimeProbability"
+        },
+        "Confidence": {
+          "type": "cds.String",
+          "length": 5000,
+          "@EndUserText.label": "Confidence"
+        },
+        "TopFactor": {
+          "type": "cds.String",
+          "length": 5000,
+          "@EndUserText.label": "TopFactor"
+        },
+        "ScoredAt": {
+          "type": "cds.Date",
+          "@EndUserText.label": "ScoredAt"
+        }
+      }
+    }
+  }
+}

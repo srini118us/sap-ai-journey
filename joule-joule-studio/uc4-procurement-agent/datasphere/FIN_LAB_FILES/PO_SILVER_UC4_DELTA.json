@@ -1,0 +1,366 @@
+{
+  "definitions": {
+    "PO_SILVER_UC4_DELTA": {
+      "elements": {
+        "PurchaseOrder": {
+          "@EndUserText.label": "PurchaseOrder",
+          "type": "cds.String",
+          "key": true,
+          "length": 10,
+          "notNull": true
+        },
+        "PurchaseOrderType": {
+          "@EndUserText.label": "PurchaseOrderType",
+          "type": "cds.String",
+          "key": false,
+          "length": 4
+        },
+        "PurchaseOrderSubtype": {
+          "@EndUserText.label": "PurchaseOrderSubtype",
+          "type": "cds.String",
+          "key": false,
+          "length": 1
+        },
+        "PurchasingDocumentOrigin": {
+          "@EndUserText.label": "PurchasingDocumentOrigin",
+          "type": "cds.String",
+          "key": false,
+          "length": 1
+        },
+        "CreatedByUser": {
+          "@EndUserText.label": "CreatedByUser",
+          "type": "cds.String",
+          "key": false,
+          "length": 12
+        },
+        "CreationDate": {
+          "@EndUserText.label": "CreationDate",
+          "type": "cds.String",
+          "key": false,
+          "length": 8
+        },
+        "PurchaseOrderDate": {
+          "@EndUserText.label": "PurchaseOrderDate",
+          "type": "cds.String",
+          "key": false,
+          "length": 8
+        },
+        "Language": {
+          "@EndUserText.label": "Language",
+          "type": "cds.String",
+          "key": false,
+          "length": 2
+        },
+        "CorrespncExternalReference": {
+          "@EndUserText.label": "CorrespncExternalReference",
+          "type": "cds.String",
+          "key": false,
+          "length": 12
+        },
+        "CorrespncInternalReference": {
+          "@EndUserText.label": "CorrespncInternalReference",
+          "type": "cds.String",
+          "key": false,
+          "length": 12
+        },
+        "PurchasingDocumentDeletionCode": {
+          "@EndUserText.label": "PurchasingDocumentDeletionCode",
+          "type": "cds.String",
+          "key": false,
+          "length": 1
+        },
+        "ReleaseIsNotCompleted": {
+          "@EndUserText.label": "ReleaseIsNotCompleted",
+          "type": "cds.String",
+          "key": false,
+          "length": 1
+        },
+        "PurchasingCompletenessStatus": {
+          "@EndUserText.label": "PurchasingCompletenessStatus",
+          "type": "cds.String",
+          "key": false,
+          "length": 1
+        },
+        "PurchasingProcessingStatus": {
+          "@EndUserText.label": "PurchasingProcessingStatus",
+          "type": "cds.String",
+          "key": false,
+          "length": 2
+        },
+        "PurgReleaseSequenceStatus": {
+          "@EndUserText.label": "PurgReleaseSequenceStatus",
+          "type": "cds.String",
+          "key": false,
+          "length": 8
+        },
+        "ReleaseCode": {
+          "@EndUserText.label": "ReleaseCode",
+          "type": "cds.String",
+          "key": false,
+          "length": 1
+        },
+        "CompanyCode": {
+          "@EndUserText.label": "CompanyCode",
+          "type": "cds.String",
+          "key": false,
+          "length": 4
+        },
+        "PurchasingOrganization": {
+          "@EndUserText.label": "PurchasingOrganization",
+          "type": "cds.String",
+          "key": false,
+          "length": 4
+        },
+        "PurchasingGroup": {
+          "@EndUserText.label": "PurchasingGroup",
+          "type": "cds.String",
+          "key": false,
+          "length": 3
+        },
+        "Supplier": {
+          "@EndUserText.label": "Supplier",
+          "type": "cds.String",
+          "key": false,
+          "length": 10
+        },
+        "ManualSupplierAddressID": {
+          "@EndUserText.label": "ManualSupplierAddressID",
+          "type": "cds.String",
+          "key": false,
+          "length": 10
+        },
+        "SupplierRespSalesPersonName": {
+          "@EndUserText.label": "SupplierRespSalesPersonName",
+          "type": "cds.String",
+          "key": false,
+          "length": 30
+        },
+        "SupplierPhoneNumber": {
+          "@EndUserText.label": "SupplierPhoneNumber",
+          "type": "cds.String",
+          "key": false,
+          "length": 16
+        },
+        "SupplyingSupplier": {
+          "@EndUserText.label": "SupplyingSupplier",
+          "type": "cds.String",
+          "key": false,
+          "length": 10
+        },
+        "SupplyingPlant": {
+          "@EndUserText.label": "SupplyingPlant",
+          "type": "cds.String",
+          "key": false,
+          "length": 4
+        },
+        "InvoicingParty": {
+          "@EndUserText.label": "InvoicingParty",
+          "type": "cds.String",
+          "key": false,
+          "length": 10
+        },
+        "Customer": {
+          "@EndUserText.label": "Customer",
+          "type": "cds.String",
+          "key": false,
+          "length": 10
+        },
+        "SupplierQuotationExternalID": {
+          "@EndUserText.label": "SupplierQuotationExternalID",
+          "type": "cds.String",
+          "key": false,
+          "length": 10
+        },
+        "PaymentTerms": {
+          "@EndUserText.label": "PaymentTerms",
+          "type": "cds.String",
+          "key": false,
+          "length": 4
+        },
+        "CashDiscount1Days": {
+          "@EndUserText.label": "CashDiscount1Days",
+          "type": "cds.Decimal",
+          "key": false,
+          "precision": 3,
+          "scale": 0
+        },
+        "CashDiscount2Days": {
+          "@EndUserText.label": "CashDiscount2Days",
+          "type": "cds.Decimal",
+          "key": false,
+          "precision": 3,
+          "scale": 0
+        },
+        "NetPaymentDays": {
+          "@EndUserText.label": "NetPaymentDays",
+          "type": "cds.Decimal",
+          "key": false,
+          "precision": 3,
+          "scale": 0
+        },
+        "CashDiscount1Percent": {
+          "@EndUserText.label": "CashDiscount1Percent",
+          "type": "cds.Decimal",
+          "key": false,
+          "precision": 5,
+          "scale": 3
+        },
+        "CashDiscount2Percent": {
+          "@EndUserText.label": "CashDiscount2Percent",
+          "type": "cds.Decimal",
+          "key": false,
+          "precision": 5,
+          "scale": 3
+        },
+        "DownPaymentType": {
+          "@EndUserText.label": "DownPaymentType",
+          "type": "cds.String",
+          "key": false,
+          "length": 4
+        },
+        "DownPaymentPercentageOfTotAmt": {
+          "@EndUserText.label": "DownPaymentPercentageOfTotAmt",
+          "type": "cds.Decimal",
+          "key": false,
+          "precision": 5,
+          "scale": 2
+        },
+        "DownPaymentDueDate": {
+          "@EndUserText.label": "DownPaymentDueDate",
+          "type": "cds.String",
+          "key": false,
+          "length": 8
+        },
+        "IncotermsClassification": {
+          "@EndUserText.label": "IncotermsClassification",
+          "type": "cds.String",
+          "key": false,
+          "length": 3
+        },
+        "IncotermsTransferLocation": {
+          "@EndUserText.label": "IncotermsTransferLocation",
+          "type": "cds.String",
+          "key": false,
+          "length": 28
+        },
+        "IncotermsVersion": {
+          "@EndUserText.label": "IncotermsVersion",
+          "type": "cds.String",
+          "key": false,
+          "length": 4
+        },
+        "IncotermsLocation1": {
+          "@EndUserText.label": "IncotermsLocation1",
+          "type": "cds.String",
+          "key": false,
+          "length": 70
+        },
+        "IncotermsLocation2": {
+          "@EndUserText.label": "IncotermsLocation2",
+          "type": "cds.String",
+          "key": false,
+          "length": 70
+        },
+        "IsIntrastatReportingRelevant": {
+          "@EndUserText.label": "IsIntrastatReportingRelevant",
+          "type": "cds.String",
+          "key": false,
+          "length": 1
+        },
+        "IsIntrastatReportingExcluded": {
+          "@EndUserText.label": "IsIntrastatReportingExcluded",
+          "type": "cds.String",
+          "key": false,
+          "length": 1
+        },
+        "PricingDocument": {
+          "@EndUserText.label": "PricingDocument",
+          "type": "cds.String",
+          "key": false,
+          "length": 10
+        },
+        "PricingProcedure": {
+          "@EndUserText.label": "PricingProcedure",
+          "type": "cds.String",
+          "key": false,
+          "length": 6
+        },
+        "DocumentCurrency": {
+          "@EndUserText.label": "DocumentCurrency",
+          "type": "cds.String",
+          "key": false,
+          "length": 5
+        },
+        "ValidityStartDate": {
+          "@EndUserText.label": "ValidityStartDate",
+          "type": "cds.String",
+          "key": false,
+          "length": 8
+        },
+        "ValidityEndDate": {
+          "@EndUserText.label": "ValidityEndDate",
+          "type": "cds.String",
+          "key": false,
+          "length": 8
+        },
+        "ExchangeRate": {
+          "@EndUserText.label": "ExchangeRate",
+          "type": "cds.Decimal",
+          "key": false,
+          "precision": 9,
+          "scale": 5
+        },
+        "ExchangeRateIsFixed": {
+          "@EndUserText.label": "ExchangeRateIsFixed",
+          "type": "cds.String",
+          "key": false,
+          "length": 1
+        },
+        "LastChangeDateTime": {
+          "@EndUserText.label": "LastChangeDateTime",
+          "type": "cds.Decimal",
+          "key": false,
+          "precision": 21,
+          "scale": 7
+        },
+        "TaxReturnCountry": {
+          "@EndUserText.label": "TaxReturnCountry",
+          "type": "cds.String",
+          "key": false,
+          "length": 3
+        },
+        "VATRegistrationCountry": {
+          "@EndUserText.label": "VATRegistrationCountry",
+          "type": "cds.String",
+          "key": false,
+          "length": 3
+        },
+        "PurgReasonForDocCancellation": {
+          "@EndUserText.label": "PurgReasonForDocCancellation",
+          "type": "cds.String",
+          "key": false,
+          "length": 2
+        },
+        "PurgReleaseTimeTotalAmount": {
+          "@EndUserText.label": "PurgReleaseTimeTotalAmount",
+          "type": "cds.Decimal",
+          "key": false,
+          "precision": 23,
+          "scale": 2
+        },
+        "DownPaymentAmount": {
+          "@EndUserText.label": "DownPaymentAmount",
+          "type": "cds.Decimal",
+          "key": false,
+          "precision": 23,
+          "scale": 2
+        }
+      },
+      "kind": "entity",
+      "@EndUserText.label": "PO_SILVER_UC4_DELTA",
+      "@DataWarehouse.persistence.hdlf.tableFormat": {
+        "#": "DELTA_LAKE"
+      }
+    }
+  }
+}

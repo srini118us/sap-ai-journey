@@ -1,0 +1,465 @@
+{
+  "dataflows": {
+    "DF_SDR_PRODUCT": {
+      "kind": "sap.dis.dataflow",
+      "@EndUserText.label": "DF_SDR_PRODUCT",
+      "contents": {
+        "properties": {},
+        "metadata": {
+          "dwc-isPrimaryKeysProcessed": true,
+          "dwc-restartOnFail": false
+        },
+        "parameters": {},
+        "parameterMapping": {},
+        "description": "DF_SDR_PRODUCT",
+        "processes": {
+          "source1": {
+            "component": "com.sap.database.table.consumer",
+            "metadata": {
+              "label": "V_SDR_PRODUCT",
+              "x": 395,
+              "y": 227,
+              "height": 60,
+              "width": 120,
+              "config": {
+                "service": "HANA",
+                "hanaConnection": {
+                  "configurationType": "Configuration Manager",
+                  "connectionID": "$DWC"
+                },
+                "qualifiedName": "V_SDR_PRODUCT",
+                "dwcEntity": "V_SDR_PRODUCT",
+                "remoteObjectType": "VIEW",
+                "fetchSize": 1000,
+                "forceFetchSize": false,
+                "failOnStringTruncation": true
+              },
+              "outports": [
+                {
+                  "name": "outTable",
+                  "type": "table",
+                  "vtype-ID": "$INLINE.source1_outTable"
+                }
+              ]
+            }
+          },
+          "producer1": {
+            "component": "com.sap.database.table.producer",
+            "metadata": {
+              "label": "T_SDR_PRODUCT",
+              "x": 601,
+              "y": 227,
+              "height": 60,
+              "width": 120,
+              "config": {
+                "dwcEntity": "T_SDR_PRODUCT",
+                "hanaConnection": {
+                  "configurationType": "Configuration Manager",
+                  "connectionID": "$DWC"
+                },
+                "mode": "truncate",
+                "qualifiedName": "T_SDR_PRODUCT",
+                "remoteObjectType": "TABLE",
+                "service": "HANA",
+                "forceBatchSize": false,
+                "batchSize": 1000,
+                "deleteModeMappingType": "",
+                "attributeMappings": [
+                  {
+                    "expression": "\"Supplier\"",
+                    "target": "Supplier"
+                  },
+                  {
+                    "expression": "\"RiskBand\"",
+                    "target": "RiskBand"
+                  },
+                  {
+                    "expression": "\"LateProbability\"",
+                    "target": "LateProbability"
+                  },
+                  {
+                    "expression": "\"OntimeProbability\"",
+                    "target": "OntimeProbability"
+                  },
+                  {
+                    "expression": "\"Confidence\"",
+                    "target": "Confidence"
+                  },
+                  {
+                    "expression": "\"TopRiskFactor\"",
+                    "target": "TopRiskFactor"
+                  },
+                  {
+                    "expression": "\"ScoringStatus\"",
+                    "target": "ScoringStatus"
+                  },
+                  {
+                    "expression": "\"DelayedLineCount\"",
+                    "target": "DelayedLineCount"
+                  },
+                  {
+                    "expression": "\"DelayedPOCount\"",
+                    "target": "DelayedPOCount"
+                  },
+                  {
+                    "expression": "\"DelayedPOValueUSD\"",
+                    "target": "DelayedPOValueUSD"
+                  },
+                  {
+                    "expression": "\"HistoricalOntimeRate\"",
+                    "target": "HistoricalOntimeRate"
+                  },
+                  {
+                    "expression": "\"AvgLeadTimeDays\"",
+                    "target": "AvgLeadTimeDays"
+                  },
+                  {
+                    "expression": "\"ModelId\"",
+                    "target": "ModelId"
+                  },
+                  {
+                    "expression": "\"RunId\"",
+                    "target": "RunId"
+                  },
+                  {
+                    "expression": "\"ScoredAt\"",
+                    "target": "ScoredAt"
+                  }
+                ],
+                "hanaAdaptedDataset": {
+                  "schema": {
+                    "genericType": "TABLE",
+                    "tableBasedRepresentation": {
+                      "attributes": [
+                        {
+                          "name": "Supplier",
+                          "templateType": "string",
+                          "length": 10
+                        },
+                        {
+                          "name": "RiskBand",
+                          "templateType": "string",
+                          "length": 10
+                        },
+                        {
+                          "name": "LateProbability",
+                          "templateType": "decimal",
+                          "precision": 6,
+                          "scale": 4
+                        },
+                        {
+                          "name": "OntimeProbability",
+                          "templateType": "decimal",
+                          "precision": 6,
+                          "scale": 4
+                        },
+                        {
+                          "name": "Confidence",
+                          "templateType": "string",
+                          "length": 10
+                        },
+                        {
+                          "name": "TopRiskFactor",
+                          "templateType": "string",
+                          "length": 60
+                        },
+                        {
+                          "name": "ScoringStatus",
+                          "templateType": "string",
+                          "length": 10
+                        },
+                        {
+                          "name": "DelayedLineCount",
+                          "templateType": "int32"
+                        },
+                        {
+                          "name": "DelayedPOCount",
+                          "templateType": "int32"
+                        },
+                        {
+                          "name": "DelayedPOValueUSD",
+                          "templateType": "decimal",
+                          "precision": 23,
+                          "scale": 2
+                        },
+                        {
+                          "name": "HistoricalOntimeRate",
+                          "templateType": "decimal",
+                          "precision": 6,
+                          "scale": 4
+                        },
+                        {
+                          "name": "AvgLeadTimeDays",
+                          "templateType": "decimal",
+                          "precision": 10,
+                          "scale": 1
+                        },
+                        {
+                          "name": "ModelId",
+                          "templateType": "string",
+                          "length": 40
+                        },
+                        {
+                          "name": "RunId",
+                          "templateType": "string",
+                          "length": 36
+                        },
+                        {
+                          "name": "ScoredAt",
+                          "templateType": "string",
+                          "length": 19
+                        }
+                      ],
+                      "uniqueKeys": [
+                        {
+                          "attributeReferences": [
+                            "Supplier"
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              "inports": [
+                {
+                  "name": "inTable",
+                  "type": "table",
+                  "vtype-ID": "$INLINE.source1_outTable"
+                }
+              ]
+            }
+          }
+        },
+        "groups": [],
+        "connections": [
+          {
+            "metadata": {
+              "points": "520,257 596,257"
+            },
+            "src": {
+              "port": "outTable",
+              "process": "source1"
+            },
+            "tgt": {
+              "port": "inTable",
+              "process": "producer1"
+            }
+          }
+        ],
+        "inports": {},
+        "outports": {},
+        "vTypes": {
+          "scalar": {
+            "string_10": {
+              "name": "string_10",
+              "description": "String(10)",
+              "vflow.type": "scalar",
+              "template": "string",
+              "value.length": 10
+            },
+            "decimal_6_4": {
+              "name": "decimal_6_4",
+              "description": "Decimal(6,4)",
+              "vflow.type": "scalar",
+              "template": "decimal",
+              "value.precision": 6,
+              "value.scale": 4
+            },
+            "string_60": {
+              "name": "string_60",
+              "description": "String(60)",
+              "vflow.type": "scalar",
+              "template": "string",
+              "value.length": 60
+            },
+            "decimal_23_2": {
+              "name": "decimal_23_2",
+              "description": "Decimal(23,2)",
+              "vflow.type": "scalar",
+              "template": "decimal",
+              "value.precision": 23,
+              "value.scale": 2
+            },
+            "decimal_10_1": {
+              "name": "decimal_10_1",
+              "description": "Decimal(10,1)",
+              "vflow.type": "scalar",
+              "template": "decimal",
+              "value.precision": 10,
+              "value.scale": 1
+            },
+            "string_40": {
+              "name": "string_40",
+              "description": "String(40)",
+              "vflow.type": "scalar",
+              "template": "string",
+              "value.length": 40
+            },
+            "string_36": {
+              "name": "string_36",
+              "description": "String(36)",
+              "vflow.type": "scalar",
+              "template": "string",
+              "value.length": 36
+            },
+            "string_19": {
+              "name": "string_19",
+              "description": "String(19)",
+              "vflow.type": "scalar",
+              "template": "string",
+              "value.length": 19
+            }
+          },
+          "structure": {},
+          "table": {
+            "source1_outTable": {
+              "name": "source1_outTable",
+              "vflow.type": "table",
+              "rows": {
+                "components": [
+                  {
+                    "Supplier": {
+                      "vflow.type": "scalar",
+                      "vtype-ID": "$INLINE.string_10"
+                    }
+                  },
+                  {
+                    "RiskBand": {
+                      "vflow.type": "scalar",
+                      "vtype-ID": "$INLINE.string_10"
+                    }
+                  },
+                  {
+                    "LateProbability": {
+                      "vflow.type": "scalar",
+                      "vtype-ID": "$INLINE.decimal_6_4"
+                    }
+                  },
+                  {
+                    "OntimeProbability": {
+                      "vflow.type": "scalar",
+                      "vtype-ID": "$INLINE.decimal_6_4"
+                    }
+                  },
+                  {
+                    "Confidence": {
+                      "vflow.type": "scalar",
+                      "vtype-ID": "$INLINE.string_10"
+                    }
+                  },
+                  {
+                    "TopRiskFactor": {
+                      "vflow.type": "scalar",
+                      "vtype-ID": "$INLINE.string_60"
+                    }
+                  },
+                  {
+                    "ScoringStatus": {
+                      "vflow.type": "scalar",
+                      "vtype-ID": "$INLINE.string_10"
+                    }
+                  },
+                  {
+                    "DelayedLineCount": {
+                      "vflow.type": "scalar",
+                      "vtype-ID": "com.sap.core.int32"
+                    }
+                  },
+                  {
+                    "DelayedPOCount": {
+                      "vflow.type": "scalar",
+                      "vtype-ID": "com.sap.core.int32"
+                    }
+                  },
+                  {
+                    "DelayedPOValueUSD": {
+                      "vflow.type": "scalar",
+                      "vtype-ID": "$INLINE.decimal_23_2"
+                    }
+                  },
+                  {
+                    "HistoricalOntimeRate": {
+                      "vflow.type": "scalar",
+                      "vtype-ID": "$INLINE.decimal_6_4"
+                    }
+                  },
+                  {
+                    "AvgLeadTimeDays": {
+                      "vflow.type": "scalar",
+                      "vtype-ID": "$INLINE.decimal_10_1"
+                    }
+                  },
+                  {
+                    "ModelId": {
+                      "vflow.type": "scalar",
+                      "vtype-ID": "$INLINE.string_40"
+                    }
+                  },
+                  {
+                    "RunId": {
+                      "vflow.type": "scalar",
+                      "vtype-ID": "$INLINE.string_36"
+                    }
+                  },
+                  {
+                    "ScoredAt": {
+                      "vflow.type": "scalar",
+                      "vtype-ID": "$INLINE.string_19"
+                    }
+                  }
+                ]
+              },
+              "keys": [
+                "Supplier"
+              ]
+            }
+          }
+        }
+      },
+      "sources": {
+        "V_SDR_PRODUCT": {
+          "elements": {
+            "Supplier": {},
+            "RiskBand": {},
+            "LateProbability": {},
+            "OntimeProbability": {},
+            "Confidence": {},
+            "TopRiskFactor": {},
+            "ScoringStatus": {},
+            "DelayedLineCount": {},
+            "DelayedPOCount": {},
+            "DelayedPOValueUSD": {},
+            "HistoricalOntimeRate": {},
+            "AvgLeadTimeDays": {},
+            "ModelId": {},
+            "RunId": {},
+            "ScoredAt": {}
+          }
+        }
+      },
+      "targets": {
+        "T_SDR_PRODUCT": {
+          "elements": {
+            "Supplier": {},
+            "RiskBand": {},
+            "LateProbability": {},
+            "OntimeProbability": {},
+            "Confidence": {},
+            "TopRiskFactor": {},
+            "ScoringStatus": {},
+            "DelayedLineCount": {},
+            "DelayedPOCount": {},
+            "DelayedPOValueUSD": {},
+            "HistoricalOntimeRate": {},
+            "AvgLeadTimeDays": {},
+            "ModelId": {},
+            "RunId": {},
+            "ScoredAt": {}
+          }
+        }
+      },
+      "connections": {}
+    }
+  }
+}

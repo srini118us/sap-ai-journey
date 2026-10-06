@@ -1,0 +1,141 @@
+{
+  "definitions": {
+    "V_DELAYED_AGENT_MIRROR": {
+      "kind": "entity",
+      "elements": {
+        "DelayedLines": {
+          "@EndUserText.label": "DelayedLines",
+          "type": "cds.Integer64",
+          "@AnalyticsDetails.measureType": {
+            "#": "BASE"
+          },
+          "@Aggregation.default": {
+            "#": "SUM"
+          }
+        },
+        "DistinctPOs": {
+          "@EndUserText.label": "DistinctPOs",
+          "type": "cds.Integer64",
+          "@AnalyticsDetails.measureType": {
+            "#": "BASE"
+          },
+          "@Aggregation.default": {
+            "#": "SUM"
+          }
+        },
+        "DistinctSuppliers": {
+          "@EndUserText.label": "DistinctSuppliers",
+          "type": "cds.Integer64",
+          "@AnalyticsDetails.measureType": {
+            "#": "BASE"
+          },
+          "@Aggregation.default": {
+            "#": "SUM"
+          }
+        }
+      },
+      "query": {
+        "SELECT": {
+          "from": {
+            "join": "inner",
+            "args": [
+              {
+                "ref": [
+                  "C_PURORDSCHEDULELINEDEX"
+                ],
+                "as": "sl"
+              },
+              {
+                "ref": [
+                  "C_PURCHASEORDERDEX"
+                ],
+                "as": "hd"
+              }
+            ],
+            "on": [
+              {
+                "ref": [
+                  "hd",
+                  "PurchaseOrder"
+                ]
+              },
+              "=",
+              {
+                "ref": [
+                  "sl",
+                  "PurchaseOrder"
+                ]
+              }
+            ]
+          },
+          "columns": [
+            {
+              "func": "COUNT",
+              "args": [
+                "*"
+              ],
+              "as": "DelayedLines"
+            },
+            {
+              "func": "COUNT",
+              "args": [
+                {
+                  "xpr": [
+                    "distinct",
+                    {
+                      "ref": [
+                        "sl",
+                        "PurchaseOrder"
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "as": "DistinctPOs"
+            },
+            {
+              "func": "COUNT",
+              "args": [
+                {
+                  "xpr": [
+                    "distinct",
+                    {
+                      "ref": [
+                        "hd",
+                        "Supplier"
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "as": "DistinctSuppliers"
+            }
+          ],
+          "where": [
+            {
+              "ref": [
+                "sl",
+                "ScheduleLineDeliveryDate"
+              ]
+            },
+            "<",
+            {
+              "val": "20260820"
+            }
+          ]
+        }
+      },
+      "@EndUserText.label": "V_DELAYED_AGENT_MIRROR",
+      "@ObjectModel.modelingPattern": {
+        "#": "ANALYTICAL_FACT"
+      },
+      "@ObjectModel.supportedCapabilities": [
+        {
+          "#": "DATA_STRUCTURE"
+        }
+      ],
+      "@DataWarehouse.consumption.external": true,
+      "@DataWarehouse.sqlEditor.query": "SELECT\r\n  COUNT(*)                           AS \"DelayedLines\",\r\n  COUNT(DISTINCT sl.\"PurchaseOrder\") AS \"DistinctPOs\",\r\n  COUNT(DISTINCT hd.\"Supplier\")      AS \"DistinctSuppliers\"\r\nFROM \"C_PURORDSCHEDULELINEDEX\" sl\r\nJOIN \"C_PURCHASEORDERDEX\" hd\r\n  ON hd.\"PurchaseOrder\" = sl.\"PurchaseOrder\"\r\nWHERE sl.\"ScheduleLineDeliveryDate\" < '20260820'"
+    }
+  }
+}

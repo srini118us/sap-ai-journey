@@ -1,0 +1,277 @@
+{
+  "definitions": {
+    "AM_SDR_CONSUMED": {
+      "kind": "entity",
+      "@EndUserText.label": "Supplier Delivery Risk Analytics",
+      "elements": {
+        "Supplier": {
+          "@EndUserText.label": "Supplier"
+        },
+        "RiskBand": {
+          "@EndUserText.label": "RiskBand"
+        },
+        "LateProbability": {
+          "@EndUserText.label": "LateProbability"
+        },
+        "OntimeProbability": {
+          "@EndUserText.label": "OntimeProbability"
+        },
+        "Confidence": {
+          "@EndUserText.label": "Confidence"
+        },
+        "TopRiskFactor": {
+          "@EndUserText.label": "TopRiskFactor"
+        },
+        "ScoringStatus": {
+          "@EndUserText.label": "ScoringStatus"
+        },
+        "DelayedLineCount": {
+          "@EndUserText.label": "DelayedLineCount",
+          "@AnalyticsDetails.measureType": {
+            "#": "BASE"
+          }
+        },
+        "DelayedPOCount": {
+          "@EndUserText.label": "DelayedPOCount",
+          "@AnalyticsDetails.measureType": {
+            "#": "BASE"
+          }
+        },
+        "DelayedPOValueUSD": {
+          "@EndUserText.label": "DelayedPOValueUSD",
+          "@AnalyticsDetails.measureType": {
+            "#": "BASE"
+          }
+        }
+      },
+      "@ObjectModel.modelingPattern": {
+        "#": "ANALYTICAL_CUBE"
+      },
+      "@ObjectModel.supportedCapabilities": [
+        {
+          "#": "ANALYTICAL_PROVIDER"
+        },
+        {
+          "#": "_DWC_AM_EDITABLE_DIMENSION_NAMES"
+        }
+      ],
+      "@DataWarehouse.editorType": {
+        "#": "DWCQueryModelEditor"
+      },
+      "@DataWarehouse.hanaCatalog.viewType": {
+        "#": "CALCULATION_VIEW"
+      },
+      "query": {
+        "SELECT": {
+          "from": {
+            "ref": [
+              "V_SDR_CONSUMED"
+            ],
+            "as": "V_SDR_CONSUMED"
+          },
+          "columns": [
+            {
+              "ref": [
+                "V_SDR_CONSUMED",
+                "Supplier"
+              ],
+              "as": "Supplier"
+            },
+            {
+              "ref": [
+                "V_SDR_CONSUMED",
+                "RiskBand"
+              ],
+              "as": "RiskBand"
+            },
+            {
+              "ref": [
+                "V_SDR_CONSUMED",
+                "LateProbability"
+              ],
+              "as": "LateProbability"
+            },
+            {
+              "ref": [
+                "V_SDR_CONSUMED",
+                "OntimeProbability"
+              ],
+              "as": "OntimeProbability"
+            },
+            {
+              "ref": [
+                "V_SDR_CONSUMED",
+                "Confidence"
+              ],
+              "as": "Confidence"
+            },
+            {
+              "ref": [
+                "V_SDR_CONSUMED",
+                "TopRiskFactor"
+              ],
+              "as": "TopRiskFactor"
+            },
+            {
+              "ref": [
+                "V_SDR_CONSUMED",
+                "ScoringStatus"
+              ],
+              "as": "ScoringStatus"
+            },
+            {
+              "ref": [
+                "V_SDR_CONSUMED",
+                "DelayedLineCount"
+              ],
+              "as": "DelayedLineCount"
+            },
+            {
+              "ref": [
+                "V_SDR_CONSUMED",
+                "DelayedPOCount"
+              ],
+              "as": "DelayedPOCount"
+            },
+            {
+              "ref": [
+                "V_SDR_CONSUMED",
+                "DelayedPOValueUSD"
+              ],
+              "as": "DelayedPOValueUSD"
+            }
+          ],
+          "mixin": {}
+        }
+      }
+    }
+  },
+  "businessLayerDefinitions": {
+    "AM_SDR_CONSUMED": {
+      "identifier": {
+        "key": "AM_SDR_CONSUMED"
+      },
+      "text": "Supplier Delivery Risk Analytics",
+      "sourceModel": {
+        "factSources": {
+          "V_SDR_CONSUMED": {
+            "text": "Supplier Delivery Risk Consumed",
+            "dataEntity": {
+              "key": "V_SDR_CONSUMED"
+            }
+          }
+        },
+        "dimensionSources": {}
+      },
+      "exposedAssociations": {},
+      "attributes": {
+        "Supplier": {
+          "attributeType": "AnalyticModelAttributeType.FactSourceAttribute",
+          "attributeMapping": {
+            "V_SDR_CONSUMED": {
+              "key": "Supplier"
+            }
+          },
+          "text": "Supplier",
+          "duplicated": false
+        },
+        "RiskBand": {
+          "attributeType": "AnalyticModelAttributeType.FactSourceAttribute",
+          "attributeMapping": {
+            "V_SDR_CONSUMED": {
+              "key": "RiskBand"
+            }
+          },
+          "text": "RiskBand",
+          "duplicated": false
+        },
+        "LateProbability": {
+          "attributeType": "AnalyticModelAttributeType.FactSourceAttribute",
+          "attributeMapping": {
+            "V_SDR_CONSUMED": {
+              "key": "LateProbability"
+            }
+          },
+          "text": "LateProbability",
+          "duplicated": false
+        },
+        "OntimeProbability": {
+          "attributeType": "AnalyticModelAttributeType.FactSourceAttribute",
+          "attributeMapping": {
+            "V_SDR_CONSUMED": {
+              "key": "OntimeProbability"
+            }
+          },
+          "text": "OntimeProbability",
+          "duplicated": false
+        },
+        "Confidence": {
+          "attributeType": "AnalyticModelAttributeType.FactSourceAttribute",
+          "attributeMapping": {
+            "V_SDR_CONSUMED": {
+              "key": "Confidence"
+            }
+          },
+          "text": "Confidence",
+          "duplicated": false
+        },
+        "TopRiskFactor": {
+          "attributeType": "AnalyticModelAttributeType.FactSourceAttribute",
+          "attributeMapping": {
+            "V_SDR_CONSUMED": {
+              "key": "TopRiskFactor"
+            }
+          },
+          "text": "TopRiskFactor",
+          "duplicated": false
+        },
+        "ScoringStatus": {
+          "text": "ScoringStatus",
+          "attributeMapping": {
+            "V_SDR_CONSUMED": {
+              "key": "ScoringStatus"
+            }
+          },
+          "attributeType": "AnalyticModelAttributeType.FactSourceAttribute",
+          "duplicated": false
+        }
+      },
+      "measures": {
+        "DelayedLineCount": {
+          "measureType": "AnalyticModelMeasureType.FactSourceMeasure",
+          "measureMapping": {
+            "V_SDR_CONSUMED": {
+              "key": "DelayedLineCount"
+            }
+          },
+          "text": "DelayedLineCount",
+          "isAuxiliary": false
+        },
+        "DelayedPOCount": {
+          "measureType": "AnalyticModelMeasureType.FactSourceMeasure",
+          "measureMapping": {
+            "V_SDR_CONSUMED": {
+              "key": "DelayedPOCount"
+            }
+          },
+          "text": "DelayedPOCount",
+          "isAuxiliary": false
+        },
+        "DelayedPOValueUSD": {
+          "measureType": "AnalyticModelMeasureType.FactSourceMeasure",
+          "measureMapping": {
+            "V_SDR_CONSUMED": {
+              "key": "DelayedPOValueUSD"
+            }
+          },
+          "text": "DelayedPOValueUSD",
+          "isAuxiliary": false
+        }
+      },
+      "crossCalculations": {},
+      "version": "1.7.4",
+      "supportedCapabilities": {},
+      "variables": {}
+    }
+  }
+}

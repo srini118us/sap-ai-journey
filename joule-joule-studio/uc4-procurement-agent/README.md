@@ -26,7 +26,7 @@ A procurement manager asks: which suppliers will deliver late, why, how much val
    getDelayedPurchaseOrders                      PO header, item, schedule lines
    getPurchaseOrderSuppliers                     V_DELAYED_SCHEDULE_LINES
    GetSupplierDetails (on demand)                V_SUPPLIER_FEATURES (13 derived features)
-   getSupplierRiskScore ----+                        | scoring/score_suppliers.py (batch)
+   getSupplierRiskScore ----+                        | scripts/score_suppliers.py (batch)
    escalateSupplierRisk     |                        v
         |                   +-------------->  SAP AI Core: one XGBoost model (/v2/predict)
         | HIGH + user                                 |
@@ -70,15 +70,13 @@ The project was built in three releases. Each release closed limitations that th
 * **Joule to AI Core:** Build action plus Joule skill bound through destination `AICORE_INFERENCE` (Joule Studio environment variable).
 * **Analytical mirror:** `V_DELAYED_AGENT_MIRROR`, `V_SUPPLIER_RISK_SCORES`, `AM_SUPPLIER_RISK_SCORES`, SAC "UC4 Supplier Scorecard".
 * **Key insight, 42 of 2,140:** the agent reported 42 delayed POs across 11 suppliers; the same date filter on the full replicated population returned 2,140 POs, 34 suppliers and 10,732 schedule lines. The agent was not wrong; it was bounded by `$top=200`.
-![R1 bounded agent and one model](docs/images/uc4_r1_bounded_agent.png)
-
 * **Ranking shift:** by delay volume USSU-VSF06, VSF04, VSF01, VSF08; by predicted risk USSU-VSF06 (0.670), VSF08 (0.648), VSF04 (0.577), VSF01 (0.553). VSF08 moved from fourth to second.
 
 ### R2: derived features, audit and approval
 
 * **Redeploy and contract:** serving redeployed from the same configuration and artifact; an empty POST returned a 422 listing all 13 required fields. The Joule score skill was found sending only 5 of 13 fields and was fixed.
 * **Derived features:** `V_SUPPLIER_FEATURES` computes per supplier features from replicated header, item and schedule line data (lead times floored at 1 day, blank supplier excluded, 32 suppliers). This replaced the hand set features that made every supplier score identically in R1.
-* **Batch scoring:** `scoring/score_suppliers.py` reads features through a Datasphere database user, calls AI Core per supplier, and appends results with RUN_ID, model and deployment IDs to `UC4_PROC#SCORING.SUPPLIER_RISK_DECISION_LOG`. A data quality gate marks invalid rows SKIPPED_DQ. Latest run: 31 of 32 scored; HIGH 9, MEDIUM 10, LOW 12.
+* **Batch scoring:** `scripts/score_suppliers.py` reads features through a Datasphere database user, calls AI Core per supplier, and appends results with RUN_ID, model and deployment IDs to `UC4_PROC#SCORING.SUPPLIER_RISK_DECISION_LOG`. A data quality gate marks invalid rows SKIPPED_DQ. Latest run: 31 of 32 scored; HIGH 9, MEDIUM 10, LOW 12.
 * **Semantic and SAC:** `V_SUPPLIER_RISK_LATEST` and `AM_SUPPLIER_RISK_LATEST` (average late probability divides by scored suppliers only), SAC "UC4 Supplier Risk Control Tower".
 * **Approval:** SBPA `SupplierRiskReview` 1.0.1 with API trigger, approval form (Hold New POs, Monitor, Override), required comment, two day due date, published to the Library.
 * **Escalation:** Joule skill `escalateSupplierRisk` (Check Condition riskBand = HIGH, Run Process without waiting, StringToNumber for probability); agent 1.0.23. When live scoring was unavailable the agent used the last valid batch score, said so, asked for confirmation and started the review.
@@ -106,7 +104,7 @@ The project was built in three releases. Each release closed limitations that th
 | Replication | C_PURCHASEORDERDEX, C_PURCHASEORDERITEMDEX, C_PURORDSCHEDULELINEDEX | R1 |
 | Delay logic | V_DELAYED_AGENT_MIRROR, V_DELAYED_SCHEDULE_LINES | R1 |
 | Features | V_SUPPLIER_FEATURES (13 derived features) | R2 |
-| Batch and audit | scoring/score_suppliers.py, SUPPLIER_RISK_DECISION_LOG | R2 |
+| Batch and audit | scripts/score_suppliers.py, SUPPLIER_RISK_DECISION_LOG | R2 |
 | Semantic | AM_SUPPLIER_RISK_SCORES (R1), AM_SUPPLIER_RISK_LATEST (R2) | R1, R2 |
 | Analytics | SAC "UC4 Supplier Scorecard" (R1), "UC4 Supplier Risk Control Tower" (R2) | R1, R2 |
 | Approval | SBPA SupplierRiskReview 1.0.1 | R2 |
@@ -214,20 +212,19 @@ The solution already worked inside Datasphere. BDC turned the curated result int
 
 ## Repository contents
 
-* `scoring/score_suppliers.py`: batch scorer (Datasphere features to AI Core to decision log).
+* `scripts/score_suppliers.py`: batch scorer (Datasphere features to AI Core to decision log).
 * `sql/V_SDR_PRODUCT.sql`: curated data product source view.
 * `sql/validation_checks.sql`: column, currency, reconciliation and grain checks.
 * `docs/images/`: architecture overview and curated screenshots.
 * `.env.example`: variable names only; `.env` is gitignored.
-* AI Core training and serving code lives in `ai-core/tutorials/supplier-prediction-tutorial/` in this repository (AI Core Git sync path).
+* AI Core training and serving code lives in `supplier-prediction-tutorial/` at the repository root (AI Core Git sync path).
 
 ## Run the batch scorer
 
 ```bash
 pip install requests hdbcli python-dotenv
-cd scoring
 cp .env.example .env   # fill values
-python score_suppliers.py
+python scripts/score_suppliers.py
 ```
 
 ## Roadmap

@@ -1,0 +1,234 @@
+{
+  "definitions": {
+    "V_SUPPLIER_RISK_LATEST": {
+      "kind": "entity",
+      "elements": {
+        "RUN_ID": {
+          "@EndUserText.label": "RUN_ID",
+          "type": "cds.String",
+          "length": 36,
+          "key": true,
+          "notNull": true
+        },
+        "SUPPLIER": {
+          "@EndUserText.label": "SUPPLIER",
+          "type": "cds.String",
+          "length": 10,
+          "key": true,
+          "notNull": true
+        },
+        "STATUS": {
+          "@EndUserText.label": "STATUS",
+          "type": "cds.String",
+          "length": 10
+        },
+        "PREDICTION": {
+          "@EndUserText.label": "PREDICTION",
+          "type": "cds.String",
+          "length": 10
+        },
+        "LATE_PROBABILITY": {
+          "@EndUserText.label": "LATE_PROBABILITY",
+          "precision": 6,
+          "scale": 4,
+          "type": "cds.Decimal",
+          "@AnalyticsDetails.measureType": {
+            "#": "BASE"
+          },
+          "@Aggregation.default": {
+            "#": "SUM"
+          }
+        },
+        "ONTIME_PROBABILITY": {
+          "@EndUserText.label": "ONTIME_PROBABILITY",
+          "precision": 6,
+          "scale": 4,
+          "type": "cds.Decimal",
+          "@AnalyticsDetails.measureType": {
+            "#": "BASE"
+          },
+          "@Aggregation.default": {
+            "#": "SUM"
+          }
+        },
+        "CONFIDENCE": {
+          "@EndUserText.label": "CONFIDENCE",
+          "type": "cds.String",
+          "length": 10
+        },
+        "RISK_BAND": {
+          "@EndUserText.label": "RISK_BAND",
+          "type": "cds.String",
+          "length": 10
+        },
+        "TOP_FACTOR": {
+          "@EndUserText.label": "TOP_FACTOR",
+          "type": "cds.String",
+          "length": 60
+        },
+        "MODEL_ID": {
+          "@EndUserText.label": "MODEL_ID",
+          "type": "cds.String",
+          "length": 40
+        },
+        "DEPLOYMENT_ID": {
+          "@EndUserText.label": "DEPLOYMENT_ID",
+          "type": "cds.String",
+          "length": 40
+        },
+        "FEATURES_JSON": {
+          "@EndUserText.label": "FEATURES_JSON",
+          "type": "cds.String",
+          "length": 2000
+        },
+        "ERROR_MESSAGE": {
+          "@EndUserText.label": "ERROR_MESSAGE",
+          "type": "cds.String",
+          "length": 1000
+        },
+        "SCORED_AT": {
+          "@EndUserText.label": "SCORED_AT",
+          "type": "cds.Timestamp"
+        }
+      },
+      "query": {
+        "SELECT": {
+          "from": {
+            "ref": [
+              "SUPPLIER_RISK_DECISION_LOG"
+            ],
+            "as": "l"
+          },
+          "columns": [
+            {
+              "ref": [
+                "l",
+                "RUN_ID"
+              ]
+            },
+            {
+              "ref": [
+                "l",
+                "SUPPLIER"
+              ]
+            },
+            {
+              "ref": [
+                "l",
+                "STATUS"
+              ]
+            },
+            {
+              "ref": [
+                "l",
+                "PREDICTION"
+              ]
+            },
+            {
+              "ref": [
+                "l",
+                "LATE_PROBABILITY"
+              ]
+            },
+            {
+              "ref": [
+                "l",
+                "ONTIME_PROBABILITY"
+              ]
+            },
+            {
+              "ref": [
+                "l",
+                "CONFIDENCE"
+              ]
+            },
+            {
+              "ref": [
+                "l",
+                "RISK_BAND"
+              ]
+            },
+            {
+              "ref": [
+                "l",
+                "TOP_FACTOR"
+              ]
+            },
+            {
+              "ref": [
+                "l",
+                "MODEL_ID"
+              ]
+            },
+            {
+              "ref": [
+                "l",
+                "DEPLOYMENT_ID"
+              ]
+            },
+            {
+              "ref": [
+                "l",
+                "FEATURES_JSON"
+              ]
+            },
+            {
+              "ref": [
+                "l",
+                "ERROR_MESSAGE"
+              ]
+            },
+            {
+              "ref": [
+                "l",
+                "SCORED_AT"
+              ]
+            }
+          ],
+          "where": [
+            {
+              "ref": [
+                "l",
+                "SCORED_AT"
+              ]
+            },
+            "=",
+            {
+              "SELECT": {
+                "from": {
+                  "ref": [
+                    "SUPPLIER_RISK_DECISION_LOG"
+                  ]
+                },
+                "columns": [
+                  {
+                    "func": "MAX",
+                    "args": [
+                      {
+                        "ref": [
+                          "SCORED_AT"
+                        ]
+                      }
+                    ],
+                    "as": "func1"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "@ObjectModel.supportedCapabilities": [
+        {
+          "#": "DATA_STRUCTURE"
+        }
+      ],
+      "@EndUserText.label": "Supplier Risk Latest",
+      "@ObjectModel.modelingPattern": {
+        "#": "ANALYTICAL_FACT"
+      },
+      "@DataWarehouse.consumption.external": true,
+      "@DataWarehouse.sqlEditor.query": "SELECT \"l\".\"RUN_ID\",\"l\".\"SUPPLIER\",\"l\".\"STATUS\",\"l\".\"PREDICTION\",\"l\".\"LATE_PROBABILITY\",\"l\".\"ONTIME_PROBABILITY\",\"l\".\"CONFIDENCE\",\"l\".\"RISK_BAND\",\"l\".\"TOP_FACTOR\",\"l\".\"MODEL_ID\",\"l\".\"DEPLOYMENT_ID\",\"l\".\"FEATURES_JSON\",\"l\".\"ERROR_MESSAGE\",\"l\".\"SCORED_AT\"\r\nFROM \"SUPPLIER_RISK_DECISION_LOG\" l\r\nWHERE l.\"SCORED_AT\" = (SELECT MAX(\"SCORED_AT\") FROM \"SUPPLIER_RISK_DECISION_LOG\")"
+    }
+  }
+}

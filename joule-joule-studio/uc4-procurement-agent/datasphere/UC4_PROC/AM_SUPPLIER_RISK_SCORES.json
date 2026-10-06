@@ -1,0 +1,222 @@
+{
+  "definitions": {
+    "AM_SUPPLIER_RISK_SCORES": {
+      "kind": "entity",
+      "@EndUserText.label": "Supplier Risk Scores",
+      "elements": {
+        "Supplier": {
+          "@EndUserText.label": "Supplier"
+        },
+        "Prediction": {
+          "@EndUserText.label": "Prediction"
+        },
+        "Confidence": {
+          "@EndUserText.label": "Confidence"
+        },
+        "TopFactor": {
+          "@EndUserText.label": "TopFactor"
+        },
+        "ScoredAt": {
+          "@EndUserText.label": "ScoredAt"
+        },
+        "LateProbability": {
+          "@EndUserText.label": "LateProbability",
+          "@AnalyticsDetails.measureType": {
+            "#": "BASE"
+          },
+          "@Aggregation.default": {
+            "#": "MAX"
+          }
+        },
+        "OnTimeProbability": {
+          "@EndUserText.label": "OnTimeProbability",
+          "@AnalyticsDetails.measureType": {
+            "#": "BASE"
+          },
+          "@Aggregation.default": {
+            "#": "MAX"
+          }
+        }
+      },
+      "@ObjectModel.modelingPattern": {
+        "#": "ANALYTICAL_CUBE"
+      },
+      "@ObjectModel.supportedCapabilities": [
+        {
+          "#": "ANALYTICAL_PROVIDER"
+        },
+        {
+          "#": "_DWC_AM_EDITABLE_DIMENSION_NAMES"
+        }
+      ],
+      "@DataWarehouse.editorType": {
+        "#": "DWCQueryModelEditor"
+      },
+      "@DataWarehouse.hanaCatalog.viewType": {
+        "#": "CALCULATION_VIEW"
+      },
+      "query": {
+        "SELECT": {
+          "from": {
+            "ref": [
+              "V_SUPPLIER_RISK_SCORES"
+            ],
+            "as": "V_SUPPLIER_RISK_SCOR"
+          },
+          "columns": [
+            {
+              "ref": [
+                "V_SUPPLIER_RISK_SCOR",
+                "Supplier"
+              ],
+              "as": "Supplier"
+            },
+            {
+              "ref": [
+                "V_SUPPLIER_RISK_SCOR",
+                "Prediction"
+              ],
+              "as": "Prediction"
+            },
+            {
+              "ref": [
+                "V_SUPPLIER_RISK_SCOR",
+                "Confidence"
+              ],
+              "as": "Confidence"
+            },
+            {
+              "ref": [
+                "V_SUPPLIER_RISK_SCOR",
+                "TopFactor"
+              ],
+              "as": "TopFactor"
+            },
+            {
+              "ref": [
+                "V_SUPPLIER_RISK_SCOR",
+                "ScoredAt"
+              ],
+              "as": "ScoredAt"
+            },
+            {
+              "ref": [
+                "V_SUPPLIER_RISK_SCOR",
+                "LateProbability"
+              ],
+              "as": "LateProbability"
+            },
+            {
+              "ref": [
+                "V_SUPPLIER_RISK_SCOR",
+                "OnTimeProbability"
+              ],
+              "as": "OnTimeProbability"
+            }
+          ],
+          "mixin": {}
+        }
+      }
+    }
+  },
+  "businessLayerDefinitions": {
+    "AM_SUPPLIER_RISK_SCORES": {
+      "identifier": {
+        "key": "AM_SUPPLIER_RISK_SCORES"
+      },
+      "text": "Supplier Risk Scores",
+      "sourceModel": {
+        "factSources": {
+          "V_SUPPLIER_RISK_SCOR": {
+            "text": "V SUPPLIER RISK SCORES",
+            "dataEntity": {
+              "key": "V_SUPPLIER_RISK_SCORES"
+            }
+          }
+        },
+        "dimensionSources": {}
+      },
+      "exposedAssociations": {},
+      "attributes": {
+        "Supplier": {
+          "attributeType": "AnalyticModelAttributeType.FactSourceAttribute",
+          "attributeMapping": {
+            "V_SUPPLIER_RISK_SCOR": {
+              "key": "Supplier"
+            }
+          },
+          "text": "Supplier",
+          "duplicated": false
+        },
+        "Prediction": {
+          "attributeType": "AnalyticModelAttributeType.FactSourceAttribute",
+          "attributeMapping": {
+            "V_SUPPLIER_RISK_SCOR": {
+              "key": "Prediction"
+            }
+          },
+          "text": "Prediction",
+          "duplicated": false
+        },
+        "Confidence": {
+          "attributeType": "AnalyticModelAttributeType.FactSourceAttribute",
+          "attributeMapping": {
+            "V_SUPPLIER_RISK_SCOR": {
+              "key": "Confidence"
+            }
+          },
+          "text": "Confidence",
+          "duplicated": false
+        },
+        "TopFactor": {
+          "attributeType": "AnalyticModelAttributeType.FactSourceAttribute",
+          "attributeMapping": {
+            "V_SUPPLIER_RISK_SCOR": {
+              "key": "TopFactor"
+            }
+          },
+          "text": "TopFactor",
+          "duplicated": false
+        },
+        "ScoredAt": {
+          "attributeType": "AnalyticModelAttributeType.FactSourceAttribute",
+          "attributeMapping": {
+            "V_SUPPLIER_RISK_SCOR": {
+              "key": "ScoredAt"
+            }
+          },
+          "text": "ScoredAt",
+          "duplicated": false
+        }
+      },
+      "measures": {
+        "LateProbability": {
+          "measureType": "AnalyticModelMeasureType.FactSourceMeasure",
+          "measureMapping": {
+            "V_SUPPLIER_RISK_SCOR": {
+              "key": "LateProbability"
+            }
+          },
+          "text": "LateProbability",
+          "isAuxiliary": false,
+          "aggregation": "AnalyticModelAggregationTypes.MAX"
+        },
+        "OnTimeProbability": {
+          "measureType": "AnalyticModelMeasureType.FactSourceMeasure",
+          "measureMapping": {
+            "V_SUPPLIER_RISK_SCOR": {
+              "key": "OnTimeProbability"
+            }
+          },
+          "text": "OnTimeProbability",
+          "isAuxiliary": false,
+          "aggregation": "AnalyticModelAggregationTypes.MAX"
+        }
+      },
+      "crossCalculations": {},
+      "version": "1.7.3",
+      "supportedCapabilities": {},
+      "variables": {}
+    }
+  }
+}

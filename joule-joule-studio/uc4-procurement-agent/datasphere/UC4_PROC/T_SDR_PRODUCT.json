@@ -1,0 +1,119 @@
+{
+  "definitions": {
+    "T_SDR_PRODUCT": {
+      "kind": "entity",
+      "@EndUserText.label": "Supplier Delivery Risk Product Table",
+      "@ObjectModel.modelingPattern": {
+        "#": "DATA_STRUCTURE"
+      },
+      "@ObjectModel.supportedCapabilities": [
+        {
+          "#": "DATA_STRUCTURE"
+        }
+      ],
+      "elements": {
+        "Supplier": {
+          "@EndUserText.label": "Supplier",
+          "type": "cds.String",
+          "key": true,
+          "notNull": true,
+          "length": 10
+        },
+        "RiskBand": {
+          "@EndUserText.label": "RiskBand",
+          "type": "cds.String",
+          "key": false,
+          "length": 10
+        },
+        "LateProbability": {
+          "@EndUserText.label": "LateProbability",
+          "type": "cds.Decimal",
+          "key": false,
+          "precision": 6,
+          "scale": 4
+        },
+        "OntimeProbability": {
+          "@EndUserText.label": "OntimeProbability",
+          "type": "cds.Decimal",
+          "key": false,
+          "precision": 6,
+          "scale": 4
+        },
+        "Confidence": {
+          "@EndUserText.label": "Confidence",
+          "type": "cds.String",
+          "key": false,
+          "length": 10
+        },
+        "TopRiskFactor": {
+          "@EndUserText.label": "TopRiskFactor",
+          "type": "cds.String",
+          "key": false,
+          "length": 60
+        },
+        "ScoringStatus": {
+          "@EndUserText.label": "ScoringStatus",
+          "type": "cds.String",
+          "key": false,
+          "length": 10
+        },
+        "DelayedLineCount": {
+          "@EndUserText.label": "DelayedLineCount",
+          "type": "cds.Integer",
+          "key": false
+        },
+        "DelayedPOCount": {
+          "@EndUserText.label": "DelayedPOCount",
+          "type": "cds.Integer",
+          "key": false
+        },
+        "DelayedPOValueUSD": {
+          "@EndUserText.label": "DelayedPOValueUSD",
+          "type": "cds.Decimal",
+          "key": false,
+          "precision": 23,
+          "scale": 2
+        },
+        "HistoricalOntimeRate": {
+          "@EndUserText.label": "HistoricalOntimeRate",
+          "type": "cds.Decimal",
+          "key": false,
+          "precision": 6,
+          "scale": 4
+        },
+        "AvgLeadTimeDays": {
+          "@EndUserText.label": "AvgLeadTimeDays",
+          "type": "cds.Decimal",
+          "key": false,
+          "precision": 10,
+          "scale": 1
+        },
+        "ModelId": {
+          "@EndUserText.label": "ModelId",
+          "type": "cds.String",
+          "key": false,
+          "length": 40
+        },
+        "RunId": {
+          "@EndUserText.label": "RunId",
+          "type": "cds.String",
+          "key": false,
+          "length": 36
+        },
+        "ScoredAt": {
+          "@EndUserText.label": "ScoredAt",
+          "type": "cds.String",
+          "key": false,
+          "length": 19
+        }
+      }
+    }
+  },
+  "sharing": {
+    "T_SDR_PRODUCT": {
+      "targetSpaces": [
+        "FIN_LAB_FILES"
+      ]
+    }
+  }
+}

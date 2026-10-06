@@ -1,0 +1,374 @@
+{
+  "definitions": {
+    "C_PURCHASEORDERDEX": {
+      "kind": "entity",
+      "@EndUserText.label": "Data extraction for purchase order",
+      "@ObjectModel.modelingPattern": {
+        "#": "DATA_STRUCTURE"
+      },
+      "@ObjectModel.supportedCapabilities": [
+        {
+          "#": "DATA_STRUCTURE"
+        }
+      ],
+      "elements": {
+        "PurchaseOrder": {
+          "@EndUserText.label": "Purchase order number",
+          "type": "cds.String",
+          "key": true,
+          "notNull": true,
+          "length": 10
+        },
+        "PurchaseOrderType": {
+          "@EndUserText.label": "Purchasing document type",
+          "type": "cds.String",
+          "key": false,
+          "length": 4
+        },
+        "PurchaseOrderSubtype": {
+          "@EndUserText.label": "Control indicator for purchasing document type",
+          "type": "cds.String",
+          "key": false,
+          "length": 1
+        },
+        "PurchasingDocumentOrigin": {
+          "@EndUserText.label": "Status of purchasing document",
+          "type": "cds.String",
+          "key": false,
+          "length": 1
+        },
+        "CreatedByUser": {
+          "@EndUserText.label": "User of person who created a purchasing document",
+          "type": "cds.String",
+          "key": false,
+          "length": 12
+        },
+        "CreationDate": {
+          "@EndUserText.label": "Creation date of purchasing document",
+          "type": "cds.String",
+          "key": false,
+          "length": 8
+        },
+        "PurchaseOrderDate": {
+          "@EndUserText.label": "Purchase order date",
+          "type": "cds.String",
+          "key": false,
+          "length": 8
+        },
+        "Language": {
+          "@EndUserText.label": "Language key",
+          "type": "cds.String",
+          "key": false,
+          "length": 2
+        },
+        "CorrespncExternalReference": {
+          "@EndUserText.label": "Your reference",
+          "type": "cds.String",
+          "key": false,
+          "length": 12
+        },
+        "CorrespncInternalReference": {
+          "@EndUserText.label": "Our reference",
+          "type": "cds.String",
+          "key": false,
+          "length": 12
+        },
+        "PurchasingDocumentDeletionCode": {
+          "@EndUserText.label": "Purchase order deletion code",
+          "type": "cds.String",
+          "key": false,
+          "length": 1
+        },
+        "ReleaseIsNotCompleted": {
+          "@EndUserText.label": "Release not yet completely effected",
+          "type": "cds.String",
+          "key": false,
+          "length": 1
+        },
+        "PurchasingCompletenessStatus": {
+          "@EndUserText.label": "Purchase order not yet complete",
+          "type": "cds.String",
+          "key": false,
+          "length": 1
+        },
+        "PurchasingProcessingStatus": {
+          "@EndUserText.label": "Purchasing document processing state",
+          "type": "cds.String",
+          "key": false,
+          "length": 2
+        },
+        "PurgReleaseSequenceStatus": {
+          "@EndUserText.label": "Release state",
+          "type": "cds.String",
+          "key": false,
+          "length": 8
+        },
+        "ReleaseCode": {
+          "@EndUserText.label": "Release indicator: purchasing document",
+          "type": "cds.String",
+          "key": false,
+          "length": 1
+        },
+        "CompanyCode": {
+          "@EndUserText.label": "Company code",
+          "type": "cds.String",
+          "key": false,
+          "length": 4
+        },
+        "PurchasingOrganization": {
+          "@EndUserText.label": "Purchasing organization",
+          "type": "cds.String",
+          "key": false,
+          "length": 4
+        },
+        "PurchasingGroup": {
+          "@EndUserText.label": "Purchasing group",
+          "type": "cds.String",
+          "key": false,
+          "length": 3
+        },
+        "Supplier": {
+          "@EndUserText.label": "Supplier",
+          "type": "cds.String",
+          "key": false,
+          "length": 10
+        },
+        "ManualSupplierAddressID": {
+          "@EndUserText.label": "Address number",
+          "type": "cds.String",
+          "key": false,
+          "length": 10
+        },
+        "SupplierRespSalesPersonName": {
+          "@EndUserText.label": "Responsible salesperson at supplier's office",
+          "type": "cds.String",
+          "key": false,
+          "length": 30
+        },
+        "SupplierPhoneNumber": {
+          "@EndUserText.label": "Supplier's phone number",
+          "type": "cds.String",
+          "key": false,
+          "length": 16
+        },
+        "SupplyingSupplier": {
+          "@EndUserText.label": "Goods supplier",
+          "type": "cds.String",
+          "key": false,
+          "length": 10
+        },
+        "SupplyingPlant": {
+          "@EndUserText.label": "Supplying (issuing) plant in case of stock transport order",
+          "type": "cds.String",
+          "key": false,
+          "length": 4
+        },
+        "InvoicingParty": {
+          "@EndUserText.label": "Different invoicing party",
+          "type": "cds.String",
+          "key": false,
+          "length": 10
+        },
+        "Customer": {
+          "@EndUserText.label": "Customer number",
+          "type": "cds.String",
+          "key": false,
+          "length": 10
+        },
+        "SupplierQuotationExternalID": {
+          "@EndUserText.label": "Quotation number",
+          "type": "cds.String",
+          "key": false,
+          "length": 10
+        },
+        "PaymentTerms": {
+          "@EndUserText.label": "Terms of payment key",
+          "type": "cds.String",
+          "key": false,
+          "length": 4
+        },
+        "CashDiscount1Days": {
+          "@EndUserText.label": "Cash discount days 1",
+          "type": "cds.Decimal",
+          "key": false,
+          "precision": 3,
+          "scale": 0
+        },
+        "CashDiscount2Days": {
+          "@EndUserText.label": "Cash discount days 2",
+          "type": "cds.Decimal",
+          "key": false,
+          "precision": 3,
+          "scale": 0
+        },
+        "NetPaymentDays": {
+          "@EndUserText.label": "Net payment terms period",
+          "type": "cds.Decimal",
+          "key": false,
+          "precision": 3,
+          "scale": 0
+        },
+        "CashDiscount1Percent": {
+          "@EndUserText.label": "Cash discount percentage 1",
+          "type": "cds.Decimal",
+          "key": false,
+          "precision": 5,
+          "scale": 3
+        },
+        "CashDiscount2Percent": {
+          "@EndUserText.label": "Cash discount percentage 2",
+          "type": "cds.Decimal",
+          "key": false,
+          "precision": 5,
+          "scale": 3
+        },
+        "DownPaymentType": {
+          "@EndUserText.label": "Down payment indicator",
+          "type": "cds.String",
+          "key": false,
+          "length": 4
+        },
+        "DownPaymentPercentageOfTotAmt": {
+          "@EndUserText.label": "Down payment percentage",
+          "type": "cds.Decimal",
+          "key": false,
+          "precision": 5,
+          "scale": 2
+        },
+        "DownPaymentAmount": {
+          "@EndUserText.label": "Down payment amount in document currency",
+          "type": "cds.DecimalFloat",
+          "key": false
+        },
+        "DownPaymentDueDate": {
+          "@EndUserText.label": "Due date for down payment",
+          "type": "cds.String",
+          "key": false,
+          "length": 8
+        },
+        "IncotermsClassification": {
+          "@EndUserText.label": "Incoterms (part 1)",
+          "type": "cds.String",
+          "key": false,
+          "length": 3
+        },
+        "IncotermsTransferLocation": {
+          "@EndUserText.label": "Incoterms (part 2)",
+          "type": "cds.String",
+          "key": false,
+          "length": 28
+        },
+        "IncotermsVersion": {
+          "@EndUserText.label": "Incoterms version",
+          "type": "cds.String",
+          "key": false,
+          "length": 4
+        },
+        "IncotermsLocation1": {
+          "@EndUserText.label": "Incoterms location 1",
+          "type": "cds.String",
+          "key": false,
+          "length": 70
+        },
+        "IncotermsLocation2": {
+          "@EndUserText.label": "Incoterms location 2",
+          "type": "cds.String",
+          "key": false,
+          "length": 70
+        },
+        "IsIntrastatReportingRelevant": {
+          "@EndUserText.label": "Relevant for intrastat reporting",
+          "type": "cds.String",
+          "key": false,
+          "length": 1
+        },
+        "IsIntrastatReportingExcluded": {
+          "@EndUserText.label": "Exclude from intrastat reporting",
+          "type": "cds.String",
+          "key": false,
+          "length": 1
+        },
+        "PricingDocument": {
+          "@EndUserText.label": "Number of the document condition",
+          "type": "cds.String",
+          "key": false,
+          "length": 10
+        },
+        "PricingProcedure": {
+          "@EndUserText.label": "Procedure (pricing, output control, acct. det., costing,...)",
+          "type": "cds.String",
+          "key": false,
+          "length": 6
+        },
+        "DocumentCurrency": {
+          "@EndUserText.label": "Currency key",
+          "type": "cds.String",
+          "key": false,
+          "length": 5
+        },
+        "ValidityStartDate": {
+          "@EndUserText.label": "Start of validity period",
+          "type": "cds.String",
+          "key": false,
+          "length": 8
+        },
+        "ValidityEndDate": {
+          "@EndUserText.label": "End of validity period",
+          "type": "cds.String",
+          "key": false,
+          "length": 8
+        },
+        "ExchangeRate": {
+          "@EndUserText.label": "Exchange rate",
+          "type": "cds.Decimal",
+          "key": false,
+          "precision": 9,
+          "scale": 5
+        },
+        "ExchangeRateIsFixed": {
+          "@EndUserText.label": "Indicator for fixed exchange rate",
+          "type": "cds.String",
+          "key": false,
+          "length": 1
+        },
+        "LastChangeDateTime": {
+          "@EndUserText.label": "Change time stamp",
+          "type": "cds.Decimal",
+          "key": false,
+          "precision": 21,
+          "scale": 7
+        },
+        "TaxReturnCountry": {
+          "@EndUserText.label": "Country/region for tax report",
+          "type": "cds.String",
+          "key": false,
+          "length": 3
+        },
+        "VATRegistrationCountry": {
+          "@EndUserText.label": "Country/region of sales tax id number",
+          "type": "cds.String",
+          "key": false,
+          "length": 3
+        },
+        "PurgReasonForDocCancellation": {
+          "@EndUserText.label": "Reason for cancellation",
+          "type": "cds.String",
+          "key": false,
+          "length": 2
+        },
+        "PurgReleaseTimeTotalAmount": {
+          "@EndUserText.label": "Total value at time of release",
+          "type": "cds.DecimalFloat",
+          "key": false
+        }
+      }
+    }
+  },
+  "sharing": {
+    "C_PURCHASEORDERDEX": {
+      "targetSpaces": [
+        "FINCLOSE_STAGING"
+      ]
+    }
+  }
+}

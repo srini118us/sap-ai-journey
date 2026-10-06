@@ -1,0 +1,592 @@
+{
+  "definitions": {
+    "V_SDR_PRODUCT": {
+      "kind": "entity",
+      "elements": {
+        "Supplier": {
+          "@EndUserText.label": "Supplier",
+          "type": "cds.String",
+          "length": 10,
+          "key": true,
+          "notNull": true
+        },
+        "RiskBand": {
+          "@EndUserText.label": "RiskBand",
+          "type": "cds.String",
+          "length": 10
+        },
+        "LateProbability": {
+          "@EndUserText.label": "LateProbability",
+          "precision": 6,
+          "scale": 4,
+          "type": "cds.Decimal"
+        },
+        "OntimeProbability": {
+          "@EndUserText.label": "OntimeProbability",
+          "precision": 6,
+          "scale": 4,
+          "type": "cds.Decimal"
+        },
+        "Confidence": {
+          "@EndUserText.label": "Confidence",
+          "type": "cds.String",
+          "length": 10
+        },
+        "TopRiskFactor": {
+          "@EndUserText.label": "TopRiskFactor",
+          "type": "cds.String",
+          "length": 60
+        },
+        "ScoringStatus": {
+          "@EndUserText.label": "ScoringStatus",
+          "type": "cds.String",
+          "length": 10
+        },
+        "DelayedLineCount": {
+          "@EndUserText.label": "DelayedLineCount",
+          "type": "cds.Integer"
+        },
+        "DelayedPOCount": {
+          "@EndUserText.label": "DelayedPOCount",
+          "type": "cds.Integer"
+        },
+        "DelayedPOValueUSD": {
+          "@EndUserText.label": "DelayedPOValueUSD",
+          "precision": 23,
+          "scale": 2,
+          "type": "cds.Decimal"
+        },
+        "HistoricalOntimeRate": {
+          "@EndUserText.label": "HistoricalOntimeRate",
+          "precision": 6,
+          "scale": 4,
+          "type": "cds.Decimal"
+        },
+        "AvgLeadTimeDays": {
+          "@EndUserText.label": "AvgLeadTimeDays",
+          "precision": 10,
+          "scale": 1,
+          "type": "cds.Decimal"
+        },
+        "ModelId": {
+          "@EndUserText.label": "ModelId",
+          "type": "cds.String",
+          "length": 40
+        },
+        "RunId": {
+          "@EndUserText.label": "RunId",
+          "type": "cds.String",
+          "length": 36,
+          "notNull": true
+        },
+        "ScoredAt": {
+          "@EndUserText.label": "ScoredAt",
+          "type": "cds.String",
+          "length": 19
+        }
+      },
+      "query": {
+        "SELECT": {
+          "from": {
+            "join": "left",
+            "args": [
+              {
+                "join": "left",
+                "args": [
+                  {
+                    "join": "left",
+                    "args": [
+                      {
+                        "ref": [
+                          "V_SUPPLIER_RISK_LATEST"
+                        ],
+                        "as": "r"
+                      },
+                      {
+                        "ref": [
+                          "V_SUPPLIER_FEATURES"
+                        ],
+                        "as": "f"
+                      }
+                    ],
+                    "on": [
+                      {
+                        "ref": [
+                          "f",
+                          "Supplier"
+                        ]
+                      },
+                      "=",
+                      {
+                        "ref": [
+                          "r",
+                          "SUPPLIER"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "SELECT": {
+                      "from": {
+                        "ref": [
+                          "V_DELAYED_SCHEDULE_LINES"
+                        ]
+                      },
+                      "columns": [
+                        {
+                          "ref": [
+                            "Supplier"
+                          ]
+                        },
+                        {
+                          "func": "COUNT",
+                          "args": [
+                            "*"
+                          ],
+                          "as": "DelayedLineCount"
+                        },
+                        {
+                          "func": "COUNT",
+                          "args": [
+                            {
+                              "xpr": [
+                                "distinct",
+                                {
+                                  "ref": [
+                                    "PurchaseOrder"
+                                  ]
+                                }
+                              ]
+                            }
+                          ],
+                          "as": "DelayedPOCount"
+                        }
+                      ],
+                      "groupBy": [
+                        {
+                          "ref": [
+                            "Supplier"
+                          ]
+                        }
+                      ]
+                    },
+                    "as": "s"
+                  }
+                ],
+                "on": [
+                  {
+                    "ref": [
+                      "s",
+                      "Supplier"
+                    ]
+                  },
+                  "=",
+                  {
+                    "ref": [
+                      "r",
+                      "SUPPLIER"
+                    ]
+                  }
+                ]
+              },
+              {
+                "SELECT": {
+                  "from": {
+                    "join": "inner",
+                    "args": [
+                      {
+                        "join": "inner",
+                        "args": [
+                          {
+                            "SELECT": {
+                              "from": {
+                                "ref": [
+                                  "V_DELAYED_SCHEDULE_LINES"
+                                ]
+                              },
+                              "distinct": true,
+                              "columns": [
+                                {
+                                  "ref": [
+                                    "Supplier"
+                                  ]
+                                },
+                                {
+                                  "ref": [
+                                    "PurchaseOrder"
+                                  ]
+                                },
+                                {
+                                  "ref": [
+                                    "PurchaseOrderItem"
+                                  ]
+                                }
+                              ]
+                            },
+                            "as": "d"
+                          },
+                          {
+                            "ref": [
+                              "C_PURCHASEORDERITEMDEX"
+                            ],
+                            "as": "it"
+                          }
+                        ],
+                        "on": [
+                          {
+                            "ref": [
+                              "it",
+                              "PurchaseOrder"
+                            ]
+                          },
+                          "=",
+                          {
+                            "ref": [
+                              "d",
+                              "PurchaseOrder"
+                            ]
+                          },
+                          "and",
+                          {
+                            "ref": [
+                              "it",
+                              "PurchaseOrderItem"
+                            ]
+                          },
+                          "=",
+                          {
+                            "ref": [
+                              "d",
+                              "PurchaseOrderItem"
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "ref": [
+                          "C_PURCHASEORDERDEX"
+                        ],
+                        "as": "hd"
+                      }
+                    ],
+                    "on": [
+                      {
+                        "ref": [
+                          "hd",
+                          "PurchaseOrder"
+                        ]
+                      },
+                      "=",
+                      {
+                        "ref": [
+                          "d",
+                          "PurchaseOrder"
+                        ]
+                      }
+                    ]
+                  },
+                  "columns": [
+                    {
+                      "ref": [
+                        "d",
+                        "Supplier"
+                      ]
+                    },
+                    {
+                      "func": "SUM",
+                      "args": [
+                        {
+                          "xpr": [
+                            "case",
+                            "when",
+                            {
+                              "ref": [
+                                "hd",
+                                "DocumentCurrency"
+                              ]
+                            },
+                            "=",
+                            {
+                              "val": "USD"
+                            },
+                            "then",
+                            {
+                              "func": "COALESCE",
+                              "args": [
+                                {
+                                  "ref": [
+                                    "it",
+                                    "NetAmount"
+                                  ]
+                                },
+                                {
+                                  "val": 0
+                                }
+                              ],
+                              "cast": {
+                                "type": "cds.Decimal",
+                                "precision": 23,
+                                "scale": 2
+                              }
+                            },
+                            "else",
+                            {
+                              "val": 0
+                            },
+                            "end"
+                          ]
+                        }
+                      ],
+                      "as": "DelayedPOValueUSD"
+                    }
+                  ],
+                  "groupBy": [
+                    {
+                      "ref": [
+                        "d",
+                        "Supplier"
+                      ]
+                    }
+                  ]
+                },
+                "as": "v"
+              }
+            ],
+            "on": [
+              {
+                "ref": [
+                  "v",
+                  "Supplier"
+                ]
+              },
+              "=",
+              {
+                "ref": [
+                  "r",
+                  "SUPPLIER"
+                ]
+              }
+            ]
+          },
+          "columns": [
+            {
+              "ref": [
+                "r",
+                "SUPPLIER"
+              ],
+              "as": "Supplier"
+            },
+            {
+              "ref": [
+                "r",
+                "RISK_BAND"
+              ],
+              "as": "RiskBand"
+            },
+            {
+              "xpr": [
+                {
+                  "ref": [
+                    "r",
+                    "LATE_PROBABILITY"
+                  ],
+                  "cast": {
+                    "type": "cds.Decimal",
+                    "precision": 6,
+                    "scale": 4
+                  }
+                }
+              ],
+              "as": "LateProbability"
+            },
+            {
+              "xpr": [
+                {
+                  "ref": [
+                    "r",
+                    "ONTIME_PROBABILITY"
+                  ],
+                  "cast": {
+                    "type": "cds.Decimal",
+                    "precision": 6,
+                    "scale": 4
+                  }
+                }
+              ],
+              "as": "OntimeProbability"
+            },
+            {
+              "ref": [
+                "r",
+                "CONFIDENCE"
+              ],
+              "as": "Confidence"
+            },
+            {
+              "ref": [
+                "r",
+                "TOP_FACTOR"
+              ],
+              "as": "TopRiskFactor"
+            },
+            {
+              "ref": [
+                "r",
+                "STATUS"
+              ],
+              "as": "ScoringStatus"
+            },
+            {
+              "xpr": [
+                {
+                  "func": "COALESCE",
+                  "args": [
+                    {
+                      "ref": [
+                        "s",
+                        "DelayedLineCount"
+                      ]
+                    },
+                    {
+                      "val": 0
+                    }
+                  ],
+                  "cast": {
+                    "type": "cds.Integer"
+                  }
+                }
+              ],
+              "as": "DelayedLineCount"
+            },
+            {
+              "xpr": [
+                {
+                  "func": "COALESCE",
+                  "args": [
+                    {
+                      "ref": [
+                        "s",
+                        "DelayedPOCount"
+                      ]
+                    },
+                    {
+                      "val": 0
+                    }
+                  ],
+                  "cast": {
+                    "type": "cds.Integer"
+                  }
+                }
+              ],
+              "as": "DelayedPOCount"
+            },
+            {
+              "xpr": [
+                {
+                  "func": "COALESCE",
+                  "args": [
+                    {
+                      "ref": [
+                        "v",
+                        "DelayedPOValueUSD"
+                      ]
+                    },
+                    {
+                      "val": 0
+                    }
+                  ],
+                  "cast": {
+                    "type": "cds.Decimal",
+                    "precision": 23,
+                    "scale": 2
+                  }
+                }
+              ],
+              "as": "DelayedPOValueUSD"
+            },
+            {
+              "xpr": [
+                {
+                  "ref": [
+                    "f",
+                    "historical_ontime_rate"
+                  ],
+                  "cast": {
+                    "type": "cds.Decimal",
+                    "precision": 6,
+                    "scale": 4
+                  }
+                }
+              ],
+              "as": "HistoricalOntimeRate"
+            },
+            {
+              "xpr": [
+                {
+                  "ref": [
+                    "f",
+                    "avg_lead_time_days"
+                  ],
+                  "cast": {
+                    "type": "cds.Decimal",
+                    "precision": 10,
+                    "scale": 1
+                  }
+                }
+              ],
+              "as": "AvgLeadTimeDays"
+            },
+            {
+              "ref": [
+                "r",
+                "MODEL_ID"
+              ],
+              "as": "ModelId"
+            },
+            {
+              "ref": [
+                "r",
+                "RUN_ID"
+              ],
+              "as": "RunId"
+            },
+            {
+              "xpr": [
+                {
+                  "func": "TO_VARCHAR",
+                  "args": [
+                    {
+                      "ref": [
+                        "r",
+                        "SCORED_AT"
+                      ]
+                    },
+                    {
+                      "val": "YYYY-MM-DD HH24:MI:SS"
+                    }
+                  ],
+                  "cast": {
+                    "type": "cds.String",
+                    "length": 19
+                  }
+                }
+              ],
+              "as": "ScoredAt"
+            }
+          ]
+        }
+      },
+      "@ObjectModel.supportedCapabilities": [
+        {
+          "#": "DATA_STRUCTURE"
+        }
+      ],
+      "@EndUserText.label": "Supplier Delivery Risk Product",
+      "@ObjectModel.modelingPattern": {
+        "#": "DATA_STRUCTURE"
+      },
+      "@DataWarehouse.consumption.external": false,
+      "@DataWarehouse.sqlEditor.query": "SELECT\r\n  r.\"SUPPLIER\"                                          AS \"Supplier\",\r\n  r.\"RISK_BAND\"                                         AS \"RiskBand\",\r\n  CAST(r.\"LATE_PROBABILITY\"   AS DECIMAL(6,4))          AS \"LateProbability\",\r\n  CAST(r.\"ONTIME_PROBABILITY\" AS DECIMAL(6,4))          AS \"OntimeProbability\",\r\n  r.\"CONFIDENCE\"                                        AS \"Confidence\",\r\n  r.\"TOP_FACTOR\"                                        AS \"TopRiskFactor\",\r\n  r.\"STATUS\"                                            AS \"ScoringStatus\",\r\n  CAST(COALESCE(s.\"DelayedLineCount\", 0) AS INTEGER)    AS \"DelayedLineCount\",\r\n  CAST(COALESCE(s.\"DelayedPOCount\", 0)   AS INTEGER)    AS \"DelayedPOCount\",\r\n  CAST(COALESCE(v.\"DelayedPOValueUSD\", 0) AS DECIMAL(23,2)) AS \"DelayedPOValueUSD\",\r\n  CAST(f.\"historical_ontime_rate\" AS DECIMAL(6,4))      AS \"HistoricalOntimeRate\",\r\n  CAST(f.\"avg_lead_time_days\"     AS DECIMAL(10,1))     AS \"AvgLeadTimeDays\",\r\n  r.\"MODEL_ID\"                                          AS \"ModelId\",\r\n  r.\"RUN_ID\"                                            AS \"RunId\",\r\n  CAST(TO_VARCHAR(r.\"SCORED_AT\", 'YYYY-MM-DD HH24:MI:SS') AS NVARCHAR(19)) AS \"ScoredAt\"\r\nFROM \"V_SUPPLIER_RISK_LATEST\" r\r\nLEFT JOIN \"V_SUPPLIER_FEATURES\" f\r\n  ON f.\"Supplier\" = r.\"SUPPLIER\"\r\nLEFT JOIN (\r\n  SELECT \"Supplier\",\r\n         COUNT(*)                        AS \"DelayedLineCount\",\r\n         COUNT(DISTINCT \"PurchaseOrder\") AS \"DelayedPOCount\"\r\n  FROM \"V_DELAYED_SCHEDULE_LINES\"\r\n  GROUP BY \"Supplier\"\r\n) s ON s.\"Supplier\" = r.\"SUPPLIER\"\r\nLEFT JOIN (\r\n  SELECT d.\"Supplier\",\r\n         SUM(CASE WHEN hd.\"DocumentCurrency\" = 'USD'\r\n                  THEN CAST(COALESCE(it.\"NetAmount\", 0) AS DECIMAL(23,2))\r\n                  ELSE 0 END) AS \"DelayedPOValueUSD\"\r\n  FROM (\r\n    SELECT DISTINCT \"Supplier\", \"PurchaseOrder\", \"PurchaseOrderItem\"\r\n    FROM \"V_DELAYED_SCHEDULE_LINES\"\r\n  ) d\r\n  JOIN \"C_PURCHASEORDERITEMDEX\" it\r\n    ON it.\"PurchaseOrder\" = d.\"PurchaseOrder\"\r\n   AND it.\"PurchaseOrderItem\" = d.\"PurchaseOrderItem\"\r\n  JOIN \"C_PURCHASEORDERDEX\" hd\r\n    ON hd.\"PurchaseOrder\" = d.\"PurchaseOrder\"\r\n  GROUP BY d.\"Supplier\"\r\n) v ON v.\"Supplier\" = r.\"SUPPLIER\""
+    }
+  }
+}

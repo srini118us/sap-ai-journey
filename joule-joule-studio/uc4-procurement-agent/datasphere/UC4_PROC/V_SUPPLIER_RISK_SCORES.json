@@ -1,0 +1,137 @@
+{
+  "definitions": {
+    "V_SUPPLIER_RISK_SCORES": {
+      "kind": "entity",
+      "elements": {
+        "Supplier": {
+          "@EndUserText.label": "Supplier",
+          "type": "cds.String",
+          "length": 5000
+        },
+        "Prediction": {
+          "@EndUserText.label": "Prediction",
+          "type": "cds.String",
+          "length": 5000
+        },
+        "Confidence": {
+          "@EndUserText.label": "Confidence",
+          "type": "cds.String",
+          "length": 5000
+        },
+        "TopFactor": {
+          "@EndUserText.label": "TopFactor",
+          "type": "cds.String",
+          "length": 5000
+        },
+        "ScoredAt": {
+          "@EndUserText.label": "ScoredAt",
+          "type": "cds.Date"
+        },
+        "LateProbability": {
+          "@EndUserText.label": "LateProbability",
+          "precision": 5,
+          "scale": 4,
+          "type": "cds.Decimal",
+          "@AnalyticsDetails.measureType": {
+            "#": "BASE"
+          },
+          "@Aggregation.default": {
+            "#": "SUM"
+          }
+        },
+        "OnTimeProbability": {
+          "@EndUserText.label": "OnTimeProbability",
+          "precision": 5,
+          "scale": 4,
+          "type": "cds.Decimal",
+          "@AnalyticsDetails.measureType": {
+            "#": "BASE"
+          },
+          "@Aggregation.default": {
+            "#": "SUM"
+          }
+        }
+      },
+      "query": {
+        "SELECT": {
+          "from": {
+            "ref": [
+              "supplier_risk_scores"
+            ]
+          },
+          "columns": [
+            {
+              "ref": [
+                "Supplier"
+              ]
+            },
+            {
+              "ref": [
+                "Prediction"
+              ]
+            },
+            {
+              "ref": [
+                "Confidence"
+              ]
+            },
+            {
+              "ref": [
+                "TopFactor"
+              ]
+            },
+            {
+              "ref": [
+                "ScoredAt"
+              ]
+            },
+            {
+              "xpr": [
+                {
+                  "ref": [
+                    "LateProbability"
+                  ],
+                  "cast": {
+                    "type": "cds.Decimal",
+                    "precision": 5,
+                    "scale": 4
+                  }
+                }
+              ],
+              "as": "LateProbability"
+            },
+            {
+              "xpr": [
+                {
+                  "ref": [
+                    "OnTimeProbability"
+                  ],
+                  "cast": {
+                    "type": "cds.Decimal",
+                    "precision": 5,
+                    "scale": 4
+                  }
+                }
+              ],
+              "as": "OnTimeProbability"
+            }
+          ]
+        }
+      },
+      "@ObjectModel.supportedCapabilities": [
+        {
+          "#": "ANALYTICAL_PROVIDER"
+        },
+        {
+          "#": "ANALYTICAL_FACT"
+        }
+      ],
+      "@EndUserText.label": "V SUPPLIER RISK SCORES",
+      "@ObjectModel.modelingPattern": {
+        "#": "ANALYTICAL_FACT"
+      },
+      "@DataWarehouse.consumption.external": true,
+      "@DataWarehouse.sqlEditor.query": "SELECT\r\n  \"Supplier\",\r\n  \"Prediction\",\r\n  \"Confidence\",\r\n  \"TopFactor\",\r\n  \"ScoredAt\",\r\n  CAST(\"LateProbability\"   AS DECIMAL(5,4)) AS \"LateProbability\",\r\n  CAST(\"OnTimeProbability\" AS DECIMAL(5,4)) AS \"OnTimeProbability\"\r\nFROM \"supplier_risk_scores\""
+    }
+  }
+}

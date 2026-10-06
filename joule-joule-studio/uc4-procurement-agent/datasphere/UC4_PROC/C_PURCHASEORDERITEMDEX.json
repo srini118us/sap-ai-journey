@@ -1,0 +1,450 @@
+{
+  "definitions": {
+    "C_PURCHASEORDERITEMDEX": {
+      "kind": "entity",
+      "@EndUserText.label": "Data extraction view for po item",
+      "@ObjectModel.modelingPattern": {
+        "#": "DATA_STRUCTURE"
+      },
+      "@ObjectModel.supportedCapabilities": [
+        {
+          "#": "DATA_STRUCTURE"
+        }
+      ],
+      "elements": {
+        "PurchaseOrder": {
+          "@EndUserText.label": "Purchase order number",
+          "type": "cds.String",
+          "key": true,
+          "notNull": true,
+          "length": 10
+        },
+        "PurchaseOrderItem": {
+          "@EndUserText.label": "Item number of purchase order",
+          "type": "cds.String",
+          "key": true,
+          "notNull": true,
+          "length": 5
+        },
+        "PurchaseOrderType": {
+          "@EndUserText.label": "Purchasing document type",
+          "type": "cds.String",
+          "key": false,
+          "length": 4
+        },
+        "PurchasingGroup": {
+          "@EndUserText.label": "Purchasing group",
+          "type": "cds.String",
+          "key": false,
+          "length": 3
+        },
+        "PurchasingOrganization": {
+          "@EndUserText.label": "Purchasing organization",
+          "type": "cds.String",
+          "key": false,
+          "length": 4
+        },
+        "PurchasingDocumentOrigin": {
+          "@EndUserText.label": "Status of purchasing document",
+          "type": "cds.String",
+          "key": false,
+          "length": 1
+        },
+        "Supplier": {
+          "@EndUserText.label": "Supplier",
+          "type": "cds.String",
+          "key": false,
+          "length": 10
+        },
+        "SupplyingSupplier": {
+          "@EndUserText.label": "Goods supplier",
+          "type": "cds.String",
+          "key": false,
+          "length": 10
+        },
+        "SupplyingPlant": {
+          "@EndUserText.label": "Supplying (issuing) plant in case of stock transport order",
+          "type": "cds.String",
+          "key": false,
+          "length": 4
+        },
+        "DocumentCurrency": {
+          "@EndUserText.label": "Currency key",
+          "type": "cds.String",
+          "key": false,
+          "length": 5
+        },
+        "ExchangeRate": {
+          "@EndUserText.label": "Exchange rate",
+          "type": "cds.Decimal",
+          "key": false,
+          "precision": 9,
+          "scale": 5
+        },
+        "InvoicingParty": {
+          "@EndUserText.label": "Different invoicing party",
+          "type": "cds.String",
+          "key": false,
+          "length": 10
+        },
+        "PurchaseOrderDate": {
+          "@EndUserText.label": "Purchase order date",
+          "type": "cds.String",
+          "key": false,
+          "length": 8
+        },
+        "ValidityStartDate": {
+          "@EndUserText.label": "Start of validity period",
+          "type": "cds.String",
+          "key": false,
+          "length": 8
+        },
+        "ValidityEndDate": {
+          "@EndUserText.label": "End of validity period",
+          "type": "cds.String",
+          "key": false,
+          "length": 8
+        },
+        "CreationDate": {
+          "@EndUserText.label": "Creation date of purchasing document",
+          "type": "cds.String",
+          "key": false,
+          "length": 8
+        },
+        "LastChangeDateTime": {
+          "@EndUserText.label": "Change time stamp",
+          "type": "cds.Decimal",
+          "key": false,
+          "precision": 21,
+          "scale": 7
+        },
+        "PurgDocumentItemDeletionCode": {
+          "@EndUserText.label": "Deletion indicator in purchasing document",
+          "type": "cds.String",
+          "key": false,
+          "length": 1
+        },
+        "MaterialGroup": {
+          "@EndUserText.label": "Material group",
+          "type": "cds.String",
+          "key": false,
+          "length": 9
+        },
+        "Material": {
+          "@EndUserText.label": "Material number",
+          "type": "cds.String",
+          "key": false,
+          "length": 40
+        },
+        "ManufacturerMaterial": {
+          "@EndUserText.label": "Material number",
+          "type": "cds.String",
+          "key": false,
+          "length": 40
+        },
+        "PurchaseOrderCategory": {
+          "@EndUserText.label": "Purchasing document category",
+          "type": "cds.String",
+          "key": false,
+          "length": 1
+        },
+        "PurchasingOrderReason": {
+          "@EndUserText.label": "Reason for ordering",
+          "type": "cds.String",
+          "key": false,
+          "length": 3
+        },
+        "PurchaseOrderItemText": {
+          "@EndUserText.label": "Short text",
+          "type": "cds.String",
+          "key": false,
+          "length": 40
+        },
+        "PurchaseOrderItemCategory": {
+          "@EndUserText.label": "Item category in purchasing document",
+          "type": "cds.String",
+          "key": false,
+          "length": 1
+        },
+        "CompanyCode": {
+          "@EndUserText.label": "Company code",
+          "type": "cds.String",
+          "key": false,
+          "length": 4
+        },
+        "Plant": {
+          "@EndUserText.label": "Plant",
+          "type": "cds.String",
+          "key": false,
+          "length": 4
+        },
+        "StorageLocation": {
+          "@EndUserText.label": "Storage location",
+          "type": "cds.String",
+          "key": false,
+          "length": 4
+        },
+        "PurchaseContract": {
+          "@EndUserText.label": "Number of principal purchase agreement",
+          "type": "cds.String",
+          "key": false,
+          "length": 10
+        },
+        "PurchaseContractItem": {
+          "@EndUserText.label": "Item number of principal purchase agreement",
+          "type": "cds.String",
+          "key": false,
+          "length": 5
+        },
+        "BaseUnit": {
+          "@EndUserText.label": "Base unit of measure",
+          "type": "cds.String",
+          "key": false,
+          "length": 3
+        },
+        "OrderQuantity": {
+          "@EndUserText.label": "Purchase order quantity",
+          "type": "cds.Decimal",
+          "key": false,
+          "precision": 13,
+          "scale": 3
+        },
+        "PurchaseOrderQuantityUnit": {
+          "@EndUserText.label": "Purchase order unit of measure",
+          "type": "cds.String",
+          "key": false,
+          "length": 3
+        },
+        "NetPriceAmount": {
+          "@EndUserText.label": "Net price in purchasing document (in document currency)",
+          "type": "cds.DecimalFloat",
+          "key": false
+        },
+        "NetAmount": {
+          "@EndUserText.label": "Net order value in po currency",
+          "type": "cds.DecimalFloat",
+          "key": false
+        },
+        "LocalCurrency": {
+          "@EndUserText.label": "Currency key",
+          "type": "cds.String",
+          "key": false,
+          "length": 5
+        },
+        "NetPriceQuantity": {
+          "@EndUserText.label": "Price unit",
+          "type": "cds.Decimal",
+          "key": false,
+          "precision": 5,
+          "scale": 0
+        },
+        "OrderPriceUnit": {
+          "@EndUserText.label": "Order price unit (purchasing)",
+          "type": "cds.String",
+          "key": false,
+          "length": 3
+        },
+        "RequisitionerName": {
+          "@EndUserText.label": "Name of requisitioner/requester",
+          "type": "cds.String",
+          "key": false,
+          "length": 12
+        },
+        "RetailPromotion": {
+          "@EndUserText.label": "Retail promotion",
+          "type": "cds.String",
+          "key": false,
+          "length": 10
+        },
+        "IsCompletelyDelivered": {
+          "@EndUserText.label": "\"delivery completed\" indicator",
+          "type": "cds.String",
+          "key": false,
+          "length": 1
+        },
+        "IsReturnsItem": {
+          "@EndUserText.label": "Returns item",
+          "type": "cds.String",
+          "key": false,
+          "length": 1
+        },
+        "IsFinallyInvoiced": {
+          "@EndUserText.label": "Final invoice indicator",
+          "type": "cds.String",
+          "key": false,
+          "length": 1
+        },
+        "InvoiceIsExpected": {
+          "@EndUserText.label": "Invoice receipt indicator",
+          "type": "cds.String",
+          "key": false,
+          "length": 1
+        },
+        "OrderItemQtyToBaseQtyDnmntr": {
+          "@EndUserText.label": "Denominator for conversion of order unit to base unit",
+          "type": "cds.Decimal",
+          "key": false,
+          "precision": 5,
+          "scale": 0
+        },
+        "OrderItemQtyToBaseQtyNmrtr": {
+          "@EndUserText.label": "Numerator for conversion of order unit to base unit",
+          "type": "cds.Decimal",
+          "key": false,
+          "precision": 5,
+          "scale": 0
+        },
+        "InvoiceIsGoodsReceiptBased": {
+          "@EndUserText.label": "Indicator: gr-based invoice verification",
+          "type": "cds.String",
+          "key": false,
+          "length": 1
+        },
+        "GoodsReceiptIsExpected": {
+          "@EndUserText.label": "Goods receipt indicator",
+          "type": "cds.String",
+          "key": false,
+          "length": 1
+        },
+        "EvaldRcptSettlmtIsAllowed": {
+          "@EndUserText.label": "Evaluated receipt settlement (ers)",
+          "type": "cds.String",
+          "key": false,
+          "length": 1
+        },
+        "AccountAssignmentCategory": {
+          "@EndUserText.label": "Account assignment category",
+          "type": "cds.String",
+          "key": false,
+          "length": 1
+        },
+        "GoodsReceiptIsNonValuated": {
+          "@EndUserText.label": "Goods receipt, non-valuated",
+          "type": "cds.String",
+          "key": false,
+          "length": 1
+        },
+        "MaterialType": {
+          "@EndUserText.label": "Material type",
+          "type": "cds.String",
+          "key": false,
+          "length": 4
+        },
+        "OverdelivTolrtdLmtRatioInPct": {
+          "@EndUserText.label": "Overdelivery tolerance",
+          "type": "cds.Decimal",
+          "key": false,
+          "precision": 3,
+          "scale": 1
+        },
+        "ServicePerformer": {
+          "@EndUserText.label": "Service performer",
+          "type": "cds.String",
+          "key": false,
+          "length": 10
+        },
+        "TaxCode": {
+          "@EndUserText.label": "Tax on sales/purchases code",
+          "type": "cds.String",
+          "key": false,
+          "length": 2
+        },
+        "UnderdelivTolrtdLmtRatioInPct": {
+          "@EndUserText.label": "Underdelivery tolerance",
+          "type": "cds.Decimal",
+          "key": false,
+          "precision": 3,
+          "scale": 1
+        },
+        "UnlimitedOverdeliveryIsAllowed": {
+          "@EndUserText.label": "Unlimited overdelivery allowed",
+          "type": "cds.String",
+          "key": false,
+          "length": 1
+        },
+        "SupplierMaterialNumber": {
+          "@EndUserText.label": "Material number used by supplier",
+          "type": "cds.String",
+          "key": false,
+          "length": 35
+        },
+        "ProductTypeCode": {
+          "@EndUserText.label": "Product type group",
+          "type": "cds.String",
+          "key": false,
+          "length": 2
+        },
+        "CreatedByUser": {
+          "@EndUserText.label": "User of person who created a purchasing document",
+          "type": "cds.String",
+          "key": false,
+          "length": 12
+        },
+        "ExpectedOverallLimitAmount": {
+          "@EndUserText.label": "Expected value of overall limit",
+          "type": "cds.DecimalFloat",
+          "key": false
+        },
+        "OverallLimitAmount": {
+          "@EndUserText.label": "Overall limit",
+          "type": "cds.DecimalFloat",
+          "key": false
+        },
+        "RequirementSegment": {
+          "@EndUserText.label": "Requirement segment",
+          "type": "cds.String",
+          "key": false,
+          "length": 40
+        },
+        "ReleaseIsNotCompleted": {
+          "@EndUserText.label": "Release not yet completely effected",
+          "type": "cds.String",
+          "key": false,
+          "length": 1
+        },
+        "PurchasingCompletenessStatus": {
+          "@EndUserText.label": "Purchase order not yet complete",
+          "type": "cds.String",
+          "key": false,
+          "length": 1
+        },
+        "IsStatisticalItem": {
+          "@EndUserText.label": "Item is statistical",
+          "type": "cds.String",
+          "key": false,
+          "length": 1
+        },
+        "MultipleAcctAssgmtDistribution": {
+          "@EndUserText.label": "Distribution indicator for multiple account assignment",
+          "type": "cds.String",
+          "key": false,
+          "length": 1
+        },
+        "PurchaseRequisition": {
+          "@EndUserText.label": "Purchase requisition number",
+          "type": "cds.String",
+          "key": false,
+          "length": 10
+        },
+        "PurchaseRequisitionItem": {
+          "@EndUserText.label": "Item number of purchase requisition",
+          "type": "cds.String",
+          "key": false,
+          "length": 5
+        },
+        "SupplierConfirmationControlKey": {
+          "@EndUserText.label": "Confirmation control key",
+          "type": "cds.String",
+          "key": false,
+          "length": 4
+        },
+        "PurchasingDocumentDeletionCode": {
+          "@EndUserText.label": "Purchase order deletion code",
+          "type": "cds.String",
+          "key": false,
+          "length": 1
+        }
+      }
+    }
+  }
+}

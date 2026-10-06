@@ -1,0 +1,87 @@
+{
+  "definitions": {
+    "SUPPLIER_RISK_DECISION_LOG": {
+      "kind": "entity",
+      "elements": {
+        "RUN_ID": {
+          "type": "cds.String",
+          "length": 36,
+          "@EndUserText.label": "RUN_ID",
+          "notNull": true,
+          "key": true
+        },
+        "SUPPLIER": {
+          "type": "cds.String",
+          "length": 10,
+          "@EndUserText.label": "SUPPLIER",
+          "notNull": true,
+          "key": true
+        },
+        "STATUS": {
+          "type": "cds.String",
+          "length": 10,
+          "@EndUserText.label": "STATUS"
+        },
+        "PREDICTION": {
+          "type": "cds.String",
+          "length": 10,
+          "@EndUserText.label": "PREDICTION"
+        },
+        "LATE_PROBABILITY": {
+          "type": "cds.Decimal",
+          "precision": 6,
+          "scale": 4,
+          "@EndUserText.label": "LATE_PROBABILITY"
+        },
+        "ONTIME_PROBABILITY": {
+          "type": "cds.Decimal",
+          "precision": 6,
+          "scale": 4,
+          "@EndUserText.label": "ONTIME_PROBABILITY"
+        },
+        "CONFIDENCE": {
+          "type": "cds.String",
+          "length": 10,
+          "@EndUserText.label": "CONFIDENCE"
+        },
+        "RISK_BAND": {
+          "type": "cds.String",
+          "length": 10,
+          "@EndUserText.label": "RISK_BAND"
+        },
+        "TOP_FACTOR": {
+          "type": "cds.String",
+          "length": 60,
+          "@EndUserText.label": "TOP_FACTOR"
+        },
+        "MODEL_ID": {
+          "type": "cds.String",
+          "length": 40,
+          "@EndUserText.label": "MODEL_ID"
+        },
+        "DEPLOYMENT_ID": {
+          "type": "cds.String",
+          "length": 40,
+          "@EndUserText.label": "DEPLOYMENT_ID"
+        },
+        "FEATURES_JSON": {
+          "type": "cds.String",
+          "length": 2000,
+          "@EndUserText.label": "FEATURES_JSON"
+        },
+        "ERROR_MESSAGE": {
+          "type": "cds.String",
+          "length": 1000,
+          "@EndUserText.label": "ERROR_MESSAGE"
+        },
+        "SCORED_AT": {
+          "type": "cds.Timestamp",
+          "@EndUserText.label": "SCORED_AT"
+        }
+      },
+      "@DataWarehouse.external.schema": "UC4_PROC#SCORING",
+      "@DataWarehouse.external.entity": "SUPPLIER_RISK_DECISION_LOG",
+      "@EndUserText.label": "SUPPLIER_RISK_DECISION_LOG"
+    }
+  }
+}
