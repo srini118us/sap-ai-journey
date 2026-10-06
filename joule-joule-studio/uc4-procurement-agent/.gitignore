@@ -3,3 +3,9 @@ __pycache__/
 *.pyc
 *.docx
 .venv/
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+service-key*.json

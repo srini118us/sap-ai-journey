@@ -26,7 +26,7 @@ A procurement manager asks: which suppliers will deliver late, why, how much val
    getDelayedPurchaseOrders                      PO header, item, schedule lines
    getPurchaseOrderSuppliers                     V_DELAYED_SCHEDULE_LINES
    GetSupplierDetails (on demand)                V_SUPPLIER_FEATURES (13 derived features)
-   getSupplierRiskScore ----+                        | scripts/score_suppliers.py (batch)
+   getSupplierRiskScore ----+                        | scoring/score_suppliers.py (batch)
    escalateSupplierRisk     |                        v
         |                   +-------------->  SAP AI Core: one XGBoost model (/v2/predict)
         | HIGH + user                                 |
@@ -76,7 +76,7 @@ The project was built in three releases. Each release closed limitations that th
 
 * **Redeploy and contract:** serving redeployed from the same configuration and artifact; an empty POST returned a 422 listing all 13 required fields. The Joule score skill was found sending only 5 of 13 fields and was fixed.
 * **Derived features:** `V_SUPPLIER_FEATURES` computes per supplier features from replicated header, item and schedule line data (lead times floored at 1 day, blank supplier excluded, 32 suppliers). This replaced the hand set features that made every supplier score identically in R1.
-* **Batch scoring:** `scripts/score_suppliers.py` reads features through a Datasphere database user, calls AI Core per supplier, and appends results with RUN_ID, model and deployment IDs to `UC4_PROC#SCORING.SUPPLIER_RISK_DECISION_LOG`. A data quality gate marks invalid rows SKIPPED_DQ. Latest run: 31 of 32 scored; HIGH 9, MEDIUM 10, LOW 12.
+* **Batch scoring:** `scoring/score_suppliers.py` reads features through a Datasphere database user, calls AI Core per supplier, and appends results with RUN_ID, model and deployment IDs to `UC4_PROC#SCORING.SUPPLIER_RISK_DECISION_LOG`. A data quality gate marks invalid rows SKIPPED_DQ. Latest run: 31 of 32 scored; HIGH 9, MEDIUM 10, LOW 12.
 * **Semantic and SAC:** `V_SUPPLIER_RISK_LATEST` and `AM_SUPPLIER_RISK_LATEST` (average late probability divides by scored suppliers only), SAC "UC4 Supplier Risk Control Tower".
 * **Approval:** SBPA `SupplierRiskReview` 1.0.1 with API trigger, approval form (Hold New POs, Monitor, Override), required comment, two day due date, published to the Library.
 * **Escalation:** Joule skill `escalateSupplierRisk` (Check Condition riskBand = HIGH, Run Process without waiting, StringToNumber for probability); agent 1.0.23. When live scoring was unavailable the agent used the last valid batch score, said so, asked for confirmation and started the review.
@@ -104,7 +104,7 @@ The project was built in three releases. Each release closed limitations that th
 | Replication | C_PURCHASEORDERDEX, C_PURCHASEORDERITEMDEX, C_PURORDSCHEDULELINEDEX | R1 |
 | Delay logic | V_DELAYED_AGENT_MIRROR, V_DELAYED_SCHEDULE_LINES | R1 |
 | Features | V_SUPPLIER_FEATURES (13 derived features) | R2 |
-| Batch and audit | scripts/score_suppliers.py, SUPPLIER_RISK_DECISION_LOG | R2 |
+| Batch and audit | scoring/score_suppliers.py, SUPPLIER_RISK_DECISION_LOG | R2 |
 | Semantic | AM_SUPPLIER_RISK_SCORES (R1), AM_SUPPLIER_RISK_LATEST (R2) | R1, R2 |
 | Analytics | SAC "UC4 Supplier Scorecard" (R1), "UC4 Supplier Risk Control Tower" (R2) | R1, R2 |
 | Approval | SBPA SupplierRiskReview 1.0.1 | R2 |
@@ -222,10 +222,11 @@ Everything for this scenario lives in this folder. Click a folder to open it. Th
 | [sql](sql/) | Product source view and validation checks | R3 |
 | [scoring](scoring/) | Batch scorer, error check helper, `.env.example` | R2 |
 | [scripts](scripts/) | AI Core predict test | R1 |
+| [joule/export](joule/export/) | Joule Studio .mtar exports | R1, R2 |
 | [docs/images](docs/images/) | Architecture visuals and screenshots | All |
 | [ai-core/tutorials/supplier-prediction-tutorial](../../ai-core/tutorials/supplier-prediction-tutorial/) | XGBoost train and serve code, Dockerfiles, workflow and serving templates | R1 |
 
-Joule Studio and SBPA project exports are not stored in Git because they reference tenant specific destinations. Their configuration is described in the Build journey section.
+Joule Studio exports (agent project and action projects) are in [joule/export](joule/export/). The SBPA project is documented in the Build journey section but not exported here.
 
 ### Deploy order
 
@@ -241,8 +242,9 @@ Joule Studio and SBPA project exports are not stored in Git because they referen
 
 ```bash
 pip install requests hdbcli python-dotenv
+cd scoring
 cp .env.example .env   # fill values
-python scripts/score_suppliers.py
+python score_suppliers.py
 ```
 
 ## Roadmap
