@@ -210,14 +210,32 @@ The solution already worked inside Datasphere. BDC turned the curated result int
 * In PowerShell, single quote credentials containing `$`, `|` or `!`.
 * Run a secret scan before every push; one pre commit scan caught a live AI Core client secret.
 
-## Repository contents
+## Get and deploy
 
-* `scripts/score_suppliers.py`: batch scorer (Datasphere features to AI Core to decision log).
-* `sql/V_SDR_PRODUCT.sql`: curated data product source view.
-* `sql/validation_checks.sql`: column, currency, reconciliation and grain checks.
-* `docs/images/`: architecture overview and curated screenshots.
-* `.env.example`: variable names only; `.env` is gitignored.
-* AI Core training and serving code lives in `supplier-prediction-tutorial/` at the repository root (AI Core Git sync path).
+Everything for this scenario lives in this folder. Click a folder to open it. The only exception is the AI Core training and serving code, which stays at the AI Core Git sync path in the same repository.
+
+| Folder | What it holds | Release |
+|---|---|---|
+| [datasphere/UC4_PROC](datasphere/UC4_PROC/) | CSN/JSON: replicated PO tables, replication flow, delay and feature views, decision log, latest risk view and model, product source (V_SDR_PRODUCT, DF_SDR_PRODUCT, T_SDR_PRODUCT), R1 mirror and score objects | R1 to R3 |
+| [datasphere/FIN_LAB_FILES](datasphere/FIN_LAB_FILES/) | Object Store landing: TF_LAND_SDR, SUPPLIER_DELIVERY_RISK (Delta), first attempt (TF_LAND_PO_SILVER_UC4, PO_SILVER_UC4_DELTA) | R3 |
+| [datasphere/UC4_CONSUMER](datasphere/UC4_CONSUMER/) | Consumer model: V_SDR_CONSUMED, AM_SDR_CONSUMED | R3 |
+| [sql](sql/) | Product source view and validation checks | R3 |
+| [scoring](scoring/) | Batch scorer, error check helper, `.env.example` | R2 |
+| [scripts](scripts/) | AI Core predict test | R1 |
+| [docs/images](docs/images/) | Architecture visuals and screenshots | All |
+| [ai-core/tutorials/supplier-prediction-tutorial](../../ai-core/tutorials/supplier-prediction-tutorial/) | XGBoost train and serve code, Dockerfiles, workflow and serving templates | R1 |
+
+Joule Studio and SBPA project exports are not stored in Git because they reference tenant specific destinations. Their configuration is described in the Build journey section.
+
+### Deploy order
+
+1. **Connectivity:** S/4HANA OData v2 services, Cloud Connector, BTP destinations, and a Datasphere connection to S/4 (recreated per tenant).
+2. **Datasphere UC4_PROC:** import tables, the replication flow, then views and models with the Datasphere CLI: `datasphere objects <type> create -y <SPACE> -F <OBJECT>.json`.
+3. **AI Core:** register the templates, train, deploy the serving configuration with a TTL.
+4. **Scoring:** create a Datasphere database user with an Open SQL schema, fill `scoring/.env`, run `scoring/score_suppliers.py`.
+5. **Analytics:** deploy V_SUPPLIER_RISK_LATEST and AM_SUPPLIER_RISK_LATEST, build the SAC story.
+6. **Agent and approval:** create the Procurement Risk Analyzer Agent from the SAP Build Store, add the skills listed above, then the SBPA SupplierRiskReview process.
+7. **Data product:** deploy the product source objects, share to an Object Store space, run TF_LAND_SDR, create and list the data product with a Formations profile, then request, approve and install into a consumer space and import `datasphere/UC4_CONSUMER`.
 
 ## Run the batch scorer
 
