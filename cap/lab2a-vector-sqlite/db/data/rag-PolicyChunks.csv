@@ -1,0 +1,6 @@
+ID,source,content,embedding
+c0000000-0000-0000-0000-000000000001,ProcurementPolicy,Purchase orders above 40000 require senior management approval before release.,
+c0000000-0000-0000-0000-000000000002,ProcurementPolicy,A blocked purchase order indicates a compliance or budget hold and must be reviewed by the procurement team.,
+c0000000-0000-0000-0000-000000000003,ProcurementPolicy,Suppliers must be onboarded and rated before any purchase order is issued to them.,
+c0000000-0000-0000-0000-000000000004,ProcurementPolicy,Default payment terms are net 30 unless the signed contract states otherwise.,
+c0000000-0000-0000-0000-000000000005,ProcurementPolicy,Delivery delays beyond the agreed delivery date must be escalated to the category manager.,

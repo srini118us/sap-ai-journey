@@ -8,4 +8,4 @@ service RagService @(path: '/odata/v4/rag') {
     content : String;
     score   : Double;
   };
-}
+}annotate RagService with @mcp;
