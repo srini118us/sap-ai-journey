@@ -26,15 +26,9 @@ Open `GetPOStatusAPI`, Edit, the **Policies** tab (the Integration Cell policy m
 
 First gotcha: searching the **Search and Add a Step** box for `spike` or `rate` returns nothing. The Integration Cell policy model reuses the iFlow palette (Participant, Process, Event), so Apigee names like Spike Arrest are not there.
 
-![Searching the step box shows BPMN steps, not Spike Arrest](images/01-search-no-spike.png)
-
 Searching `quota` does find it, under **Traffic Management, Quota**.
 
-![Quota under Traffic Management](images/02-quota-traffic-management.png)
-
 Second gotcha: clicking the `+` on Quota did nothing, because a step needs an **insertion point** selected first. Click the connector line between **Authorization 1** and **Request Reply** (so the quota counts only authenticated calls), then add Quota. It drops onto the flow.
-
-![Quota step added after Authorization](images/03-quota-added-to-flow.png)
 
 ---
 
@@ -50,11 +44,7 @@ Select the Quota step, open **Policy Settings**:
 - **Duration Unit**: **Minutes**
 - **Quota Identifier**: `${context.authn.getClientID()}` (counts per client; with one calling client, all calls count together)
 
-![Quota configured for 5 calls per minute](images/04-quota-policy-settings.png)
-
 That means 5 calls per minute pass; the 6th is rejected. **Save** and **Deploy** the API.
-
-![Deployed with the Quota policy](images/05-deployed-with-quota.png)
 
 The deployment status is the line under the API name: `Status: Deployed on ..., Runtime Status: STARTED`.
 

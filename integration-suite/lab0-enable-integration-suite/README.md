@@ -30,8 +30,6 @@ Three independent things must line up before the menus appear:
 
 Miss any one and the menu stays thin (only Home and Settings). The error messages rarely say which of the three is missing, so the trick is to check all three in order.
 
-![Thin menu: only Home and Settings, the symptom of incomplete enablement](images/01-thin-menu-home-settings-only.png)
-
 ---
 
 ## 3. The region trap (this one cost the most time)
@@ -40,15 +38,9 @@ Miss any one and the menu stays thin (only Home and Settings). The error message
 
 This was discovered the hard way. On a US10 trial, every capability showed Active, every role was assigned, and the menu still would not show Design or Monitor. The Integration Cell runtime was active, API Management was active, roles were assigned, and nothing worked.
 
-![US trial: API Management active, but Cloud Integration missing from the active list](images/02-us-capabilities-apimgmt-active.png)
-
-![US trial Runtimes: Integration Cell active, Classic API Management asking for one more step](images/03-runtimes-integration-cell-active.png)
-
 The booster then said it plainly:
 
 > The Enable Integration Suite booster is supported only in the Singapore region. Select a Singapore subaccount to continue.
-
-![Booster region error: Singapore only](images/04-booster-singapore-region-error.png)
 
 **Decision: switch to a Singapore (ap21) trial subaccount.** Since no integration flows existed yet, there was nothing to lose by starting fresh in the right region. Everything below is in Singapore.
 
@@ -60,19 +52,13 @@ Why document this: the error does not appear until deep into the setup, after a 
 
 A fresh Singapore trial subaccount had only Business Application Studio subscribed.
 
-![Singapore subaccount: only BAS subscribed](images/05-singapore-only-bas.png)
-
 Subscribe to Integration Suite:
 
 1. In the subaccount, open **Services, Service Marketplace**.
 2. Search **Integration Suite**.
 3. Click the tile, then **Create**, plan **trial**, **Create**.
 
-![Subscribe to Integration Suite from the Service Marketplace](images/06-subscribe-integration-suite.png)
-
 Result: Integration Suite appears under Instances and Subscriptions as **Subscribed**, next to BAS.
-
-![Integration Suite subscribed](images/07-integration-suite-subscribed.png)
 
 ---
 
@@ -93,13 +79,9 @@ Note on the region fine print (SAP Note 2903776): some capabilities are not avai
 
 The booster does two jobs in one guided flow: assigns the runtime role collections, and creates the service instances. Run it from BTP Cockpit, **Boosters**, **Enable Integration Suite**, **Start**.
 
-![Booster: select the activated capabilities](images/08-booster-select-capabilities.png)
-
 On the first run it failed:
 
 > Service quotas for the below entitlements could not be assigned: SAP Process Integration Runtime, API Management API portal, API Management developer portal.
-
-![Booster quota error](images/09-booster-quota-error.png)
 
 **Root cause: the subaccount had no entitlements (quota) for those service plans.** The booster cannot create a service instance for a plan the subaccount is not entitled to.
 
@@ -111,10 +93,6 @@ Fix: add the entitlements to the **subaccount** (not the global Service Assignme
    - **API Management, API portal**, plan **apiportal-apiaccess**
    - **API Management, developer portal**, plan **devportal-apiaccess**
 3. **Save**.
-
-![Process Integration Runtime entitlement, already assigned as shared units](images/10-entitlement-process-integration-runtime.png)
-
-![API Management API portal plans in the Add Service Plans catalog, pre-ticked meaning already entitled](images/11-entitlement-apimgmt-apiportal.png)
 
 A subtlety: in the Add Service Plans catalog, plans already entitled show pre-ticked and locked, with the Add button disabled and showing "Add 0". That is not an error. It means the plan is already there, nothing to add.
 
@@ -128,16 +106,12 @@ Even after the entitlements were in place, the booster kept failing on the same 
 
 Assign the role collections:
 
-![Assign the PI and API role collections](images/12-assign-pi-roles.png)
-
 - Cloud Integration: **PI_Administrator, PI_Business_Expert, PI_Integration_Developer, PI_Read_Only**
 - API Management (for later): **APIManagement.SelfService.Administrator, APIPortal.Administrator, APIPortal.Developer, APIPortal.Tester, AuthGroup.API.Admin**
 
 Then, and this is the step everyone misses, **log out of Integration Suite completely and log back in**. Roles only take effect on a fresh session. A plain page refresh does not do it; use incognito if the session is sticky.
 
 Result: the full menu appears, Discover, Design, Modernize, Monitor, Inspect.
-
-![Full working menu after assigning PI roles and a fresh login](images/13-full-menu-working.png)
 
 ---
 

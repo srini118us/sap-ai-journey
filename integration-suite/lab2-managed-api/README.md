@@ -29,8 +29,6 @@ API proxies run on a runtime. In this tenant two are offered, Integration Cell (
 
 Settings, Runtimes, Integration Cell tab, **Activate**. It provisions in a few minutes, then shows Active.
 
-![Integration Cell runtime active](images/01-integration-cell-active.png)
-
 A fresh login after activation brings in the **Analyze** menu and lets API artifacts be created. Note that the iFlow from Lab 1 runs on the separate Cloud Integration runtime, so it is unaffected.
 
 ---
@@ -39,17 +37,11 @@ A fresh login after activation brings in the **Analyze** menu and lets API artif
 
 API proxies are added inside an integration package, as an artifact, the same place as the iFlow. The Add menu in the `Procurement Integration` package now lists **API**, and at the very top, **MCP Server** (the Lab 3 artifact, confirming the whole plan works on this trial).
 
-![Add menu showing MCP Server and API artifact types](images/02-add-menu-mcp-and-api.png)
-
 Choose **API**, then walk the wizard:
 
 1. **Runtime Profile**: **Integration Cell** (not Cloud Integration; the profile decides the artifact type, and Integration Cell produces the API Management proxy the MCP server builds on).
 
-![Add API, runtime profile Integration Cell](images/03-add-api-runtime-profile.png)
-
 2. **Method**: **URL or Specification** (point the API at a target URL).
-
-![Select method, URL or Specification](images/04-select-method-url-or-spec.png)
 
 3. **API Details**:
    - Name `GetPOStatusAPI`
@@ -57,8 +49,6 @@ Choose **API**, then walk the wizard:
    - Service Type **REST**
    - API Base Path `/procurement`
    - Runtime Profile **Integration Cell**
-
-![API details filled](images/05-api-details-filled.png)
 
 Add and open the API Designer. The proxy's public URL is:
 
@@ -68,11 +58,7 @@ https://ec8c82aetrial-04193958a9d247e7bdd3e1dfbb64d9ee.a.integration.cloud.sap/p
 
 The **Target EndPoint** tab confirms the backend points at the iFlow:
 
-![Target endpoint points at the iFlow URL](images/06-target-endpoint-iflow-url.png)
-
 Deploy it (Integration Cell), and wait for **Deployed / STARTED**.
-
-![API deployed and started](images/07-api-deployed-started.png)
 
 ---
 
@@ -91,8 +77,6 @@ The MPL ID starts with `iv_`, which is an **Integration Cell** log, not a Cloud 
 com.sap.it.rt.adapter.http.api.exception.HttpResponseException: An internal server error occured: HTTP operation failed invoking .../http/getpostatus with statusCode: 401
 ```
 
-![Backend 401 in the Integration Cell message log](images/08-backend-401-error.png)
-
 **Root cause**: by default a managed API proxy does not forward the caller's Authorization header to the backend (it does not leak client credentials downstream). So the iFlow received no token and returned 401. This is the core managed-API lesson: inbound and backend auth are separate, and the backend auth has to be configured on the proxy.
 
 ---
@@ -101,17 +85,11 @@ com.sap.it.rt.adapter.http.api.exception.HttpResponseException: An internal serv
 
 The Integration Cell policy model is adapter-based, like an iFlow. The **Request Reply** step calls the **Target** over an **HTTP** adapter, and that adapter has built-in authentication.
 
-![Integration Cell policy model](images/09-policy-model.png)
-
 On the HTTP adapter (the line to Target), Connection tab, set **Authentication** to **OAuth2 Client Credentials** and give it a **Credential Name** that points to a stored credential.
-
-![HTTP adapter set to OAuth2 Client Credentials with a credential name](images/10-http-oauth2-credential-name.png)
 
 The credential name references a **Security Material**, SAP's encrypted credential store. This is the clean managed pattern: the secret lives in the store, the proxy references it by name, and it never appears in the policy or the caller.
 
 Create the material: Monitor, Manage Security, Security Material, **Create**, **OAuth2 Client Credentials**.
-
-![Security Material Create menu](images/11-security-material-create-menu.png)
 
 Fill the form to match the token request that worked in Lab 1 (Basic auth header, form-encoded body):
 
@@ -122,11 +100,7 @@ Fill the form to match the token request that worked in Lab 1 (Basic auth header
 - **Token Service URL** `https://ec8c82aetrial.authentication.ap21.hana.ondemand.com/oauth/token`
 - **Client ID** and **Client Secret** from the `cpi-caller-key` service key (reused from Lab 1)
 
-![OAuth2 Client Credentials form](images/12-oauth2-credential-form.png)
-
 Deploy the material.
-
-![Security material deployed](images/13-security-material-deployed.png)
 
 Then redeploy the API so it picks up the credential.
 
@@ -142,8 +116,6 @@ After the backend fix, calling the proxy with **no** header returned:
 
 This is a better error: the backend 401 is gone, and now the **proxy's own inbound security** is rejecting the call. The policy model has an **Authentication** and an **Authorization** step before Request Reply. The Authentication policy's type is **OAuth** (or Client Certificate).
 
-![Inbound Authentication policy, type OAuth](images/14-inbound-auth-oauth.png)
-
 So the proxy wants a token on the way in, and it does not forward it to the backend (the backend uses `cpi-oauth-cred`). Calling again **with** the Bearer token got past inbound auth and surfaced the next error.
 
 ---
@@ -155,8 +127,6 @@ With the token supplied inbound, a fresh backend failure:
 ```
 com.sap.it.rt.adapter.http.api.exception.HttpResponseException: An internal server error occured: Exception occured while fetching OAuth Token. Reason: null
 ```
-
-![OAuth token fetch error](images/15-oauth-token-fetch-error.png)
 
 So inbound passed, and the proxy was now failing to fetch its own backend token via `cpi-oauth-cred`. The vague "Reason: null" turned out to be a **typo in the Token Service URL**: `tpps://` instead of `https://` (a missing `h`), entered by hand into the security material. Fixing the URL and redeploying the material cleared it.
 

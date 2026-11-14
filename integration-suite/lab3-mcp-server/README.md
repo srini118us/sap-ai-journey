@@ -29,14 +29,10 @@ In the `Procurement Integration` package, Artifacts, Add, **MCP Server**.
 
 **Step 1, source type**: choose **API**, create an MCP server from an API managed in the tenant. This reuses `GetPOStatusAPI` directly, inheriting its security. That is why Lab 2 came first.
 
-![Add MCP Server, select source type API](images/01-add-mcp-source-type.png)
-
 **Step 2, details**: select the API `GetPOStatusAPI`. The name and ID auto-fill. Set:
 - MCP Path `/mcp/procurement` (the URL an agent connects to)
 - Version `1.0.0`
 - Runtime Profile **Integration Cell**
-
-![Provide MCP details from the API](images/02-mcp-details-from-api.png)
 
 ---
 
@@ -46,8 +42,6 @@ In the `Procurement Integration` package, Artifacts, Add, **MCP Server**.
 
 > No tools to display. The selected source does not contain any resources or functions that can be exposed as tools.
 
-![No tools, because the API has no resources](images/03-no-tools-yet.png)
-
 **Root cause**: MCP tools come from an API's **operations (resources)**, and `GetPOStatusAPI` was a bare pass-through with none. The fix is to add one resource to the API first.
 
 Cancel the MCP wizard. On `GetPOStatusAPI`, Edit, **Resources** tab, Add a resource:
@@ -56,11 +50,7 @@ Cancel the MCP wizard. On `GetPOStatusAPI`, Edit, **Resources** tab, Add a resou
 - **Operation** **POST** only (remove the other methods)
 - **Description**: `Returns the status, amount, currency and supplier of a purchase order`
 
-![Add Resources dialog](images/04-add-resource-dialog.png)
-
 The description matters: it is what the AI agent reads to decide when to call the tool, so write it plainly.
-
-![Resource POST / added](images/05-resource-post-added.png)
 
 Save and **Deploy** the API, then redo the MCP Server wizard.
 
@@ -70,19 +60,13 @@ Save and **Deploy** the API, then redo the MCP Server wizard.
 
 With the resource in place, the Create Tools step now lists the operation:
 
-![Create Tools shows the POST / tool](images/06-create-tools-tool-appears.png)
-
 Tick the **POST /** tool and finish. The MCP Server artifact is created in the package, alongside the iFlow and the API.
-
-![MCP Server artifact created](images/07-mcp-server-artifact-created.png)
 
 Deploy it (Integration Cell). The MCP endpoint goes live:
 
 ```
 https://ec8c82aetrial-04193958a9d247e7bdd3e1dfbb64d9ee.a.integration.cloud.sap/mcp/procurement
 ```
-
-![MCP Server deployed and started](images/08-mcp-server-deployed.png)
 
 ---
 
@@ -133,20 +117,14 @@ Opening browser...
 
 It opens the browser UI.
 
-![Inspector v2 Servers dashboard](images/09-inspector-v2-dashboard.png)
-
 Add the server: **Add Servers, Add manually**, then:
 - **Server ID** `procurement-mcp`
 - **Transport** **streamable-http**
 - **URL** `https://ec8c82aetrial-04193958a9d247e7bdd3e1dfbb64d9ee.a.integration.cloud.sap/mcp/procurement`
 
-![Add server, streamable HTTP with the MCP URL](images/10-add-server-streamable-http.png)
-
 The server inherits the API's inbound OAuth, so the client must present the token generated above. In the server's **Settings, Custom Headers**, add:
 - Name `Authorization`
 - Value `Bearer <paste the token>` (the `Bearer ` prefix matters)
-
-![Custom header with the Bearer token](images/11-custom-header-bearer.png)
 
 Close Settings and toggle **Connect**.
 
@@ -156,11 +134,7 @@ Close Settings and toggle **Connect**.
 
 On connect, the protocol log shows **TOOLS/LIST OK**: the handshake and tool discovery succeeded over OAuth.
 
-![Connected, TOOLS/LIST OK](images/12-connected-tools-list-ok.png)
-
 The **Tools** tab lists `getPOStatus` with its description.
-
-![getPOStatus tool listed](images/13-tool-listed.png)
 
 Select it, enter `{}` as the payload (the stub ignores it), and **Execute Tool**. The result:
 
@@ -173,8 +147,6 @@ Select it, enter `{}` as the payload (the stub ignores it), and **Execute Tool**
   "supplierName": "Acme Industrial"
 }
 ```
-
-![Tool result, the PO JSON](images/14-tool-result-json.png)
 
 An MCP client just called real SAP data through the entire governed chain.
 

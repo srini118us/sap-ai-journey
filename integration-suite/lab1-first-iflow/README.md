@@ -32,18 +32,12 @@ Integration content lives in an **integration package**, a container for iFlows 
 1. Left menu, **Design, Integrations and APIs**.
 2. **Create**, name the package `Procurement Integration`, Save.
 
-![Integration package created](images/01-package-created.png)
-
 3. Open the package, **Artifacts** tab, **Edit**, **Add, Integration Flow**.
 4. Name it `GetPOStatus`, Runtime Profile **Cloud Integration**, **Add and Open in Editor**.
-
-![Add Integration Flow dialog: Sender and Receiver left empty, wired on the canvas instead](images/02-add-integration-flow-dialog.png)
 
 Sender and Receiver are left empty in this dialog. They are only documentation here. The real wiring happens on the canvas, where it is clearer.
 
 The editor opens with an empty process: Sender, an Integration Process box with Start and End, and a Receiver.
-
-![Empty iFlow canvas](images/03-empty-canvas.png)
 
 ---
 
@@ -55,14 +49,10 @@ The iFlow has an inside (Start to End) but no way in yet. Connecting the Sender 
 2. Hover over the **Sender** box, a connector arrow appears. Drag from the Sender to the **Start** event.
 3. Choose **HTTPS** from the adapter list.
 
-![HTTPS connection drawn from Sender to Start](images/04-https-connection-drawn.png)
-
 4. Select the HTTPS line. The properties panel is at the **bottom** of the editor (often collapsed, expand it). Open the **Connection** tab.
 5. Set **Address** to `/getpostatus`. This becomes part of the endpoint URL.
 6. **Uncheck CSRF Protected**. CSRF protection forces a caller to fetch a token before every call, which adds friction with no benefit for a read-only endpoint. It can go back on for write endpoints later.
 7. Leave **Authorization: User Role** and **User Role: ESBMessaging.send**. This is the security layer: any caller must authenticate and hold the `ESBMessaging.send` role.
-
-![Connection tab: address set, CSRF to be unchecked](images/05-connection-tab-address.png)
 
 A detour hit along the way: dragging from End to the Receiver by accident adds an HTTP **outbound** adapter, which would make the iFlow call an external system. For a canned response there is no outbound call, so if that happens, select the HTTP line and delete it. The iFlow should be Sender --HTTPS--> Start ----> End, with the Receiver box unconnected.
 
@@ -73,8 +63,6 @@ A detour hit along the way: dragging from End to the Receiver by accident adds a
 A **Content Modifier** sets or changes the message body and headers. Here it builds the JSON response the caller receives. Without it, the iFlow would return an empty message.
 
 1. Hover over the line **between Start and End**, click the **+** that appears, choose **Message Transformers, Content Modifier**.
-
-![Content Modifier placed between Start and End](images/06-content-modifier-placed.png)
 
 2. Select it, open the **Message Body** tab, set Type to **Constant**, and paste:
 
@@ -88,11 +76,7 @@ A **Content Modifier** sets or changes the message body and headers. Here it bui
 }
 ```
 
-![Message Body set to the JSON payload](images/07-message-body-json.png)
-
 3. Open the **Message Header** tab, **Add** a header: Name `Content-Type`, Source Type **Constant**, Value `application/json`. This makes the runtime return the response as JSON.
-
-![Content-Type header set to application/json](images/08-message-header-contenttype.png)
 
 4. **Save**.
 
@@ -107,8 +91,6 @@ Deploying pushes the iFlow to the Cloud Integration runtime and starts it, so th
 1. **Save**, then **Deploy**, confirm the runtime profile **Cloud Integration**.
 2. Wait a minute or two. Refresh the Deployment Status until it shows **Deployed** and Runtime Status **Started** (green).
 
-![Deployment status: Deployed and Started](images/09-deployment-started.png)
-
 ---
 
 ## 6. Get the endpoint URL
@@ -116,8 +98,6 @@ Deploying pushes the iFlow to the Cloud Integration runtime and starts it, so th
 1. **Monitor, Integrations and APIs**.
 2. Under **Manage Integration Content**, click the **Started** tile.
 3. Click **GetPOStatus**, open the **Endpoints** tab.
-
-![Endpoints tab showing the live URL](images/10-endpoint-url.png)
 
 The endpoint:
 
@@ -135,8 +115,6 @@ The endpoint is secured by the `ESBMessaging.send` role, so an anonymous call re
 
 1. BTP Cockpit, subaccount, **Instances and Subscriptions, Create**.
 2. Service **SAP Process Integration Runtime**, plan **integration-flow**, Runtime Environment **Cloud Foundry**, Space **dev**, name `cpi-caller`, **Create**.
-
-![Create the Process Integration Runtime service instance](images/11-service-instance-create.png)
 
 3. Open the instance, **Create Service Key**, name `cpi-caller-key`.
 4. The key holds `clientid`, `clientsecret`, `tokenurl`, `url`. **Keep the clientsecret private.**
