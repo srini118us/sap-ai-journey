@@ -18,3 +18,8 @@ mta_archives/
 
 # @cap-js/cds-typer
 @cds-models
+
+*.sqlite*
+default-env.json
+*-service-key.json
+.env
